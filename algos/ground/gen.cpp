@@ -110,6 +110,7 @@ void genPaint() {
     constexpr std::size_t kMEdgez = kMapDim - kWaterz;
     constexpr std::size_t kMinBox = 2u;
     constexpr std::size_t kFeaAmp = 24u;
+    constexpr float kWinner = 2.f;
     constexpr char kColors = 15;
     constexpr char kMaxCol = 7;
     struct Point {
@@ -162,7 +163,7 @@ void genPaint() {
 
     } all;
 
-    constexpr float kDecay = 0.04f;
+    constexpr float kDecay = 0.03f;
 
     for(std::size_t y = 0; y < kMapDim; ++y) {
         for(std::size_t x = 0; x < kMapDim; ++x) {
@@ -186,7 +187,7 @@ void genPaint() {
                     idx = color + 1u;
                 }
             }
-            if(max * 2.f > sum) { // majority winner
+            if(max * kWinner > sum) { // majority winner
                 chm[y][x] = ' ' + idx;
             }
         }
