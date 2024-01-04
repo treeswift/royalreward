@@ -106,8 +106,10 @@ void genPaint() {
     chrvec.resize(kExtSqr, ' ');
     ChrMap& chm = *reinterpret_cast<ChrMap*>(chrvec.data());
 
-    constexpr std::size_t kWaterz = 3;
+    constexpr std::size_t kWaterz = 3u;
     constexpr std::size_t kMEdgez = kMapDim - kWaterz;
+    constexpr std::size_t kMinBox = 2u;
+    constexpr std::size_t kFeaAmp = 24u;
     constexpr char kColors = 15;
     constexpr char kMaxCol = 7;
     struct Point {
@@ -132,8 +134,8 @@ void genPaint() {
     };
 
     for(std::size_t fl = 0; fl < flines; ++fl) {
-        std::size_t sx = std::rand() % 32;
-        std::size_t sy = std::rand() % 32;
+        std::size_t sx = kMinBox + std::rand() % kFeaAmp;
+        std::size_t sy = kMinBox + std::rand() % kFeaAmp;
         std::size_t dx = std::rand() % ( kMapDim - sx );
         std::size_t dy = std::rand() % ( kMapDim - sy );
 
@@ -219,6 +221,13 @@ void genPaint() {
 }
 
 int main(int argc, char** argv) {
+    // box = 32
+    // 1: viable
+    // 2: canals
+    // 3-7: fpe
+    // 8: viable
+    std::srand(1u);
+
     // genPlasma();
     genPaint();
 
