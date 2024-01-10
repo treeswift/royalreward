@@ -1,6 +1,7 @@
 #include "maps.h"
 
 #include <vector>
+#include <string>
 
 namespace map {
 
@@ -31,6 +32,30 @@ with_xy paint8(bool_xy test, with_xy flip) {
     return [=]WITH_XY {
         paint(x, y, test, flip, vert_neighbor);
     };
+}
+
+std::ostream& operator<<(std::ostream& out, const ChrMap& map) {
+    for(unsigned y = 0; y < kMapDim; ++y) {
+        std::string line;
+        for(unsigned x = 0; x < kMapDim; ++x) {
+            char c = map[y][x];
+            out << c << c;
+        }
+        out << std::endl;
+    }
+    return out;
+}
+
+IO& operator<<(IO& out, const ChrMap& map) {
+    for(unsigned y = 0; y < kMapDim; ++y) {
+        std::string line;
+        for(unsigned x = 0; x < kMapDim; ++x) {
+            line.push_back(map[y][x]);
+            line.push_back(map[y][x]);
+        }
+        fprintf(&out, "%s\n", line.c_str());
+    }
+    return out;
 }
 
 } // namespace map

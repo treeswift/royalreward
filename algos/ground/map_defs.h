@@ -13,8 +13,8 @@ constexpr unsigned kMapExt = kMapDim + 1u;
 constexpr unsigned kExtSqr = kMapExt * kMapExt;
 
 constexpr unsigned kMargin = 1u;
-constexpr unsigned kWaterz = 3u;
-constexpr unsigned kMEdgez = kMapDim - kWaterz;
+constexpr unsigned kShoalz = 3u;
+constexpr unsigned kMEdgez = kMapDim - kShoalz;
 constexpr unsigned kMinBox = 2u;
 constexpr unsigned kFeaAmp = 16u;
 constexpr char kColors = 15;

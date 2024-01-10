@@ -1,6 +1,10 @@
 {
     "files.associations": {
-        "random": "cpp"
+        "random": "cpp",
+        "cstdlib": "cpp",
+        "ostream": "cpp",
+        "atomic": "cpp",
+        "chrono": "cpp"
     },
     "C_Cpp.default.compileCommands": "/home/lxe/Weekend/royalreward/builddir/compile_commands.json"
 }

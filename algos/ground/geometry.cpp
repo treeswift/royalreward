@@ -1,10 +1,17 @@
 #include "geometry.h"
+#include "aynrand.h"
 
 namespace map {
 
 Shift& Shift::operator+=(const Shift& delta) {
     dx += delta.dx;
     dy += delta.dy;
+    return *this;
+}
+
+Shift& Shift::operator-=(const Shift& subtr) {
+    dx -= subtr.dx;
+    dy -= subtr.dy;
     return *this;
 }
 
@@ -28,9 +35,28 @@ Shift operator+(const Shift& left, const Shift& right) {
     return copy += right;
 }
 
+Shift operator-(const Shift& left, const Shift& right) {
+    Shift copy = left;
+    return copy -= right;
+}
+
+Shift Shift::rand() const {
+    return {rnd::upto(dx), rnd::upto(dy)};
+}
+
+Shift hori(int side) { return {side, 0}; }
+Shift vert(int side) { return {0, side}; }
+Shift diag(int side) { return {side, side}; }
+
 Point& Point::operator+=(const Shift& shift) {
     x += shift.dx;
     y += shift.dy;
+    return *this;
+}
+
+Point& Point::operator-=(const Shift& shift) {
+    x -= shift.dx;
+    y -= shift.dy;
     return *this;
 }
 
@@ -39,12 +65,19 @@ Point operator+(const Point& base, const Shift& shift) {
     return copy += shift;
 }
 
+Point operator-(const Point& base, const Shift& shift) {
+    Point copy = base;
+    return copy -= shift;
+}
+
+Point corner(unsigned far) { return {far, far}; }
+
 Block block(const Point& base, const Shift& size) {
     return {base, base + size};
 }
 
 Block square(const Point& base, unsigned side) {
-    return {base, base + Shift::diag(side)};
+    return {base, base + diag(side)};
 }
 
 Block bound(unsigned base, unsigned upto) {

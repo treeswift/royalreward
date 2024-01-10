@@ -1,6 +1,5 @@
 #include <cstdio>
-#include <cstdint>
-#include <cstdlib>
+#include <iostream>
 #include <random>
 #include <vector>
 #include <algorithm>
@@ -27,13 +26,18 @@ struct Allegiance {
     void reset() { std::fill(part, part + kColors, 0.f); }
 };
 
+class Continent {
+public:
+private:
+};
+
 void genPaint() {
     MapHolder<char> chrmem(kWater);
     ChrMap& chm = chrmem.map();
 
     std::vector<Paint> features;
 
-    auto drawLine = [&](unsigned x0, unsigned y0, unsigned x1, unsigned y1, char color) {
+    auto stroke = [&](unsigned x0, unsigned y0, unsigned x1, unsigned y1, char color) {
         features.push_back(Paint{x0, y0, color});
 
         for(Real f = 0.f; f < 1.f; f += (1.f / kMapDim)) {
@@ -45,35 +49,29 @@ void genPaint() {
         }
     };
 
-    for(unsigned fl = 0; fl < kNLines; ++fl) {
-        unsigned sx = kMinBox + std::rand() % kFeaAmp;
-        unsigned sy = kMinBox + std::rand() % kFeaAmp;
-        unsigned dx = std::rand() % ( kMapDim - kMinBox - sx );
-        unsigned dy = std::rand() % ( kMapDim - kMinBox - sy );
+    Block sbox = bound(kMinBox, kMinBox + kFeaAmp);
+    Point base = corner(0);
+    Shift dmax = diag(kMapDim - kMinBox);
 
-        unsigned x0 = dx + (std::rand() % sx);
-        unsigned y0 = dy + (std::rand() % sy);        
-        unsigned x1 = dx + (std::rand() % sx);
-        unsigned y1 = dy + (std::rand() % sy);
+    for(unsigned fl = 0; fl < kNLines; ++fl) {
+        Shift s = sbox.rand() - base;
+        Point d = base + (dmax - s).rand();
+
+        Point p0 = d + s.rand();
+        Point p1 = d + s.rand();
 
         char color = std::rand() % kMaxCol + 1u;
-        drawLine(x0, y0, x1, y1, color);
+        stroke(p0.x, p0.y, p1.x, p1.y, color);
     }
 
-    // drawLine(0, 0, kMapDim, 0, '\0');
-    // drawLine(0, 0, 0, kMapDim, '\0');
-    // drawLine(kMapDim, 0, kMapDim, kMapDim, '\0');
-    // drawLine(0, kMapDim, kMapDim, kMapDim, '\0');
-
-    for_rect(kWaterz, kWaterz, kMEdgez, kMEdgez, [&]WITH_XY{
+    Block visib = bound(0, kMapDim);
+    Block conti = visib.inset(kShoalz);
+    conti.visit([&]WITH_XY{
         Allegiance all;
         for(const Paint& f : features) {
             int dx = f.x - x;
             int dy = f.y - y;
-            Real decay = kDecay;// pow0=archipelago
-            decay += f.color * (kDPow2 * f.color + kDPow1);
-            // decay *= f.color; 
-            // decay *= f.color; // pow2=pangaia/laurasia/gondwana
+            Real decay = kDecay + f.color * (kDPow2 * f.color + kDPow1); // Horner
             unsigned color = f.color;
             // color *= color & 1u; // more water but fewer islands!
             float rbf = (dx * dx + dy * dy);
@@ -106,7 +104,7 @@ void genPaint() {
 
     MapHolder<char> chrout{chrmem};
     ChrMap& map = chrout.map();
-    for_rect(kWaterz, kWaterz, kMEdgez, kMEdgez, [&]WITH_XY{
+    conti.visit([&]WITH_XY{
         char color = chm[y][x];
         auto segregate = [&](unsigned xo, unsigned yo) {
             if(color != kWater) {
@@ -141,14 +139,15 @@ void genPaint() {
     // - make sure (in random order) that every lake has a city on its outermost shore (except the sea where any shore counts)
     // - if city placement fails, keep the lake a desert
     irrigate(kMargin, kMargin);
+    Block continent = bound(kShoalz, kMEdgez);
     for(unsigned fl = 0; fl < kNLakes; ++fl) {
-        unsigned x = std::rand() % (kMEdgez - kWaterz) + kWaterz;
-        unsigned y = std::rand() % (kMEdgez - kWaterz) + kWaterz;
-        irrigate(x, y);
+        Point rp = continent.rand();
+        irrigate(rp.x, rp.y);
     }
 
-    // >4 times inefficient but only done once
-    for_rect(kWaterz, kWaterz, kMEdgez, kMEdgez, [&]WITH_XY{
+    // make sure there are no lone trees (every tree is a part of at least one 2x2 woods square)
+    // also applies to mountains, though there may or may not be mountains at this point
+    conti.visit([&]WITH_XY{
         char color = map[y][x];
         auto isalso = [&](int dx, int dy) {
             return map[y+dy][x+dx] == color
@@ -161,16 +160,9 @@ void genPaint() {
     });
 
     // castle placement
-    
+    // TODO
 
-    for(unsigned y = 0; y < kMapDim; ++y) {
-        std::string line;
-        for(unsigned x = 0; x < kMapDim; ++x) {
-            line.push_back(map[y][x]);
-            line.push_back(map[y][x]);
-        }
-        fprintf(stdout, "%s\n", line.c_str());
-    }
+    *stdout << map;
 }
 
 } // namespace map

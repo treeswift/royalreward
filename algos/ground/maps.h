@@ -7,6 +7,9 @@
 #include <functional>
 #include <vector>
 
+#include <iostream>
+#include <cstdio>
+
 namespace map{
 
 template<typename T> using Map = T[kMapExt][kMapExt];
@@ -37,6 +40,20 @@ with_xy paint8(bool_xy test, with_xy flip);
 inline bool isinner(unsigned x, unsigned y) {
     return x >= kMargin && y >= kMargin && x < kMapMax && y < kMapMax;
 }
+
+template<typename T>
+T& at(Map<T>& map, Point p) {
+    return map[p.y][p.x];
+}
+
+template<typename T>
+const T& at(const Map<T>& map, Point p) {
+    return map[p.y][p.x];
+}
+
+using IO = decltype(*stdout);
+IO& operator<<(IO& out, const ChrMap& map);
+std::ostream& operator<<(std::ostream& out, const ChrMap& map);
 
 } // namespace map
 
