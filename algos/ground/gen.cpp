@@ -160,6 +160,9 @@ void genPaint() {
         }
     });
 
+    // castle placement
+    
+
     for(unsigned y = 0; y < kMapDim; ++y) {
         std::string line;
         for(unsigned x = 0; x < kMapDim; ++x) {

@@ -2,29 +2,20 @@
 
 #include <vector>
 
-struct Dir { int dx, dy; };
-std::vector<Dir> side_neighbor = {
+namespace map {
+
+static std::vector<Shift> side_neighbor = {
     {0,1}, {1,0}, {0, -1}, {-1, 0}
 };
-std::vector<Dir> vert_neighbor = {
+static std::vector<Shift> vert_neighbor = {
     {0,1}, {1,0}, {0, -1}, {-1, 0},
     {1,1}, {1,-1}, {-1,1}, {-1,-1},
 };
 
-namespace map {
-
-void for_rect(unsigned x0, unsigned y0, unsigned xm, unsigned ym, with_xy op) {
-    for(unsigned y = y0; y < ym; ++y) {
-        for(unsigned x = x0; x < xm; ++x) {
-            op(x, y);
-        }
-    }
-}
-
-void paint(unsigned x, unsigned y, bool_xy test, with_xy flip, const std::vector<Dir>& nb) {
+void paint(unsigned x, unsigned y, bool_xy test, with_xy flip, const std::vector<Shift>& nb) {
     if(test(x, y)) {
         flip(x, y);
-        for(const Dir& d : nb) {
+        for(const Shift& d : nb) {
             paint(x + d.dx, y + d.dy, test, flip, nb);
         }
     }
