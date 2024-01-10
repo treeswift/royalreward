@@ -4,6 +4,5 @@ project('royalreward', 'cpp',
 
 executable('gen',
             'algos/ground/gen.cpp',
-            'algos/ground/map_defs.h',
-            # 'algos/ground/plasma.cpp',
+            'algos/ground/maps.cpp',
             install : true)
