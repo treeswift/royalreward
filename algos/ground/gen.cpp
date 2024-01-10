@@ -26,6 +26,14 @@ struct Allegiance {
     void reset() { std::fill(part, part + kColors, 0.f); }
 };
 
+bool goodPointForCastle(char c) {
+    return kWoods == c || kRocks == c || kSands == c;
+}
+
+bool goodPointForCEntry(char c) {
+    return goodPointForCastle(c) || kPlain == c;
+}
+
 class Continent {
 public:
 private:
@@ -60,7 +68,7 @@ void genPaint() {
         Point p0 = d + s.rand();
         Point p1 = d + s.rand();
 
-        char color = std::rand() % kMaxCol + 1u;
+        char color = rnd::upto(kMaxCol) + 1u;
         stroke(p0.x, p0.y, p1.x, p1.y, color);
     }
 
@@ -145,6 +153,47 @@ void genPaint() {
         irrigate(rp.x, rp.y);
     }
 
+    // castle placement
+    constexpr unsigned kCastles = 9;
+    unsigned castles = 0;
+    unsigned y = 0;
+    unsigned x;
+    auto goodPlaceForCastle = [&]WITH_XY {
+        return goodPointForCastle(map[y][x]) && goodPointForCastle(map[y][x+1]) && goodPointForCastle(map[y][x-1])
+        && goodPointForCastle(map[y+1][x]) && goodPointForCastle(map[y+1][x+1]) && goodPointForCastle(map[y+1][x-1])
+        && goodPointForCEntry(map[y-1][x]);
+    };
+    while(castles < kCastles) {
+        // y = (--y) % kMapDim;
+        Point gate = continent.rand();
+        x = gate.x, y = gate.y;
+        if(goodPointForCastle(map[y][x]) && goodPointForCastle(map[y+1][x])) {
+            // tight placement adjustment
+            if(!(goodPointForCastle(map[y][x-1]) && goodPointForCastle(map[y+1][x-1]))) {
+                ++x;
+            } else if(!(goodPointForCastle(map[y][x+1]) && goodPointForCastle(map[y+1][x+1]))) {
+                --x;
+            }
+            if(goodPlaceForCastle(x, y)) {
+                int resistance = 0;
+                // possibly promote the castle north(view coordinates) [=south(map coordinates)]
+                while(rnd::upto(100) > resistance && goodPointForCastle(map[y+2][x-1]) &&
+                    goodPointForCastle(map[y+2][x]) && goodPointForCastle(map[y+2][x+1])) {
+                        ++y;
+                        resistance += 10;
+                    }
+
+                // FIXME make transactional!
+                map[y][x-1] = map[y+1][x-1] = '[';
+                map[y][x] = 'F';
+                map[y+1][x] = '1' + castles;
+                map[y][x+1] = map[y+1][x+1] = ']';
+                map[y-1][x] = kPlain; // etc.etc.etc.
+                ++castles; // if tran commit
+            }
+        }
+    }
+
     // make sure there are no lone trees (every tree is a part of at least one 2x2 woods square)
     // also applies to mountains, though there may or may not be mountains at this point
     conti.visit([&]WITH_XY{
@@ -158,9 +207,6 @@ void genPaint() {
             isalso(-1,-1) || isalso(-1,1) || isalso(1,-1) || isalso(1,1) || (map[y][x] = kPlain);
         }
     });
-
-    // castle placement
-    // TODO
 
     *stdout << map;
 }
