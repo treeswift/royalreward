@@ -157,7 +157,8 @@ void genPaint() {
     constexpr unsigned kCastles = 9;
     unsigned castles = 0;
     unsigned y = 0;
-    unsigned x;
+    unsigned x = 0;
+    Real dither = 0;
     auto goodPlaceForCastle = [&]WITH_XY {
         return goodPointForCastle(map[y][x]) && goodPointForCastle(map[y][x+1]) && goodPointForCastle(map[y][x-1])
         && goodPointForCastle(map[y+1][x]) && goodPointForCastle(map[y+1][x+1]) && goodPointForCastle(map[y+1][x-1])
@@ -166,7 +167,34 @@ void genPaint() {
     while(castles < kCastles) {
         // y = (--y) % kMapDim;
         Point gate = continent.rand();
-        x = gate.x, y = gate.y;
+        y = gate.y;
+
+        std::vector<int> ltr(kMapDim);
+        int d = 0;
+        for(unsigned x = 0; x < kMapDim; ++x) { // shadows outer "x"
+            ltr[x] = goodPointForCastle(map[y][x]) ? ++d : (d = 0);
+        }
+        // d = 0; // redundant as the edge of the map is always sea
+        std::vector<Real> pbs(kMapDim, 0.f);
+        Real sum = 0.f;
+        for(unsigned x = kMapDim; x; ) { // ditto
+            d = goodPointForCastle(map[y][--x]) ? ++d : (d = 0);
+            if(d && ltr[x]) {
+                unsigned dst = d - ltr[x];
+                Real prob = std::sqrt(1.f / d / ltr[x]) / (1 + dst * dst);
+                sum += (pbs[x] = prob);
+            }
+        }
+        if(sum < 1e-7f) // epsilon
+            continue;
+
+        while((dither += pbs[x]) < 1.) {
+            ++x; x%=kMapDim;
+        }
+        while(dither >= 1.f) {
+            dither -= 1.f;
+        }
+
         if(goodPointForCastle(map[y][x]) && goodPointForCastle(map[y+1][x])) {
             // tight placement adjustment
             if(!(goodPointForCastle(map[y][x-1]) && goodPointForCastle(map[y+1][x-1]))) {
@@ -175,12 +203,12 @@ void genPaint() {
                 --x;
             }
             if(goodPlaceForCastle(x, y)) {
-                int resistance = 0;
+                int resistance = 5; // TODO softcode
                 // possibly promote the castle north(view coordinates) [=south(map coordinates)]
                 while(rnd::upto(100) > resistance && goodPointForCastle(map[y+2][x-1]) &&
                     goodPointForCastle(map[y+2][x]) && goodPointForCastle(map[y+2][x+1])) {
                         ++y;
-                        resistance += 10;
+                        resistance += 7;
                     }
 
                 // FIXME make transactional!
@@ -193,6 +221,8 @@ void genPaint() {
             }
         }
     }
+    // THOUGHTS:
+    // we want "balanced" placement of castles -- that is, either on tiny islands or well within woods.
 
     // make sure there are no lone trees (every tree is a part of at least one 2x2 woods square)
     // also applies to mountains, though there may or may not be mountains at this point
