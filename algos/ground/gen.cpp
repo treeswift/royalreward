@@ -20,14 +20,6 @@ struct Paint : public Point {
     char color;
 };
 
-struct Allegiance {
-    float part[kColors];
-
-    Allegiance() { reset(); }
-
-    void reset() { std::fill(part, part + kColors, 0.f); }
-};
-
 bool goodPointForCastle(char c) {
     return cWoods == c || cRocks == c || cSands == c;
 }
@@ -86,6 +78,14 @@ std::vector<Paint> minerals() {
 void formLand() {
     auto features = minerals();
     ChrMap& map = chrmem.map();
+
+    struct Allegiance {
+        float part[kColors];
+
+        Allegiance() { reset(); }
+
+        void reset() { std::fill(part, part + kColors, 0.f); }
+    };
 
     conti.visit([&]WITH_XY{
         Allegiance all;
