@@ -178,7 +178,7 @@ void genPaint() {
         std::vector<Real> pbs(kMapDim, 0.f);
         Real sum = 0.f;
         for(unsigned x = kMapDim; x; ) { // ditto
-            d = goodPointForCastle(map[y][--x]) ? ++d : (d = 0);
+            goodPointForCastle(map[y][--x]) ? ++d : (d = 0);
             if(d && ltr[x]) {
                 unsigned dst = d - ltr[x];
                 Real prob = std::sqrt(1.f / d / ltr[x]) / (1 + dst * dst);
