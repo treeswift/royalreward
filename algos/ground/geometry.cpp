@@ -46,6 +46,14 @@ Shift operator-(const Shift& left, const Shift& right) {
     return copy -= right;
 }
 
+Shift Shift::right() const {
+    return {-dy, dx};
+}
+
+Shift Shift::left() const {
+    return {dy, -dx};
+}
+
 Shift Shift::rand() const {
     return {rnd::upto(dx), rnd::upto(dy)};
 }

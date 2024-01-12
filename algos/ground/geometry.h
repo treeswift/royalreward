@@ -16,7 +16,8 @@ struct Shift {
     Shift& operator*=(int factor);
     Shift& operator-=(const Shift& subtr);
     Shift operator-() const;
-
+    Shift right() const;
+    Shift left() const;
     Shift rand() const;
 };
 
