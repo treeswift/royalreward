@@ -164,6 +164,8 @@ void genPaint() {
         && goodPointForCastle(map[y+1][x]) && goodPointForCastle(map[y+1][x+1]) && goodPointForCastle(map[y+1][x-1])
         && goodPointForCEntry(map[y-1][x]);
     };
+    //constexpr float kEnmity = 0.9;
+    std::vector<Point> castle_locs;
     while(castles < kCastles) {
         // y = (--y) % kMapDim;
         Point gate = continent.rand();
@@ -182,6 +184,9 @@ void genPaint() {
             if(d && ltr[x]) {
                 unsigned dst = d - ltr[x];
                 Real prob = std::sqrt(1.f / d / ltr[x]) / (1 + dst * dst);
+                for(const Point& point : castle_locs) {
+                    prob *= (1.f - 1.f / (point - Point{x, y}).d2());
+                }
                 sum += (pbs[x] = prob);
             }
         }
@@ -203,12 +208,12 @@ void genPaint() {
                 --x;
             }
             if(goodPlaceForCastle(x, y)) {
-                int resistance = 5; // TODO softcode
+                int resistance = 15; // TODO softcode
                 // possibly promote the castle north(view coordinates) [=south(map coordinates)]
                 while(rnd::upto(100) > resistance && goodPointForCastle(map[y+2][x-1]) &&
                     goodPointForCastle(map[y+2][x]) && goodPointForCastle(map[y+2][x+1])) {
                         ++y;
-                        resistance += 7;
+                        resistance += 20;
                     }
 
                 // FIXME make transactional!
@@ -217,6 +222,7 @@ void genPaint() {
                 map[y+1][x] = '1' + castles;
                 map[y][x+1] = map[y+1][x+1] = ']';
                 map[y-1][x] = kPlain; // etc.etc.etc.
+                castle_locs.push_back({x, y});
                 ++castles; // if tran commit
             }
         }
