@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <functional>
 
+#include "aynrand.h"
 #include "maps.h"
 
 namespace map{
@@ -228,7 +229,7 @@ void generate() {
                 --x;
             }
             if(goodPlaceForCastle(x, y)) {
-                int resistance = 15; // TODO softcode
+                unsigned resistance = 15; // TODO softcode
                 // possibly promote the castle north(view coordinates) [=south(map coordinates)]
                 while(rnd::upto(100) > resistance && goodPointForCastle(map[y+2][x-1]) &&
                     goodPointForCastle(map[y+2][x]) && goodPointForCastle(map[y+2][x+1])) {
@@ -252,7 +253,7 @@ void generate() {
     struct Edge {
         Point probe;
         Shift dir;
-        int edge;
+        unsigned edge;
     };
     constexpr unsigned kTrailz = 11;
     for(const Point& cgate : castle_locs) {
@@ -263,8 +264,8 @@ void generate() {
         while(inland) {
             Point probe = cgate - Shift{0, 1};
             Shift dir;
-            int edge = rnd::upto(kTrailz<<1);
-            int advance = rnd::upto(maze.size() * 3 + 1);
+            unsigned edge = rnd::upto(kTrailz<<1);
+            unsigned advance = rnd::upto(maze.size() * 3 + 1);
             if(advance >= maze.size()) {
                 int dx = (edge & 1);
                 int sg = (edge & 2) - 1;
@@ -278,7 +279,7 @@ void generate() {
 
             bool canExtend = true;
             Point start = probe;
-            int i = 0;
+            unsigned i = 0;
             for(; (i < edge) && canExtend; ++i) {
                 probe+=dir;
                 canExtend &= goodPointForTrails(map[probe.y][probe.x]);
@@ -295,7 +296,7 @@ void generate() {
         }
         for(const Edge& edge : maze) {
             Point trail = edge.probe;
-            for(int i = 1; i < edge.edge; ++i) {
+            for(unsigned i = 1; i < edge.edge; ++i) {
                 trail += edge.dir;
                 char& c = map[trail.y][trail.x];
                 if(c != kSands) c = kPlain;
@@ -317,7 +318,6 @@ void generate() {
         }
     });
 }
-private:
 };
 
 } // namespace map
@@ -325,7 +325,7 @@ private:
 int main(int argc, char** argv) {
     using namespace map;
 
-    std::srand(kSeed);
+    rnd::seed(kSeed);
     Continent cont;
     cont.generate();
     *stdout << cont.map();
