@@ -29,22 +29,23 @@ struct Allegiance {
 };
 
 bool goodPointForCastle(char c) {
-    return kWoods == c || kRocks == c || kSands == c;
+    return cWoods == c || cRocks == c || cSands == c;
 }
 
 bool goodPointForCEntry(char c) {
-    return goodPointForCastle(c) || kPlain == c;
+    return goodPointForCastle(c) || cPlain == c;
 }
 
 bool goodPointForTrails(char c) {
-    return goodPointForCEntry(c) || kSands == c;
+    return goodPointForCEntry(c) || cSands == c;
 }
 
 class Continent {
     Block visib = bound(0, kMapDim);
     Block conti = visib.inset(kShoalz);
-    MapHolder<char> chrmem{kWater};
-    
+    MapHolder<char> chrmem{cWater};
+    std::vector<Point> castle_locs;
+
     using Features = std::vector<Paint>;
 
 public:
@@ -117,8 +118,8 @@ void formLand() {
 
         float lns = std::log10(sum + kRoughn) * kSmooth;
 
-        if(max * kWinner > sum && (lns + edge_d > kThorne)) { // majority winner
-            map[y][x] = kWater + idx;
+        if(max * kWinner > sum && (lns + edge_d > kRugged)) { // majority winner
+            map[y][x] = cWater + idx;
         }
     });
 }
@@ -130,10 +131,10 @@ void segregate() {
     conti.visit([&]WITH_XY{
         char color = chm[y][x];
         auto segregate = [&](unsigned xo, unsigned yo) {
-            if(color != kWater) {
+            if(color != cWater) {
                 char ocolor = chm[yo][xo];
-                if(ocolor != kWater && color != ocolor) {
-                    map[y][x] = map[yo][xo] = kWater;
+                if(ocolor != cWater && color != ocolor) {
+                    map[y][x] = map[yo][xo] = cWater;
                 }
             }
         };
@@ -143,38 +144,49 @@ void segregate() {
     });
 }
 
-void generate() {
-    formLand();
-    segregate();
-
+void desertify() {
     ChrMap& map = this->map();
     // desertify
     for_rect(0, 0, kMapDim, kMapDim, [&]WITH_XY{
         auto& cell = map[y][x];
-        cell = cell == kWater ? kSands : kWoods;
+        cell = cell == cWater ? cSands : cWoods;
     });
     bool_xy issand = [&]WITH_XY {
-        return x < kMapDim && y < kMapDim && (kSands == map[y][x]);
+        return x < kMapDim && y < kMapDim && (cSands == map[y][x]);
     };
     with_xy flipxy = [&]WITH_XY {
-        map[y][x] = kWater;
+        map[y][x] = cWater;
     };
     with_xy irrigate = paint8(issand, flipxy);
 
-    // FIXME:
-    // - iterate top down;
-    // - irrigate a lake;
-    // - count lakes;
-    // - make sure (in random order) that every lake has a city on its outermost shore (except the sea where any shore counts)
-    // - if city placement fails, keep the lake a desert
+    // MOREINFO: reasons for controlled irrigation? (the Bridge spell fixes most of the shortcomings, really)
     irrigate(kMargin, kMargin);
-    Block continent = bound(kShoalz, kMEdgez);
     for(unsigned fl = 0; fl < kNLakes; ++fl) {
-        Point rp = continent.rand();
+        Point rp = conti.rand();
         irrigate(rp.x, rp.y);
     }
+}
 
+void polish() {
+    // make sure there are no lone trees (every tree is a part of at least one 2x2 woods square)
+    // also applies to mountains, though there may or may not be mountains at this point
+    ChrMap& map = this->map();
+    conti.visit([&]WITH_XY{
+        char color = map[y][x];
+        auto isalso = [&](int dx, int dy) {
+            return map[y+dy][x+dx] == color
+                   && map[y+dy][x] == color
+                   && map[y][x+dx] == color;
+        };
+        if(cWoods == color || cRocks == color) { // MOREINFO: are 1x1 patches of desert allowed?
+            isalso(-1,-1) || isalso(-1,1) || isalso(1,-1) || isalso(1,1) || (map[y][x] = cPlain);
+        }
+    });
+}
+
+void castleize() {
     // castle placement
+    ChrMap& map = this->map();
     constexpr unsigned kCastles = 9;
     unsigned castles = 0;
     unsigned y = 0;
@@ -185,11 +197,8 @@ void generate() {
         && goodPointForCastle(map[y+1][x]) && goodPointForCastle(map[y+1][x+1]) && goodPointForCastle(map[y+1][x-1])
         && goodPointForCEntry(map[y-1][x]);
     };
-    //constexpr float kEnmity = 0.9;
-    std::vector<Point> castle_locs;
     while(castles < kCastles) {
-        // y = (--y) % kMapDim;
-        Point gate = continent.rand();
+        Point gate = conti.rand();
         y = gate.y;
 
         std::vector<int> ltr(kMapDim);
@@ -205,7 +214,7 @@ void generate() {
             if(d && ltr[x]) {
                 unsigned dst = d - ltr[x];
                 Real prob = std::sqrt(1.f / d / ltr[x]) / (1 + dst * dst);
-                for(const Point& point : castle_locs) {
+                for(const Point& point : castle_locs) { // repulsion
                     prob *= (1.f - 1.f / (point - Point{x, y}).d2());
                 }
                 sum += (pbs[x] = prob);
@@ -238,23 +247,28 @@ void generate() {
                     }
 
                 // FIXME make transactional!
-                map[y][x-1] = map[y+1][x-1] = '[';
-                map[y][x] = 'F';
-                map[y+1][x] = '1' + castles;
-                map[y][x+1] = map[y+1][x+1] = ']';
-                map[y-1][x] = kPlain; // etc.etc.etc.
+                map[y][x-1] = '[';
+                map[y+1][x-1] = '{';
+                map[y][x] = cCGate;
+                map[y+1][x] = cCRear + castles;
+                map[y][x+1] = ']';
+                map[y+1][x+1] = '}';
+                map[y-1][x] = cPlain; // etc.etc.etc.
                 castle_locs.push_back({x, y});
                 ++castles; // if tran commit
             }
         }
     }
+}
 
+void paveRoads() {
     // trails
     struct Edge {
         Point probe;
         Shift dir;
         unsigned edge;
     };
+    ChrMap& map = this->map();
     constexpr unsigned kTrailz = 11;
     for(const Point& cgate : castle_locs) {
 
@@ -285,7 +299,7 @@ void generate() {
                 canExtend &= goodPointForTrails(map[probe.y][probe.x]);
                 // TODO consider penalty for self-intersection
             }
-            if(map[probe.y][probe.x] == kWater) {
+            if(map[probe.y][probe.x] == cWater) {
                 canExtend = true;
                 edge = i;
                 inland = false;
@@ -299,24 +313,20 @@ void generate() {
             for(unsigned i = 1; i < edge.edge; ++i) {
                 trail += edge.dir;
                 char& c = map[trail.y][trail.x];
-                if(c != kSands) c = kPlain;
+                if(c != cSands) c = cPlain;
             }
         }
     }
+}
 
-    // make sure there are no lone trees (every tree is a part of at least one 2x2 woods square)
-    // also applies to mountains, though there may or may not be mountains at this point
-    conti.visit([&]WITH_XY{
-        char color = map[y][x];
-        auto isalso = [&](int dx, int dy) {
-            return map[y+dy][x+dx] == color
-                   && map[y+dy][x] == color
-                   && map[y][x+dx] == color;
-        };
-        if(kWoods == color || kRocks == color) {
-            isalso(-1,-1) || isalso(-1,1) || isalso(1,-1) || isalso(1,1) || (map[y][x] = kPlain);
-        }
-    });
+void generate() {
+    formLand();
+    segregate();
+    desertify();
+    castleize();
+    paveRoads();
+
+    polish();
 }
 };
 

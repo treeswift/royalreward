@@ -29,17 +29,24 @@ constexpr Real kDPow1 = 0.0f; // produces regular continents
 constexpr Real kDPow2 = 0.1f; // produces Laurasia/Gondwana
 
 constexpr Real kWinner = 1.5f;  // reciprocal of threshold
-constexpr Real kThorne = 0.f;   // TODO hardcode to 0 when stabilized
+constexpr Real kRugged = 0.f;   // TODO hardcode to 0 when stabilized
 constexpr Real kRoughn = 1e-5f; // log10(rcp(roughness)) is how far from the edges the tear ends
 constexpr Real kSmooth = 0.7f;
 
 constexpr unsigned kSeed = 2u; // TODO use libc-independent rand()
 
-constexpr char kWater = ' ';
-constexpr char kWoods = '@';
-constexpr char kRocks = '^';
-constexpr char kSands = '.';
-constexpr char kPlain = ':';
+constexpr char cWater = ' ';
+constexpr char cWoods = '@';
+constexpr char cRocks = '^';
+constexpr char cSands = '.';
+constexpr char cPlain = ':';
+
+constexpr char cCGate = 'F';
+constexpr char cCRear = '1';
+constexpr char cCCWLT = '[';
+constexpr char cCCWLB = '{';
+constexpr char cCCWRT = ']';
+constexpr char cCCWRB = '}';
 
 } // namespace map
 
