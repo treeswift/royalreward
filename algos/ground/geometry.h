@@ -35,9 +35,10 @@ struct Point {
     Point& operator+=(const Shift& shift);
     Point& operator-=(const Shift& shift);
 
-    Shift operator-(const Point& base) const {
-        return {x - base.x, y - base.y};
-    }
+    Shift operator-(const Point& base) const;
+    Point blend(const Point& other, float f) const;
+
+    bool operator==(const Point& other) const;
 };
 
 Point operator+(const Point& base, const Shift& shift);

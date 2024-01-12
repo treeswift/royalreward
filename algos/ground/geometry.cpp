@@ -84,6 +84,18 @@ Point operator-(const Point& base, const Shift& shift) {
     return copy -= shift;
 }
 
+Shift Point::operator-(const Point& base) const {
+    return {x - base.x, y - base.y};
+}
+
+Point Point::blend(const Point& other, float f) const {
+    return *this + (other - *this) * f;
+}
+
+bool Point::operator==(const Point& other) const {
+    return x == other.x && y == other.y;
+}
+
 Point corner(unsigned far) { return {far, far}; }
 
 Block block(const Point& base, const Shift& size) {

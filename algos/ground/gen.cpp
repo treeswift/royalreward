@@ -13,8 +13,9 @@ namespace map{
  * Generate a map.
  */
 
-struct Paint {
-    unsigned x, y;
+struct Paint : public Point {
+    Paint(const Point& p, char c) : Point(p), color(c) {}
+
     char color;
 };
 
@@ -39,27 +40,29 @@ bool goodPointForTrails(char c) {
 }
 
 class Continent {
+    Block visib = bound(0, kMapDim);
+    Block conti = visib.inset(kShoalz);
+    MapHolder<char> chrmem{kWater};
+    
+    using Features = std::vector<Paint>;
+
 public:
-private:
-};
+    Continent() = default; // TODO inject constants
 
-void genPaint() {
-    MapHolder<char> chrmem(kWater);
-    ChrMap& chm = chrmem.map();
+    ChrMap& map() { return chrmem.map(); }
+    const ChrMap& map() const { return chrmem.map(); }
 
+void stroke(Features& features, const Point& p0, const Point& p1, char color) {
+    features.push_back({p0, color});
+
+    for(Real f = 0.f; f < 1.f; f += (1.f / kMapDim)) {
+        Point p = p0.blend(p1, f);
+        (p == features.back()) || (features.push_back({p, color}), true);
+    }
+}
+
+std::vector<Paint> minerals() {
     std::vector<Paint> features;
-
-    auto stroke = [&](unsigned x0, unsigned y0, unsigned x1, unsigned y1, char color) {
-        features.push_back(Paint{x0, y0, color});
-
-        for(Real f = 0.f; f < 1.f; f += (1.f / kMapDim)) {
-            unsigned x = x0 * f + x1 * (1.f - f);
-            unsigned y = y0 * f + y1 * (1.f - f);
-            if(x != features.back().x || y != features.back().y) {
-                features.push_back({x, y, color});
-            }
-        }
-    };
 
     Block sbox = bound(kMinBox, kMinBox + kFeaAmp);
     Point base = corner(0);
@@ -73,11 +76,15 @@ void genPaint() {
         Point p1 = d + s.rand();
 
         char color = rnd::upto(kMaxCol) + 1u;
-        stroke(p0.x, p0.y, p1.x, p1.y, color);
+        stroke(features, p0, p1, color);
     }
+    return features;
+}
 
-    Block visib = bound(0, kMapDim);
-    Block conti = visib.inset(kShoalz);
+void formLand() {
+    auto features = minerals();
+    ChrMap& map = chrmem.map();
+
     conti.visit([&]WITH_XY{
         Allegiance all;
         for(const Paint& f : features) {
@@ -110,12 +117,15 @@ void genPaint() {
         float lns = std::log10(sum + kRoughn) * kSmooth;
 
         if(max * kWinner > sum && (lns + edge_d > kThorne)) { // majority winner
-            chm[y][x] = kWater + idx;
+            map[y][x] = kWater + idx;
         }
     });
+}
 
+void segregate() {
+    ChrMap& map = this->map();
     MapHolder<char> chrout{chrmem};
-    ChrMap& map = chrout.map();
+    ChrMap& chm = chrout.map();
     conti.visit([&]WITH_XY{
         char color = chm[y][x];
         auto segregate = [&](unsigned xo, unsigned yo) {
@@ -130,7 +140,13 @@ void genPaint() {
         segregate(x + 1, y + 1);
         segregate(x,     y + 1);
     });
+}
 
+void generate() {
+    formLand();
+    segregate();
+
+    ChrMap& map = this->map();
     // desertify
     for_rect(0, 0, kMapDim, kMapDim, [&]WITH_XY{
         auto& cell = map[y][x];
@@ -300,21 +316,19 @@ void genPaint() {
             isalso(-1,-1) || isalso(-1,1) || isalso(1,-1) || isalso(1,1) || (map[y][x] = kPlain);
         }
     });
-
-    *stdout << map;
 }
+private:
+};
 
 } // namespace map
 
 int main(int argc, char** argv) {
-    // box = 32
-    // 1: viable
-    // 2: canals
-    // 3-7: fpe
-    // 8: viable
-    std::srand(map::kSeed);
+    using namespace map;
 
-    map::genPaint();
+    std::srand(kSeed);
+    Continent cont;
+    cont.generate();
+    *stdout << cont.map();
 
     return 0;
 }
