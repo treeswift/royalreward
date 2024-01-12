@@ -21,7 +21,9 @@ constexpr char kColors = 15;
 constexpr char kMaxCol = 7;
 
 constexpr unsigned kNLines = 32u;
-constexpr unsigned kNLakes = 64u; // FIXME use castle placement logic
+constexpr unsigned kDoAcid = 0u;  // TODO softcode, test <3 on cont#3
+constexpr unsigned kDoRain = 0u;  // TODO softcode, test <1 on cont#3
+constexpr unsigned kNLakes = 64u; // MOREINFO correlate with castles?
 
 // decay polynomial
 constexpr Real kDecay = 0.0f; // produces archipelagoes
@@ -34,6 +36,8 @@ constexpr Real kRoughn = 1e-5f; // log10(rcp(roughness)) is how far from the edg
 constexpr Real kSmooth = 0.7f;
 
 constexpr unsigned kSeed = 2u; // TODO use libc-independent rand()
+
+constexpr char cMagma = '\1';
 
 constexpr char cWater = ' ';
 constexpr char cWoods = '@';

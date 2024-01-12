@@ -144,10 +144,28 @@ void segregate() {
     });
 }
 
+void delugify(unsigned eat_shores) {
+    ChrMap& map = this->map();
+    Block inset = conti.inset(2u);
+    for(; eat_shores; --eat_shores) {
+        inset.visit([&]WITH_XY {
+            if(map[y][x] != cWater) {
+                if((cWater == map[y][x+1]) || (cWater == map[y][x-1]) || (cWater == map[y+1][x]) || (cWater == map[y-1][x]))
+                    map[y][x] = cMagma;
+            }
+        });
+        inset.visit([&]WITH_XY {
+            if(cMagma == map[y][x]) {
+                map[y][x] = cWater;
+            }
+        });
+    }
+}
+
 void desertify() {
     ChrMap& map = this->map();
     // desertify
-    for_rect(0, 0, kMapDim, kMapDim, [&]WITH_XY{
+    visib.visit([&]WITH_XY{
         auto& cell = map[y][x];
         cell = cell == cWater ? cSands : cWoods;
     });
@@ -161,10 +179,12 @@ void desertify() {
 
     // MOREINFO: reasons for controlled irrigation? (the Bridge spell fixes most of the shortcomings, really)
     irrigate(kMargin, kMargin);
+    delugify(kDoAcid);
     for(unsigned fl = 0; fl < kNLakes; ++fl) {
         Point rp = conti.rand();
         irrigate(rp.x, rp.y);
     }
+    delugify(kDoRain);
 }
 
 void polish() {
@@ -261,14 +281,22 @@ void castleize() {
     }
 }
 
+void stoneEcho(EleMap& echo, const ChrMap& map) {
+    // TODO
+}
+
 void paveRoads() {
+    ChrMap& map = this->map();
+    MapHolder<Real> ampMap{1.f};
+    EleMap& echo = ampMap.map();
+    stoneEcho(echo, map);
+
     // trails
     struct Edge {
         Point probe;
         Shift dir;
         unsigned edge;
     };
-    ChrMap& map = this->map();
     constexpr unsigned kTrailz = 11;
     for(const Point& cgate : castle_locs) {
 
