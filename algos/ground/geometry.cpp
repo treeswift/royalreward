@@ -1,7 +1,13 @@
 #include "geometry.h"
 #include "aynrand.h"
 
+#include <cmath>
+
 namespace map {
+
+int Shift::d2() const { return dx*dx + dy*dy; }
+
+float Shift::d() const { return std::sqrt((float) d2()); }
 
 Shift& Shift::operator+=(const Shift& delta) {
     dx += delta.dx;

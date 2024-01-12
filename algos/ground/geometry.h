@@ -9,6 +9,9 @@ namespace map {
 struct Shift {
     int dx, dy;
 
+    int d2() const;
+    float d() const;
+
     Shift& operator+=(const Shift& delta);
     Shift& operator*=(int factor);
     Shift& operator-=(const Shift& subtr);
