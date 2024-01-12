@@ -34,6 +34,10 @@ bool goodPointForCEntry(char c) {
     return goodPointForCastle(c) || kPlain == c;
 }
 
+bool goodPointForTrails(char c) {
+    return goodPointForCEntry(c) || kSands == c;
+}
+
 class Continent {
 public:
 private:
@@ -227,8 +231,61 @@ void genPaint() {
             }
         }
     }
-    // THOUGHTS:
-    // we want "balanced" placement of castles -- that is, either on tiny islands or well within woods.
+
+    // trails
+    struct Edge {
+        Point probe;
+        Shift dir;
+        int edge;
+    };
+    constexpr unsigned kTrailz = 11;
+    for(const Point& cgate : castle_locs) {
+
+        std::vector<Edge> maze;
+
+        bool inland = true;
+        while(inland) {
+            Point probe = cgate - Shift{0, 1};
+            Shift dir;
+            int edge = rnd::upto(kTrailz<<1);
+            int advance = rnd::upto(maze.size() * 3 + 1);
+            if(advance >= maze.size()) {
+                int dx = (edge & 1);
+                int sg = (edge & 2) - 1;
+                dir = Shift{dx, 1 - dx} * sg;
+            } else {
+                const Edge& base = maze[advance];
+                probe = base.probe + base.dir * rnd::upto(base.edge + 1);
+                dir = (edge & 1) ? base.dir.left() : base.dir.right();
+            }
+            edge >>= 1;
+
+            bool canExtend = true;
+            Point start = probe;
+            int i = 0;
+            for(; (i < edge) && canExtend; ++i) {
+                probe+=dir;
+                canExtend &= goodPointForTrails(map[probe.y][probe.x]);
+                // TODO consider penalty for self-intersection
+            }
+            if(map[probe.y][probe.x] == kWater) {
+                canExtend = true;
+                edge = i;
+                inland = false;
+            }
+            if(canExtend) {
+                maze.push_back({start, dir, edge});
+            }
+        }
+        for(const Edge& edge : maze) {
+            Point trail = edge.probe;
+            for(int i = 1; i < edge.edge; ++i) {
+                trail += edge.dir;
+                char& c = map[trail.y][trail.x];
+                if(c != kSands) c = kPlain;
+            }
+        }
+    }
 
     // make sure there are no lone trees (every tree is a part of at least one 2x2 woods square)
     // also applies to mountains, though there may or may not be mountains at this point
