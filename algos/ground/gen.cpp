@@ -37,7 +37,7 @@ class Continent {
     Block conti = visib.inset(kShoalz);
     MapHolder<char> chrmem{cWater};
     MapHolder<char> ovrmem{cWater};
-    std::vector<Point> castle_locs, wonder_locs, valued_locs;
+    std::vector<Point> castle_locs, wonder_locs, valued_locs, failed_locs;
 
     using Features = std::vector<Paint>;
 
@@ -235,7 +235,10 @@ void polish() {
 void markGates() {
     ChrMap& map = this->map();
     for(const Point& point : wonder_locs) {
-        map[point.y][point.x] = cChest;
+        map[point.y][point.x] = cChest; // DBG: not real chests, more like forest clearings
+    }
+    for(const Point& point : failed_locs) {
+        map[point.y][point.x] = cLabel; // DBG: rejected nooks and secret places
     }
     for(const Point& point : castle_locs) {
         map[point.y-1][point.x] = cEntry;
@@ -323,11 +326,11 @@ void castleize() {
     }
 }
 
-void tunnelize() {
+void tunnelize(EleMap& echo) {
     ChrMap& map = this->map();
-    constexpr unsigned kChambers = 95;
-    for(unsigned i = 0; i < kChambers; ++i) {
-        Point p = conti.rand();
+    Real dither = 0.f;
+    conti.visit([&]WITH_XY {
+        Point p{x, y};
         char c = map[p.y][p.x];
         if(cWoods == c) { // <== also implicitly protects castle gates
             unsigned woods = 0u;
@@ -335,12 +338,14 @@ void tunnelize() {
             screen.visit([&] WITH_XY {
                 woods += map[y][x] == cWoods;
             });
-            if(rnd::inrg(13, 25) < woods) {
+            Real rating = at(echo, p) * woods * 7.5e-3f; // 0.02f
+            if((dither += rating) >= 1.f) {
+                dither -= std::trunc(dither);
                 wonder_locs.push_back(p);
                 valued_locs.push_back(p);
             }
         }
-    }
+    });
 }
 
 void stoneEcho(EleMap& echo) {
@@ -385,6 +390,7 @@ void paveRoads() {
     MapHolder<Real> ampMap{1.f};
     EleMap& echo = ampMap.map();
     stoneEcho(echo);
+    tunnelize(echo);
     dbgEcho(echo);
 
     // trails
@@ -407,7 +413,7 @@ void paveRoads() {
     std::function<bool(const Point&)> wonder_pathterm = [&](const Point& probe) {
         return castle_pathterm(probe) || isplain(probe.x, probe.y);
     };
-
+    std::vector<Shift> dirs = {{-1,0},{1,0},{0,-1},{0,1}};
     for(unsigned li = 0; li < valued_locs.size(); ++li) {
         // we want the element modifiable + want its index
         // ...or extract loop body and apply to both vecs?
@@ -419,20 +425,79 @@ void paveRoads() {
         std::vector<Edge> maze;
 
         bool inland = true;
+
         while(inland) {
             Shift dir;
-            unsigned edge = rnd::upto(kTrailz<<1);
+            unsigned edge; // = rnd::upto(kTrailz<<1);
             unsigned advance = rnd::upto(maze.size() * 3 + 1);
+            Real weight;
             if(advance >= maze.size()) {
-                int dx = (edge & 1);
-                int sg = (edge & 2) - 1;
-                dir = Shift{dx, 1 - dx} * sg;
+                // int dx = (edge & 1);
+                // int sg = (edge & 2) - 1;
+                // dir = Shift{dx, 1 - dx} * sg;
+                std::vector<Real> weights;
+                Real total_weight = 0.f;
+                unsigned wcount = dirs.size() - is_castle_gate;
+                for(unsigned j = 0; j < wcount; ++j) {
+                    const Shift dir = dirs.at(j);
+                    Real weight = at(echo, probe+dir) + at(echo, probe+dir+dir);
+                    weights.push_back(weight);
+                    total_weight += weight;
+                }
+                float cast = rnd::zto1() * total_weight;
+                unsigned sel = wcount - 1;
+                for(unsigned j = 0; j < wcount; ++j) {
+                    if((cast -= weights[j]) <= 0.f) {
+                        sel = j;
+                        break;
+                    }
+                }
+                dir = dirs.at(sel);
+                weight = weights.at(sel);
             } else {
+                // probe = base.probe + base.dir * rnd::upto(base.edge + 1);
+                // dir = (edge & 1) ? base.dir.left() : base.dir.right();
                 const Edge& base = maze[advance];
-                probe = base.probe + base.dir * rnd::upto(base.edge + 1);
-                dir = (edge & 1) ? base.dir.left() : base.dir.right();
+                Point retro = base.probe; // replace with multiplication
+                std::vector<Real> weights;
+                Real total_weight = 0.f;
+                for(unsigned j = 0; j <= base.edge; ++j) {
+                    Real weight = at(echo, retro);
+                    weights.push_back(weight);
+                    total_weight += weight;
+                    retro += base.dir;
+                }
+                float cast = rnd::zto1() * total_weight * 1.5f; // grow from end: 33% 
+                unsigned sel = base.edge;
+                for(unsigned j = 0; j <= base.edge; ++j) {
+                    if((cast -= weights[j]) <= 0.f) {
+                        sel = j;
+                        break;
+                    }
+                }
+                probe = base.probe + base.dir * sel;
+                Shift ldir = base.dir.left();
+                Shift rdir = base.dir.right();
+                Real lweight = at(echo, probe + ldir) + at(echo, probe + ldir + ldir);
+                Real rweight = at(echo, probe + rdir) + at(echo, probe + rdir + rdir);
+                if(lweight > rweight) { // marginal rotational asymmetry...
+                    weight = lweight;
+                    dir = ldir;
+                } else {
+                    weight = rweight;
+                    dir = rdir;
+                }
+                if(sel == base.edge) { // ...or we can continue
+                    Real fweight = at(echo, probe + base.dir) + at(echo, probe + base.dir + base.dir);
+                    if(fweight > weight) {
+                        weight = fweight;
+                        dir = base.dir;
+                    }
+                }
             }
-            edge >>= 1;
+            // edge >>= 1;
+            edge = 1u + rnd::upto(kTrailz * weight); // rnd::upto(kTrailz);
+            // if(edge > 5) edge -= (edge % 3);     // "snap to grid"
 
             bool canExtend = true;
             Point start = probe;
@@ -484,7 +549,6 @@ void generate() {
     segregate();
     desertify();
     castleize();
-    tunnelize();
     paveRoads();
     makeLakes();
 
