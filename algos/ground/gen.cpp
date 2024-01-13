@@ -219,6 +219,32 @@ void makeLakes() {
     delugify(kDoRain);
 }
 
+void petrify() {
+    constexpr Real kDecay = 0.05f;
+    std::vector<Point> ppoints;
+    constexpr unsigned kGrid = 3;
+    Block grid = bound(0, kGrid);
+    std::vector<unsigned> fossil;
+    grid.visit([&]WITH_XY {
+        Point pp{kMapDim * x / kGrid, kMapDim * y / kGrid};
+        ppoints.push_back(pp);
+        fossil.push_back((rnd::upto(255) & 128) >> 7);
+    });
+    ChrMap& map = this->map();
+    conti.visit([&]WITH_XY { 
+        char& c = map[y][x];
+        if(c == cWoods) {
+            std::vector<Real> landscape{0.f, 0.f};
+            for(unsigned i = 0; i < ppoints.size(); ++i) {
+                landscape[fossil[i]] += std::exp(-kDecay * (Point{x, y} - ppoints.at(i)).d2());
+            }
+            if(landscape[1] > landscape[0]) {
+                c = cRocks; // no conservative polish test (no minimization of the #(cells) becoming plains as a result)
+            }
+        }
+    });
+}
+
 void polish() {
     // make sure there are no lone trees (every tree is a part of at least one 2x2 woods square)
     // also applies to mountains, though there may or may not be mountains at this point
@@ -569,7 +595,7 @@ void generate() {
     castleize();
     paveRoads();
     makeLakes();
-
+    //petrify();
     polish();
     markGates();
 }

@@ -42,7 +42,7 @@ constexpr char cMagma = '\1';
 
 constexpr char cWater = ' ';
 constexpr char cWoods = '@';
-constexpr char cRocks = '^';
+constexpr char cRocks = 'A';
 constexpr char cSands = '.';
 constexpr char cPlain = ':';
 
