@@ -400,11 +400,11 @@ void paveRoads() {
     };
     constexpr unsigned kTrailz = 11;
     // TODO extract predicate type
-    std::function<bool(const Point&)> castle_edgeterm = [&](const Point& probe) {
+    std::function<bool(const Point&)> castle_edgecond = [&](const Point& probe) {
         return goodPointForTrails(map[probe.y][probe.x]);
     };
-    std::function<bool(const Point&)> wonder_edgeterm = [&](const Point& probe) {
-        return castle_edgeterm(probe) && !isplain(probe.x, probe.y);
+    std::function<bool(const Point&)> wonder_edgecond = [&](const Point& probe) {
+        return castle_edgecond(probe) && !isplain(probe.x, probe.y);
     };
     std::function<bool(const Point&)> castle_pathterm = [&](const Point& probe) {
         return infirm(probe.x, probe.y) || isshore(probe.x, probe.y);
@@ -418,7 +418,7 @@ void paveRoads() {
         // ...or extract loop body and apply to both vecs?
         Point probe = valued_locs[li];
         bool is_castle_gate = li < castle_locs.size();
-        auto edgeterm = is_castle_gate ? castle_edgeterm : wonder_edgeterm;
+        auto edgecond = is_castle_gate ? castle_edgecond : wonder_edgecond;
         auto pathterm = is_castle_gate ? castle_pathterm : wonder_pathterm;
 
         std::vector<Edge> maze;
@@ -501,20 +501,20 @@ void paveRoads() {
             bool canExtend = true;
             Point start = probe;
             unsigned i = 0;
-            for(; (i < edge) && (canExtend &= edgeterm(probe + dir)); ++i) {
+            for(; (i < edge) && (canExtend &= edgecond(probe + dir)); ++i) {
                 probe += dir;
                 // TODO consider penalty for self-intersection
             }
-            if(!canExtend && pathterm(probe + dir)) {
+            if(pathterm(probe += dir)) {
                 canExtend = true;
                 edge = i;
                 inland = false;
             }
             if(canExtend) {
                 maze.push_back({start, dir, edge});
-                probe = start + dir * edge; // ensure
+                probe = start + dir * edge; // advance
             } else {
-                probe = start;
+                probe = start; // go back
             }
         }
         for(const Edge& edge : maze) {
