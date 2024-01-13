@@ -341,7 +341,7 @@ void tunnelize(EleMap& echo) {
             screen.visit([&] WITH_XY {
                 woods += map[y][x] == cWoods;
             });
-            Real rating = (at(echo, p) * 2.f + 0.02f * woods) * 0.20f;
+            Real rating = (at(echo, p) * 2.f + 0.02f * woods) * 0.15f;
             if((dither += rating) >= 1.f) {
                 dither -= std::trunc(dither);
                 wonder_locs.push_back(p);
@@ -518,12 +518,16 @@ void paveRoads() {
             unsigned i = 0;
             for(; (i < edge) && (canExtend &= edgecond(probe + dir)); ++i) {
                 probe += dir;
-                // TODO consider penalty for self-intersection
             }
             if(pathterm(probe += dir)) {
                 canExtend = true;
+                // phobia of self-intersection (TODO softcode constants!!)
+                if(i >= 5 && !is_castle_gate && rnd::zto1() < 0.3f) {
+                    i -= 3;
+                } else {
+                    inland = false;
+                }
                 edge = i;
-                inland = false;
             }
             if(canExtend) {
                 maze.push_back({start, dir, edge});
