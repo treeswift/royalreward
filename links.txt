@@ -1,7 +1,0 @@
-https://docs.godotengine.org/en/stable/tutorials/assets_pipeline/importing_images.html
-https://moddingwiki.shikadi.net/wiki/King%27s_Bounty
-https://moddingwiki.shikadi.net/wiki/Knowledge_Dynamics_LZW_COMPRESSOR
-https://sourceforge.net/p/openkb/code/ci/master/tree/src/tools/unexecomp.c
-https://www.bamsoftware.com/software/exepack/
-https://www.tecgraf.puc-rio.br/iup/
-
