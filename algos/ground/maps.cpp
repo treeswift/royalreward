@@ -35,7 +35,8 @@ with_xy paint8(bool_xy test, with_xy flip) {
 }
 
 std::ostream& operator<<(std::ostream& out, const ChrMap& map) {
-    for(unsigned y = 0; y < kMapDim; ++y) {
+    for(unsigned y = kMapDim; y; ) {
+        --y;
         std::string line;
         for(unsigned x = 0; x < kMapDim; ++x) {
             char c = map[y][x];
@@ -47,7 +48,8 @@ std::ostream& operator<<(std::ostream& out, const ChrMap& map) {
 }
 
 IO& operator<<(IO& out, const ChrMap& map) {
-    for(unsigned y = 0; y < kMapDim; ++y) {
+    for(unsigned y = kMapDim; y; ) {
+        --y;
         std::string line;
         for(unsigned x = 0; x < kMapDim; ++x) {
             line.push_back(map[y][x]);
