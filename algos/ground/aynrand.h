@@ -10,6 +10,8 @@ void seed(unsigned seed);
 
 unsigned upto(unsigned upper);
 
+float zto1();
+
 inline int inrg(int lower, int upper) { return upto(upper - lower) + lower; }
 
 }
