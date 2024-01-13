@@ -64,6 +64,11 @@ bool isshoal(unsigned x, unsigned y) const {
     return infirm(x, y) && (isfirm(x+1, y) || isfirm(x-1, y) || isfirm(x, y+1) || isfirm(x, y-1));
 }
 
+bool isplain(unsigned x, unsigned y) const {
+    const ChrMap& map = this->map();
+    return map[y][x] == cPlain;
+}
+
 void stroke(Features& features, const Point& p0, const Point& p1, char color) {
     features.push_back({p0, color});
 
@@ -389,16 +394,27 @@ void paveRoads() {
         unsigned edge;
     };
     constexpr unsigned kTrailz = 11;
-    // auto castle_edgeterm = ;
-    // auto wonder_edgeterm = ;
-    // auto castle_pathterm = ;
-    // auto wonder_pathterm = ;
+    // TODO extract predicate type
+    std::function<bool(const Point&)> castle_edgeterm = [&](const Point& probe) {
+        return goodPointForTrails(map[probe.y][probe.x]);
+    };
+    std::function<bool(const Point&)> wonder_edgeterm = [&](const Point& probe) {
+        return castle_edgeterm(probe) && !isplain(probe.x, probe.y);
+    };
+    std::function<bool(const Point&)> castle_pathterm = [&](const Point& probe) {
+        return infirm(probe.x, probe.y) || isshore(probe.x, probe.y);
+    };
+    std::function<bool(const Point&)> wonder_pathterm = [&](const Point& probe) {
+        return castle_pathterm(probe) || isplain(probe.x, probe.y);
+    };
 
     for(unsigned li = 0; li < valued_locs.size(); ++li) {
         // we want the element modifiable + want its index
         // ...or extract loop body and apply to both vecs?
         Point probe = valued_locs[li];
         bool is_castle_gate = li < castle_locs.size();
+        auto edgeterm = is_castle_gate ? castle_edgeterm : wonder_edgeterm;
+        auto pathterm = is_castle_gate ? castle_pathterm : wonder_pathterm;
 
         std::vector<Edge> maze;
 
@@ -411,9 +427,6 @@ void paveRoads() {
                 int dx = (edge & 1);
                 int sg = (edge & 2) - 1;
                 dir = Shift{dx, 1 - dx} * sg;
-                if(is_castle_gate && dir.dx == 0 && dir.dy == -1) {
-                    continue; // no backdoors!
-                }
             } else {
                 const Edge& base = maze[advance];
                 probe = base.probe + base.dir * rnd::upto(base.edge + 1);
@@ -424,12 +437,11 @@ void paveRoads() {
             bool canExtend = true;
             Point start = probe;
             unsigned i = 0;
-            for(; (i < edge) && canExtend; ++i) {
-                probe+=dir;
-                canExtend &= goodPointForTrails(map[probe.y][probe.x]);
+            for(; (i < edge) && (canExtend &= edgeterm(probe + dir)); ++i) {
+                probe += dir;
                 // TODO consider penalty for self-intersection
             }
-            if(!canExtend && (infirm(probe.x, probe.y) || isshore(probe.x, probe.y))) {
+            if(!canExtend && pathterm(probe + dir)) {
                 canExtend = true;
                 edge = i;
                 inland = false;
@@ -443,7 +455,7 @@ void paveRoads() {
         }
         for(const Edge& edge : maze) {
             Point trail = edge.probe;
-            for(unsigned i = 1; i < edge.edge; ++i) {
+            for(unsigned i = 1; i <= edge.edge; ++i) {
                 trail += edge.dir;
                 char& c = map[trail.y][trail.x];
                 if(c != cSands) c = cPlain;
