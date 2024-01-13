@@ -179,6 +179,17 @@ void delugify(unsigned eat_shores) {
     }
 }
 
+void irrigate(unsigned x, unsigned y) {
+    ChrMap& map = this->map();
+    bool_xy issand = [&]WITH_XY {
+        return x < kMapDim && y < kMapDim && (cSands == map[y][x]);
+    };
+    with_xy flipxy = [&]WITH_XY {
+        map[y][x] = cWater;
+    };
+    paint8(issand, flipxy)(x, y);
+}
+
 void desertify() {
     ChrMap& map = this->map();
     // desertify
@@ -186,16 +197,11 @@ void desertify() {
         auto& cell = map[y][x];
         cell = cell == cWater ? cSands : cWoods;
     });
-    bool_xy issand = [&]WITH_XY {
-        return x < kMapDim && y < kMapDim && (cSands == map[y][x]);
-    };
-    with_xy flipxy = [&]WITH_XY {
-        map[y][x] = cWater;
-    };
-    with_xy irrigate = paint8(issand, flipxy);
-
     // MOREINFO: reasons for controlled irrigation? (the Bridge spell fixes most of the shortcomings, really)
     irrigate(kMargin, kMargin);
+}
+
+void makeLakes() {
     delugify(kDoAcid);
     for(unsigned fl = 0; fl < kNLakes; ++fl) {
         Point rp = conti.rand();
@@ -361,8 +367,8 @@ void paveRoads() {
         std::vector<Edge> maze;
 
         bool inland = true;
+        Point probe = cgate - Shift{0, 1}; // default
         while(inland) {
-            Point probe = cgate - Shift{0, 1};
             Shift dir;
             unsigned edge = rnd::upto(kTrailz<<1);
             unsigned advance = rnd::upto(maze.size() * 3 + 1);
@@ -385,13 +391,16 @@ void paveRoads() {
                 canExtend &= goodPointForTrails(map[probe.y][probe.x]);
                 // TODO consider penalty for self-intersection
             }
-            if(map[probe.y][probe.x] == cWater) {
+            if(!canExtend && (infirm(probe.x, probe.y) || isshore(probe.x, probe.y))) {
                 canExtend = true;
                 edge = i;
                 inland = false;
             }
             if(canExtend) {
                 maze.push_back({start, dir, edge});
+                probe = start + dir * edge; // ensure
+            } else {
+                probe = start;
             }
         }
         for(const Edge& edge : maze) {
@@ -426,6 +435,7 @@ void generate() {
     desertify();
     castleize();
     paveRoads();
+    makeLakes();
 
     polish();
     markGates();
