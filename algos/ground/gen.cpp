@@ -501,7 +501,7 @@ void paveRoads() {
                     weight = rweight;
                     dir = rdir;
                 }
-                if(sel == base.edge) { // ...or we can continue
+                if(sel == base.edge && rnd::zto1() < 0.2f) { // ...or we can continue
                     Real fweight = at(echo, probe + base.dir) + at(echo, probe + base.dir + base.dir);
                     if(fweight > weight) {
                         weight = fweight;
