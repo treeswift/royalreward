@@ -305,7 +305,8 @@ void castleize() {
     }
 }
 
-void stoneEcho(EleMap& echo, const ChrMap& map) {
+void stoneEcho(EleMap& echo) {
+    ChrMap& map = this->map();
     constexpr float kSpore = 0.36f;
     constexpr float kDecay = 0.16f;
     auto coast = [&]WITH_XY {
@@ -345,7 +346,7 @@ void paveRoads() {
     ChrMap& map = this->map();
     MapHolder<Real> ampMap{1.f};
     EleMap& echo = ampMap.map();
-    stoneEcho(echo, map);
+    stoneEcho(echo);
     dbgEcho(echo);
 
     // trails
