@@ -338,7 +338,7 @@ void tunnelize(EleMap& echo) {
             screen.visit([&] WITH_XY {
                 woods += map[y][x] == cWoods;
             });
-            Real rating = at(echo, p) * woods * 7.5e-3f; // 0.02f
+            Real rating = (at(echo, p) + 0.02f * woods) * 0.02f;
             if((dither += rating) >= 1.f) {
                 dither -= std::trunc(dither);
                 wonder_locs.push_back(p);
