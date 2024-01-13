@@ -337,7 +337,7 @@ void tunnelize(EleMap& echo) {
             screen.visit([&] WITH_XY {
                 woods += map[y][x] == cWoods;
             });
-            Real rating = (at(echo, p) + 0.02f * woods) * 0.02f;
+            Real rating = (at(echo, p) * 2.f + 0.02f * woods) * 0.10f;
             if((dither += rating) >= 1.f) {
                 dither -= std::trunc(dither);
                 wonder_locs.push_back(p);
@@ -358,8 +358,10 @@ void stoneEcho(EleMap& echo) {
                    (isfirm(x-1, y-1) + infirm(x-1,y) + infirm(x-1,y+1));
         return kSpore * (3.f + std::abs(grady * gradx)) / 12.f;
     };
+    MapHolder<Real> swapHolder{0.f};
+    EleMap& swap = swapHolder.map();
     visib.inset(1).visit([&]WITH_XY {
-        echo[y][x] = isshoal(x, y) ? coast(x, y) : (1e-4f * (unsigned) map[y][x]);
+        swap[y][x] = isshoal(x, y) ? coast(x, y) : (1e-4f * (unsigned) map[y][x]);
     });
     auto blend = [](float mine, float with) {
         // should propagate incrementally, but not without resistance
@@ -376,12 +378,14 @@ void stoneEcho(EleMap& echo) {
             next[y][x] = echo;
         });
     };
-    MapHolder<Real> swapHolder{0.f};
-    EleMap& swap = swapHolder.map();
     for(unsigned i = 0; i < kEchoes; i += 2) {
-        blur(swap, echo);
         blur(echo, swap);
+        blur(swap, echo);
     }
+    conti.visit([&]WITH_XY {
+        Real weight = swap[y][x];
+        echo[y][x] = weight * weight;
+    });
 }
 
 void paveRoads() {
@@ -398,7 +402,8 @@ void paveRoads() {
         Shift dir;
         unsigned edge;
     };
-    constexpr unsigned kTrailz = 11;
+    constexpr unsigned kTrailz = 41;
+    constexpr unsigned kMaxTrl = 7;
     // TODO extract predicate type
     std::function<bool(const Point&)> castle_edgecond = [&](const Point& probe) {
         return goodPointForTrails(map[probe.y][probe.x]);
@@ -495,7 +500,7 @@ void paveRoads() {
                 }
             }
             // edge >>= 1;
-            edge = 1u + rnd::upto(kTrailz * weight); // rnd::upto(kTrailz);
+            edge = std::min(1u + (unsigned) (kTrailz * weight), kMaxTrl); // rnd::upto(kTrailz*weight)
             // if(edge > 5) edge -= (edge % 3);     // "snap to grid"
 
             bool canExtend = true;
