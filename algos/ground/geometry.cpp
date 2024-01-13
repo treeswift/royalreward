@@ -23,7 +23,7 @@ Shift& Shift::operator-=(const Shift& subtr) {
 
 Shift& Shift::operator*=(int factor) {
     dx *= factor;
-    dy &= factor;
+    dy *= factor;
     return *this;
 }
 
