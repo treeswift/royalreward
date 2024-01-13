@@ -330,11 +330,10 @@ void tunnelize(EleMap& echo) {
     ChrMap& map = this->map();
     Real dither = 0.f;
     conti.visit([&]WITH_XY {
-        Point p{x, y};
-        char c = map[p.y][p.x];
-        if(cWoods == c) { // <== also implicitly protects castle gates
-            unsigned woods = 0u;
+        if(cWoods == map[y][x]) { // <implicitly protects castle gates
+            Point p{x, y};
             Block screen = square(p - Shift{2, 2}, 5); // TODO extract
+            unsigned woods = 0u;
             screen.visit([&] WITH_XY {
                 woods += map[y][x] == cWoods;
             });
