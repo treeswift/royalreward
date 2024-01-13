@@ -24,6 +24,7 @@ constexpr unsigned kNLines = 32u;
 constexpr unsigned kDoAcid = 0u;  // TODO softcode, test <3 on cont#3
 constexpr unsigned kDoRain = 0u;  // TODO softcode, test <1 on cont#3
 constexpr unsigned kNLakes = 64u; // MOREINFO correlate with castles?
+constexpr unsigned kEchoes = 5u;
 
 // decay polynomial
 constexpr Real kDecay = 0.0f; // produces archipelagoes

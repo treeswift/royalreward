@@ -36,6 +36,7 @@ class Continent {
     Block visib = bound(0, kMapDim);
     Block conti = visib.inset(kShoalz);
     MapHolder<char> chrmem{cWater};
+    MapHolder<char> ovrmem{cWater};
     std::vector<Point> castle_locs;
 
     using Features = std::vector<Paint>;
@@ -46,14 +47,21 @@ public:
     ChrMap& map() { return chrmem.map(); }
     const ChrMap& map() const { return chrmem.map(); }
 
-bool island(unsigned x, unsigned y) const {
+bool isfirm(unsigned x, unsigned y) const {
     const ChrMap& map = this->map();
     return map[y][x] != cWater;
 }
 
+bool infirm(unsigned x, unsigned y) const {
+    return !isfirm(x, y);
+}
+
 bool isshore(unsigned x, unsigned y) const {
-    const ChrMap& map = this->map();
-    return island(x, y) && ((cWater == map[y][x+1]) || (cWater == map[y][x-1]) || (cWater == map[y+1][x]) || (cWater == map[y-1][x]));
+    return isfirm(x, y) && (infirm(x+1, y) || infirm(x-1, y) || infirm(x, y+1) || infirm(x, y-1));
+}
+
+bool isshoal(unsigned x, unsigned y) const {
+    return infirm(x, y) && (isfirm(x+1, y) || isfirm(x-1, y) || isfirm(x, y+1) || isfirm(x, y-1));
 }
 
 void stroke(Features& features, const Point& p0, const Point& p1, char color) {
@@ -298,7 +306,39 @@ void castleize() {
 }
 
 void stoneEcho(EleMap& echo, const ChrMap& map) {
-    // TODO
+    constexpr float kSpore = 0.36f;
+    constexpr float kDecay = 0.16f;
+    auto coast = [&]WITH_XY {
+        int grady = infirm(x-1, y+1) + infirm(x,y+1) + infirm(x+1,y+1) -
+                   (isfirm(x-1, y-1) + infirm(x,y-1) + infirm(x+1,y-1));
+        int gradx = infirm(x+1, y-1) + infirm(x+1,y) + infirm(x+1,y+1) -
+                   (isfirm(x-1, y-1) + infirm(x-1,y) + infirm(x-1,y+1));
+        return kSpore * (3.f + std::abs(grady * gradx)) / 12.f;
+    };
+    visib.inset(1).visit([&]WITH_XY {
+        echo[y][x] = isshoal(x, y) ? coast(x, y) : (1e-4f * (unsigned) map[y][x]);
+    });
+    auto blend = [](float mine, float with) {
+        // should propagate incrementally, but not without resistance
+        float blend = 1.f - (1.f - mine) * (1.f - with);
+        return mine + (blend - mine) * kDecay;
+    };
+    auto blur = [&](EleMap& next, const EleMap& prev) {
+        conti.visit([&]WITH_XY {
+            float echo = prev[y][x];
+            if(isfirm(x+1, y) && isfirm(x+2, y)) echo = blend(echo, prev[y][x+3]);
+            if(isfirm(x-1, y) && isfirm(x-2, y)) echo = blend(echo, prev[y][x-3]);
+            if(isfirm(x, y+1) && isfirm(x, y+2)) echo = blend(echo, prev[y+3][x]);
+            if(isfirm(x, y-1) && isfirm(x, y-2)) echo = blend(echo, prev[y-3][x]);
+            next[y][x] = echo;
+        });
+    };
+    MapHolder<Real> swapHolder{0.f};
+    EleMap& swap = swapHolder.map();
+    for(unsigned i = 0; i < kEchoes; i += 2) {
+        blur(swap, echo);
+        blur(echo, swap);
+    }
 }
 
 void paveRoads() {
@@ -306,6 +346,7 @@ void paveRoads() {
     MapHolder<Real> ampMap{1.f};
     EleMap& echo = ampMap.map();
     stoneEcho(echo, map);
+    dbgEcho(echo);
 
     // trails
     struct Edge {
@@ -361,6 +402,21 @@ void paveRoads() {
             }
         }
     }
+}
+
+void dbgEcho(const EleMap& echo) {
+    ChrMap& map = ovrmem.map();
+    conti.visit([&] WITH_XY {
+        if(map[y][x] == cWoods) {
+            float amp = echo[y][x];
+            // gamma correction:
+            amp = 1.f - amp;
+            amp = amp * amp;
+            amp = 1.f - amp;
+            // end of correction
+            map[y][x] = '0' + 10.f * amp;
+        }
+    });
 }
 
 void generate() {
