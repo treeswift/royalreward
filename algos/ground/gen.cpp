@@ -37,7 +37,7 @@ class Continent {
     Block conti = visib.inset(kShoalz);
     MapHolder<char> chrmem{cWater};
     MapHolder<char> ovrmem{cWater};
-    std::vector<Point> castle_locs;
+    std::vector<Point> castle_locs, wonder_locs, valued_locs;
 
     using Features = std::vector<Paint>;
 
@@ -229,6 +229,9 @@ void polish() {
 
 void markGates() {
     ChrMap& map = this->map();
+    for(const Point& point : wonder_locs) {
+        map[point.y][point.x] = cChest;
+    }
     for(const Point& point : castle_locs) {
         map[point.y-1][point.x] = cEntry;
     }
@@ -262,8 +265,11 @@ void castleize() {
         for(unsigned x = kMapDim; x; ) { // ditto
             goodPointForCastle(map[y][--x]) ? ++d : (d = 0);
             if(d && ltr[x]) {
-                unsigned dst = d - ltr[x];
-                Real prob = std::sqrt(1.f / d / ltr[x]) / (1 + dst * dst);
+                constexpr unsigned kPushInland = 2u;
+                int l = kPushInland + ltr[x];  // left
+                int r = kPushInland + d;       // right
+                int a = std::abs(r - l) & ~1u; // asymmetry
+                Real prob = std::sqrt(std::sqrt(1.f / (r*r + l*l))) / (1 + a * a);
                 for(const Point& point : castle_locs) { // repulsion
                     prob *= (1.f - 1.f / (point - Point{x, y}).d2());
                 }
@@ -305,7 +311,28 @@ void castleize() {
                 map[y+1][x+1] = '}';
                 map[y-1][x] = cPlain; // etc.etc.etc.
                 castle_locs.push_back({x, y});
+                valued_locs.push_back({x, y - 1});
                 ++castles; // if tran commit
+            }
+        }
+    }
+}
+
+void tunnelize() {
+    ChrMap& map = this->map();
+    constexpr unsigned kChambers = 95;
+    for(unsigned i = 0; i < kChambers; ++i) {
+        Point p = conti.rand();
+        char c = map[p.y][p.x];
+        if(cWoods == c) { // <== also implicitly protects castle gates
+            unsigned woods = 0u;
+            Block screen = square(p - Shift{2, 2}, 5); // TODO extract
+            screen.visit([&] WITH_XY {
+                woods += map[y][x] == cWoods;
+            });
+            if(rnd::inrg(13, 25) < woods) {
+                wonder_locs.push_back(p);
+                valued_locs.push_back(p);
             }
         }
     }
@@ -362,12 +389,20 @@ void paveRoads() {
         unsigned edge;
     };
     constexpr unsigned kTrailz = 11;
-    for(const Point& cgate : castle_locs) {
+    // auto castle_edgeterm = ;
+    // auto wonder_edgeterm = ;
+    // auto castle_pathterm = ;
+    // auto wonder_pathterm = ;
+
+    for(unsigned li = 0; li < valued_locs.size(); ++li) {
+        // we want the element modifiable + want its index
+        // ...or extract loop body and apply to both vecs?
+        Point probe = valued_locs[li];
+        bool is_castle_gate = li < castle_locs.size();
 
         std::vector<Edge> maze;
 
         bool inland = true;
-        Point probe = cgate - Shift{0, 1}; // default
         while(inland) {
             Shift dir;
             unsigned edge = rnd::upto(kTrailz<<1);
@@ -376,6 +411,9 @@ void paveRoads() {
                 int dx = (edge & 1);
                 int sg = (edge & 2) - 1;
                 dir = Shift{dx, 1 - dx} * sg;
+                if(is_castle_gate && dir.dx == 0 && dir.dy == -1) {
+                    continue; // no backdoors!
+                }
             } else {
                 const Edge& base = maze[advance];
                 probe = base.probe + base.dir * rnd::upto(base.edge + 1);
@@ -434,6 +472,7 @@ void generate() {
     segregate();
     desertify();
     castleize();
+    tunnelize();
     paveRoads();
     makeLakes();
 

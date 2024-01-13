@@ -54,6 +54,9 @@ constexpr char cCCWRT = ']';
 constexpr char cCCWRB = '}';
 
 constexpr char cEntry = '/';
+constexpr char cLabel = '!';
+constexpr char cChest = '$';
+constexpr char cEnemy = '*';
 
 
 } // namespace map
