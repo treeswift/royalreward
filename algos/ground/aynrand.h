@@ -6,9 +6,9 @@
 
 namespace rnd {
 
-inline void seed(unsigned seed) { std::srand(seed); }
+void seed(unsigned seed);
 
-inline unsigned upto(unsigned upper) { return std::rand() % upper; }
+unsigned upto(unsigned upper);
 
 inline int inrg(int lower, int upper) { return upto(upper - lower) + lower; }
 

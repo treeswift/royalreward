@@ -5,6 +5,7 @@ project('royalreward', 'cpp',
 add_global_arguments('-Wno-narrowing', language: 'cpp')
 
 executable('gen',
+            'algos/ground/aynrand.cpp',
             'algos/ground/geometry.cpp',
             'algos/ground/maps.cpp',
             'algos/ground/gen.cpp',
