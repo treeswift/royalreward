@@ -36,7 +36,7 @@ constexpr Real kRugged = 0.f;   // TODO hardcode to 0 when stabilized
 constexpr Real kRoughn = 1e-5f; // log10(rcp(roughness)) is how far from the edges the tear ends
 constexpr Real kSmooth = 0.7f;
 
-constexpr unsigned kSeed = 2u; // TODO use libc-independent rand()
+constexpr unsigned kSeed = 2u;
 
 constexpr char cMagma = '\1';
 
