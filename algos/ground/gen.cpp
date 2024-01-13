@@ -69,6 +69,10 @@ bool isplain(unsigned x, unsigned y) const {
     return map[y][x] == cPlain;
 }
 
+bool onplain(unsigned x, unsigned y) const {
+    return isplain(x, y) || isplain(x+1, y) || isplain(x-1, y) || isplain(x, y+1) || isplain(x, y-1);
+}
+
 void stroke(Features& features, const Point& p0, const Point& p1, char color) {
     features.push_back({p0, color});
 
@@ -415,7 +419,7 @@ void paveRoads() {
         return infirm(probe.x, probe.y) || isshore(probe.x, probe.y);
     };
     std::function<bool(const Point&)> wonder_pathterm = [&](const Point& probe) {
-        return castle_pathterm(probe) || isplain(probe.x, probe.y);
+        return castle_pathterm(probe) || onplain(probe.x, probe.y);
     };
     std::vector<Shift> dirs = {{-1,0},{1,0},{0,-1},{0,1}};
     for(unsigned li = 0; li < valued_locs.size(); ++li) {
@@ -429,6 +433,12 @@ void paveRoads() {
         std::vector<Edge> maze;
 
         bool inland = true;
+        if(!is_castle_gate) {
+            if(onplain(probe.x, probe.y)) {
+                inland = false; // equivalent to "continue"
+            }
+            map[probe.y][probe.x] = cPlain; // allow oases
+        }
 
         while(inland) {
             Shift dir;
