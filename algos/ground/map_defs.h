@@ -52,6 +52,9 @@ constexpr char cCCWLB = '{';
 constexpr char cCCWRT = ']';
 constexpr char cCCWRB = '}';
 
+constexpr char cEntry = '/';
+
+
 } // namespace map
 
 #endif

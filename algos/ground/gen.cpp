@@ -46,6 +46,16 @@ public:
     ChrMap& map() { return chrmem.map(); }
     const ChrMap& map() const { return chrmem.map(); }
 
+bool island(unsigned x, unsigned y) const {
+    const ChrMap& map = this->map();
+    return map[y][x] != cWater;
+}
+
+bool isshore(unsigned x, unsigned y) const {
+    const ChrMap& map = this->map();
+    return island(x, y) && ((cWater == map[y][x+1]) || (cWater == map[y][x-1]) || (cWater == map[y+1][x]) || (cWater == map[y-1][x]));
+}
+
 void stroke(Features& features, const Point& p0, const Point& p1, char color) {
     features.push_back({p0, color});
 
@@ -149,9 +159,8 @@ void delugify(unsigned eat_shores) {
     Block inset = conti.inset(2u);
     for(; eat_shores; --eat_shores) {
         inset.visit([&]WITH_XY {
-            if(map[y][x] != cWater) {
-                if((cWater == map[y][x+1]) || (cWater == map[y][x-1]) || (cWater == map[y+1][x]) || (cWater == map[y-1][x]))
-                    map[y][x] = cMagma;
+            if(isshore(x, y)) {
+                map[y][x] = cMagma;
             }
         });
         inset.visit([&]WITH_XY {
@@ -202,6 +211,13 @@ void polish() {
             isalso(-1,-1) || isalso(-1,1) || isalso(1,-1) || isalso(1,1) || (map[y][x] = cPlain);
         }
     });
+}
+
+void markGates() {
+    ChrMap& map = this->map();
+    for(const Point& point : castle_locs) {
+        map[point.y-1][point.x] = cEntry;
+    }
 }
 
 void castleize() {
@@ -355,6 +371,7 @@ void generate() {
     paveRoads();
 
     polish();
+    markGates();
 }
 };
 
