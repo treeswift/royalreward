@@ -238,12 +238,12 @@ void polish() {
 
 void markGates() {
     ChrMap& map = this->map();
-    for(const Point& point : wonder_locs) {
-        map[point.y][point.x] = cChest; // DBG: not real chests, more like forest clearings
-    }
-    for(const Point& point : failed_locs) {
-        map[point.y][point.x] = cLabel; // DBG: rejected nooks and secret places
-    }
+    // for(const Point& point : wonder_locs) {
+    //     map[point.y][point.x] = cChest; // DBG: not real chests, more like forest clearings
+    // }
+    // for(const Point& point : failed_locs) {
+    //     map[point.y][point.x] = cLabel; // DBG: rejected nooks and secret places
+    // }
     for(const Point& point : castle_locs) {
         map[point.y-1][point.x] = cEntry;
     }
