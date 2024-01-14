@@ -273,10 +273,13 @@ void petrify() {
     struct Coral { Point p; Shift dir; };
     ChrMap& map = this->map();
     std::multimap<Real, Coral> candydates; // sic(k)
+    // AND-convolve 2x2 wood patches once I have enough spatial imagination
+    // MapHolder<char> sqmem{false};
+    // ChrMap& sqm = sqmem.map();
     conti.visit([&]WITH_XY {
         char& c = map[y][x];
         if(c == cWoods) {
-            Real2 flux;
+            Real2 flux = {};
             Point p{x, y};
             for(unsigned i = 0; i < ppoints.size(); ++i) {
                 Real2 wind = dirvec(p, i);
@@ -305,30 +308,67 @@ void petrify() {
         // NOTE: the rotational order at (*) and (**) is opposite (to make tiebreaking more fair)
         //      (We can of course say that it's the Coriolis force. Sorry Terry, no Diskworld...)
 
-        // lambda tryFlip = ...;
-
-        if(coral.dir.dx && coral.dir.dy) { // diagonal
-            // we know the corner and he is us
+        auto tryFlip = [&](const Point& p, const Shift& dir) { // beware temporary `dir`...
             // affected cells: coral.p +{0, {0,dir.y}, {dir.x,0}, dir}
             // collateral damage: outer 4x4 corner
             //
-            //       ?  ?  ?
-            //       ?  *  ?
-            //    0  ^  *  ?
-            //    ^  ^  *  ?
-            // ?  *  *  *  ?
-            // ?  ?  ?  ?  ?
+            //          q  r  ?
+            //          ?  A  ?
+            //       0  ^  B  ?
+            // s  ?  ^  ^  C  ?
+            // t  G  F  E  D  ?
+            // ?  ?  ?  ?  ?  ?
+            Shift dir_x = {dir.dx, 0};
+            Shift dir_y = {0, dir.dy};
+            char cd = at(map, p + dir);
+            char ch = at(map, p + dir_x);
+            char cv = at(map, p + dir_y);
+            auto isBarrier = [](char c) { return cWoods == c || cRocks == c; };
+            bool isbarrier = isBarrier(cd) && isBarrier(ch) && isBarrier(cv);
+            bool has_woods = cd == cWoods || ch == cWoods || cv == cWoods;
+            if(isbarrier && has_woods) {
+                Point d = p + dir * 2; // D for Diagonal
+                Point b = p + dir_x * 2, a = b - dir_y, c = b + dir_y;
+                Point f = p + dir_y * 2, e = f + dir_x, g = f - dir_x;
+                Point q = a - dir, r = a - dir_y;
+                Point s = g - dir, t = g - dir_x;
+                auto stillWoods = [&](const Point& p) {
+                    return cWoods == at(map, p) && cWoods == at(map, p + dir) && cWoods == at(map, p + dir_x) && cWoods == at(map, p + dir_y);
+                };
+                bool gtg = true;
+                gtg &= cWoods != at(map, a) || stillWoods(q) || stillWoods(r) || stillWoods(a);
+                gtg &= cWoods != at(map, b) || stillWoods(a) || stillWoods(b);
+                gtg &= cWoods != at(map, c) || stillWoods(b) || stillWoods(c);
+                gtg &= cWoods != at(map, d) || stillWoods(c) || stillWoods(d) || stillWoods(e);
+                gtg &= cWoods != at(map, e) || stillWoods(e) || stillWoods(f);
+                gtg &= cWoods != at(map, f) || stillWoods(f) || stillWoods(g);
+                gtg &= cWoods != at(map, g) || stillWoods(s) || stillWoods(t) || stillWoods(g);
+                if(gtg) {
+                    at(map, p) = at(map, p+dir) = at(map, p+dir_x) = at(map, p+dir_y) = cRocks;
+                }
+                return gtg;
+            }
+            return false;
+        };
 
-            // we replace the 2x2 wood with 2x2 rock... (**)
-            // ...pushing left-side|right-side|diag as possible successors
-
-            // if(tryFlip(...)) continue;
-
+        if(coral.dir.dx && coral.dir.dy) { // diagonal
+            // we know the corner and he is us
+            if(tryFlip(coral.p, coral.dir)) {
+                // on success: push left-side|right-side|diag as possible successors
+                appointees.push_back({coral.p + Shift{coral.dir.dx, 0}, coral.dir});
+                appointees.push_back({coral.p + Shift{0, coral.dir.dy}, coral.dir});
+                appointees.push_back({coral.p + coral.dir, coral.dir});
+            }
         } else { // principal direction
             // we complete coral.dir with coral.dir.left(), then coral.dir.right() (*)
-
-            // we replace the 2x2 wood with 2x2 rock... (**)
-            // ...pushing same-side|right-diag|left-diag as possible successors
+            Shift w_left = coral.dir + coral.dir.left();
+            Shift wright = coral.dir + coral.dir.right();
+            if(tryFlip(coral.p, w_left) || tryFlip(coral.p, wright)) {
+                // on success: push left-diag|right-diag|same-side as possible successors
+                appointees.push_back({coral.p + w_left, coral.dir});
+                appointees.push_back({coral.p + wright, coral.dir});
+                appointees.push_back({coral.p + coral.dir, coral.dir});
+            }
         }
     }
 }
