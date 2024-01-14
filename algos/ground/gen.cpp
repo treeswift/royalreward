@@ -2,6 +2,8 @@
 #include <iostream>
 #include <random>
 #include <vector>
+#include <list>
+#include <map>
 #include <algorithm>
 #include <functional>
 
@@ -220,9 +222,10 @@ void makeLakes() {
 }
 
 void petrify() {
+    // principal point grid generation; can be extracted
     constexpr Real kDecay = 0.05f;
     std::vector<Point> ppoints;
-    constexpr unsigned kGrid = 5;
+    constexpr unsigned kGrid = 3;
     Block grid = bound(0, kGrid);
     std::vector<unsigned> fossil;
     std::vector<Real> magnitudes;
@@ -232,19 +235,102 @@ void petrify() {
         magnitudes.push_back(std::exp(rnd::upto(4)));
         fossil.push_back((rnd::upto(255) & 128) >> 7);
     });
+    auto factor = [&](const Point& p, unsigned ppi) {
+        // MOREINFO use simple inverse square? ("1+s.d2")?
+        constexpr bool kDiversity = false;
+        Real power = -kDecay * (p - ppoints.at(ppi)).d2();
+        if(kDiversity) power *= magnitudes.at(ppi);
+        Real decay = std::exp(power);
+        if(kDiversity) decay *= magnitudes.at(ppi);
+        return decay;
+    };
+    
+    // Flux. MOREINFO make Shift a template class instead?
+    struct Real2 {
+        Real x, y;
+        Real2& operator+=(const Real2& other) { x += other.x; y += other.y; return *this; }
+        Real2& operator*=(const Real& factor) { x *= factor; y *= factor; return *this; }
+        // TOOD norm(), safenorm()
+        Real d2() const { return x*x + y*y; }
+        Real d(Real eoc = 0.f) const { return std::sqrt(eoc + d2()); }
+        Real2& normInPlace(Real eoc = 0.f)  { Real den = 1.f / d(eoc); return (*this)*=den; }
+        Real2 norm(Real eoc = 0.f) const { auto copy = *this; return copy.normInPlace(eoc); }
+    };
+    constexpr Real kEyeOfTheCyclone = 1.f;
+    auto dirvec = [&](const Point& p, unsigned ppi) {
+        Shift s = ppoints.at(ppi) - p;
+        Real2 dv{s.dx, s.dy};
+        return dv.normInPlace(kEyeOfTheCyclone);
+    };
+
+    // actual petrification
+    // second naive plan:
+    // - accumulate flux;
+    // - normalize flux;
+    // - qualifying if: (a) woods, (b) water OR rocks at normalized flux offset, (c) harmless
+    // - rinse, repeat
+
+    struct Coral { Point p; Shift dir; };
     ChrMap& map = this->map();
-    conti.visit([&]WITH_XY { 
+    std::multimap<Real, Coral> candydates; // sic(k)
+    conti.visit([&]WITH_XY {
         char& c = map[y][x];
         if(c == cWoods) {
-            std::vector<Real> landscape{0.f, 0.f};
+            Real2 flux;
+            Point p{x, y};
             for(unsigned i = 0; i < ppoints.size(); ++i) {
-                landscape[fossil[i]] += magnitudes.at(i) * std::exp(-kDecay * magnitudes.at(i) * (Point{x, y} - ppoints.at(i)).d2());
+                Real2 wind = dirvec(p, i);
+                wind *= factor(p, i);
+                flux += wind;
             }
-            if(landscape[1] > landscape[0]) {
-                c = cRocks; // no conservative polish test (no minimization of the #(cells) becoming plains as a result)
+            Real2 unit = flux.normInPlace(kEyeOfTheCyclone);
+            unit *= 2.f; // 0.5 becomes 1
+            Shift offset = {std::truncf(unit.x), std::truncf(unit.y)};
+            if(offset.dx || offset.dy) {
+                Point refpt = p + offset;
+                char c = at(map, refpt);
+                if(cWater == c) {
+                    candydates.insert({flux.d2(), {p, -offset}});
+                }
             }
         }
     });
+    std::list<Coral> appointees; for(const auto& pair : candydates) {
+        appointees.push_back(pair.second); // the last turn the first
+    }
+    while(appointees.size()) {
+        Coral coral = appointees.back(); // copy out for consistency and...
+        appointees.pop_back();
+
+        // NOTE: the rotational order at (*) and (**) is opposite (to make tiebreaking more fair)
+        //      (We can of course say that it's the Coriolis force. Sorry Terry, no Diskworld...)
+
+        // lambda tryFlip = ...;
+
+        if(coral.dir.dx && coral.dir.dy) { // diagonal
+            // we know the corner and he is us
+            // affected cells: coral.p +{0, {0,dir.y}, {dir.x,0}, dir}
+            // collateral damage: outer 4x4 corner
+            //
+            //       ?  ?  ?
+            //       ?  *  ?
+            //    0  ^  *  ?
+            //    ^  ^  *  ?
+            // ?  *  *  *  ?
+            // ?  ?  ?  ?  ?
+
+            // we replace the 2x2 wood with 2x2 rock... (**)
+            // ...pushing left-side|right-side|diag as possible successors
+
+            // if(tryFlip(...)) continue;
+
+        } else { // principal direction
+            // we complete coral.dir with coral.dir.left(), then coral.dir.right() (*)
+
+            // we replace the 2x2 wood with 2x2 rock... (**)
+            // ...pushing same-side|right-diag|left-diag as possible successors
+        }
+    }
 }
 
 void polish() {
@@ -597,8 +683,9 @@ void generate() {
     castleize();
     paveRoads();
     makeLakes();
-    petrify();
     polish();
+    petrify(); // petrification is conservative/transactional => works on a polished surface
+    polish();  // +second polish may or may not be needed after a conservative petrification
     markGates();
 }
 };
