@@ -208,7 +208,6 @@ void irrigate(unsigned x, unsigned y) {
 }
 
 void desertify() {
-    unsigned count = 0u;
     ChrMap& map = this->map();
     visib.visit([&]WITH_XY{
         auto& cell = map[y][x];
@@ -325,70 +324,66 @@ void petrify() {
         appointees.pop_back();
 
         // NOTE: the rotational order at (*) and (**) is opposite (to make tiebreaking more fair)
-        //      (We can of course say that it's the Coriolis force. Sorry Terry, no Diskworld...)
+        //       (We can of course say that it's the Coriolis effect. Sorry Terry, no Diskworld.)
 
-        auto tryFlip = [&](const Point& p, const Shift& dir) { // beware temporary `dir`...
+        auto tryFlip = [&](const Point& p, const Shift& along, const Shift axxss) { // beware temporary `dir`...
             // affected cells: coral.p +{0, {0,dir.y}, {dir.x,0}, dir}
-            // collateral damage: outer 4x4 corner
+            // collateral damage: outer 4-side (in the grow direction)
             //
-            //          q  r  ?
-            //          ?  A  ?
-            //       0  ^  B  ?
-            // s  ?  ^  ^  C  ?
-            // t  G  F  E  D  ?
-            // ?  ?  ?  ?  ?  ?
-            Shift dir_x = {dir.dx, 0};
-            Shift dir_y = {0, dir.dy};
+            //     q  r  ?
+            //     ?  A  ?
+            //  0  ^  B  ?
+            //  0  ^  C  ?
+            //     s  D  ?
+            //     ?  ?  ?
+
+            Shift dir = along + axxss;
             char c0 = at(map, p);
             char cd = at(map, p + dir);
-            char ch = at(map, p + dir_x);
-            char cv = at(map, p + dir_y);
+            char ch = at(map, p + along);
+            char cv = at(map, p + axxss);
             auto impenetr = [](char c) { return cWoods == c || cRocks == c; };
             bool barriers = impenetr(c0) && impenetr(cd) && impenetr(ch) && impenetr(cv);
             bool haswoods = c0 == cWoods || cd == cWoods || ch == cWoods || cv == cWoods;
             if(barriers && haswoods) {
                 Point d = p + dir * 2; // D for Diagonal
-                Point b = p + dir_x * 2, a = b - dir_y, c = b + dir_y;
-                Point f = p + dir_y * 2, e = f + dir_x, g = f - dir_x;
-                Point q = a - dir, r = a - dir_y;
-                Point s = g - dir, t = g - dir_x;
+                Point b = p + along * 2, a = b - axxss, c = b + axxss;
+                Point q = a - dir;
+                Point r = a - axxss;
+                Point s = d - along;
                 auto stillWoods = [&](const Point& p) {
-                    return cWoods == at(map, p) && cWoods == at(map, p + dir) && cWoods == at(map, p + dir_x) && cWoods == at(map, p + dir_y);
+                    return cWoods == at(map, p) && cWoods == at(map, p + dir) && cWoods == at(map, p + along) && cWoods == at(map, p + axxss);
                 };
                 bool gtg = true;
                 gtg &= cWoods != at(map, a) || stillWoods(q) || stillWoods(r) || stillWoods(a);
                 gtg &= cWoods != at(map, b) || stillWoods(a) || stillWoods(b);
                 gtg &= cWoods != at(map, c) || stillWoods(b) || stillWoods(c);
-                gtg &= cWoods != at(map, d) || stillWoods(c) || stillWoods(d) || stillWoods(e);
-                gtg &= cWoods != at(map, e) || stillWoods(e) || stillWoods(f);
-                gtg &= cWoods != at(map, f) || stillWoods(f) || stillWoods(g);
-                gtg &= cWoods != at(map, g) || stillWoods(s) || stillWoods(t) || stillWoods(g);
+                gtg &= cWoods != at(map, d) || stillWoods(c) || stillWoods(d) || stillWoods(s);
                 if(gtg) {
-                    at(map, p) = at(map, p+dir) = at(map, p+dir_x) = at(map, p+dir_y) = cRocks;
+                    at(map, p) = at(map, p+dir) = at(map, p+along) = at(map, p+axxss) = cRocks;
                 }
                 return gtg;
             }
             return false;
         };
 
-        if(coral.dir.dx && coral.dir.dy) { // diagonal
+        const Shift& dir = coral.dir;
+        if(dir.dx && dir.dy) { // diagonal
             // we know the corner and he is us
-            if(tryFlip(coral.p, coral.dir)) {
-                // on success: push left-side|right-side|diag as possible successors
-                appointees.push_back({coral.p + Shift{coral.dir.dx, 0}, coral.dir});
-                appointees.push_back({coral.p + Shift{0, coral.dir.dy}, coral.dir});
-                appointees.push_back({coral.p + coral.dir, coral.dir});
+            Shift along = {dir.dx, 0};
+            Shift axxss = {0, dir.dy};
+            if(tryFlip(coral.p, along, axxss)) {
+                coral.p += along;
+                if(tryFlip(coral.p, axxss, along)) {
+                    appointees.push_back({coral.p + axxss, dir});
+                }
             }
         } else { // principal direction
             // we complete coral.dir with coral.dir.left(), then coral.dir.right() (*)
-            Shift w_left = coral.dir + coral.dir.left();
-            Shift wright = coral.dir + coral.dir.right();
-            if(tryFlip(coral.p, w_left) || tryFlip(coral.p, wright)) {
-                // on success: push left-diag|right-diag|same-side as possible successors
-                appointees.push_back({coral.p + w_left, coral.dir});
-                appointees.push_back({coral.p + wright, coral.dir});
-                appointees.push_back({coral.p + coral.dir, coral.dir});
-            }
+            Shift axxss = dir.left(); // arbitrary
+            if(tryFlip(coral.p, dir, axxss)) {
+                appointees.push_back({coral.p + dir, dir});
+            } // TODO else try turning left or right
         }
     }
 }
