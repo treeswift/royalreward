@@ -286,14 +286,16 @@ void petrify() {
                 wind *= factor(p, i);
                 flux += wind;
             }
-            Real2 unit = flux.normInPlace(kEyeOfTheCyclone);
-            unit *= 2.f; // 0.5 becomes 1
-            Shift offset = {std::truncf(unit.x), std::truncf(unit.y)};
-            if(offset.dx || offset.dy) {
-                Point refpt = p + offset;
-                char c = at(map, refpt);
-                if(cWater == c) {
-                    candydates.insert({flux.d2(), {p, -offset}});
+            if(flux.d2() > 0.01f) { // leave alone the undecided
+                Real2 unit = flux.normInPlace();
+                unit *= 2.f; // 0.5 becomes 1
+                Shift offset = {std::truncf(unit.x), std::truncf(unit.y)};
+                if(offset.dx || offset.dy) {
+                    Point refpt = p + offset;
+                    char c = at(map, refpt);
+                    if(cWater == c) {
+                        candydates.insert({flux.d2(), {p, -offset}});
+                    }
                 }
             }
         }
