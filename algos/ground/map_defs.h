@@ -52,10 +52,10 @@ constexpr char cPlain = ':';
 
 constexpr char cCGate = 'F';
 constexpr char cCRear = '1';
-constexpr char cCCWLT = '[';
-constexpr char cCCWLB = '{';
-constexpr char cCCWRT = ']';
-constexpr char cCCWRB = '}';
+constexpr char cCCWLB = '[';
+constexpr char cCCWLT = '{';
+constexpr char cCCWRB = ']';
+constexpr char cCCWRT = '}';
 
 constexpr char cEntry = '/';
 constexpr char cLabel = '+';

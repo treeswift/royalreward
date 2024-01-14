@@ -390,7 +390,7 @@ void petrify() {
 
 void polish() {
     // make sure there are no lone trees (every tree is a part of at least one 2x2 woods square)
-    // also applies to mountains, though there may or may not be mountains at this point
+    // also applies to sands, mountains, though there may or may not be mountains at this point
     ChrMap& map = this->map();
     conti.visit([&]WITH_XY{
         char color = map[y][x];
@@ -399,7 +399,7 @@ void polish() {
                    && map[y+dy][x] == color
                    && map[y][x+dx] == color;
         };
-        if(cWoods == color || cRocks == color) { // MOREINFO: are 1x1 patches of desert allowed?
+        if(cWoods == color || cRocks == color || cSands == color) {
             isalso(-1,-1) || isalso(-1,1) || isalso(1,-1) || isalso(1,1) || (map[y][x] = cPlain);
         }
     });
@@ -484,12 +484,12 @@ void castleize() {
                     }
 
                 // FIXME make transactional!
-                map[y][x-1] = '[';
-                map[y+1][x-1] = '{';
+                map[y][x-1] = cCCWLB;
+                map[y+1][x-1] = cCCWLT;
                 map[y][x] = cCGate;
                 map[y+1][x] = cCRear + castles;
-                map[y][x+1] = ']';
-                map[y+1][x+1] = '}';
+                map[y][x+1] = cCCWRB;
+                map[y+1][x+1] = cCCWRT;
                 map[y-1][x] = cPlain; // etc.etc.etc.
                 castle_locs.push_back({x, y});
                 valued_locs.push_back({x, y - 1});
@@ -740,6 +740,7 @@ void generate() {
     polish();
     petrify(); // petrification is conservative/transactional => works on a polished surface
     polish();  // +second polish may or may not be needed after a conservative petrification
+    //
     markGates();
 }
 };
