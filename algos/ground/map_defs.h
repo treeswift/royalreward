@@ -18,12 +18,12 @@ constexpr unsigned kMEdgez = kMapDim - kShoalz;
 constexpr unsigned kMinBox = 2u;
 constexpr unsigned kFeaAmp = 16u;
 constexpr char kColors = 15;
-constexpr char kMaxCol = 7;
+constexpr char kMaxCol = 7; // 1 for Pangaia
 
 constexpr unsigned kNLines = 32u;
 constexpr unsigned kDoAcid = 1u;
-constexpr unsigned kDoRain = 0u;
-constexpr unsigned kNLakes = 2u;
+constexpr unsigned kDoRain = 0u; // >>1 for Polynesia
+constexpr unsigned kNLakes = 2u; // 0 for Desertia
 constexpr unsigned kEchoes = 5u;
 
 // decay polynomial
@@ -32,7 +32,7 @@ constexpr Real kDPow1 = 0.2f; // produces regular continents
 constexpr Real kDPow2 = 0.0f; // produces Laurasia/Gondwana
 
 constexpr Real kWinner = 1.5f;  // reciprocal of threshold
-constexpr Real kRugged = 0.f;   // TODO hardcode to 0 when stabilized
+constexpr Real kRugged = 0.f;   // torn edges; rarely needs adjustment
 constexpr Real kRoughn = 1e-5f; // log10(rcp(roughness)) is how far from the edges the tear ends
 constexpr Real kSmooth = 0.7f;
 
