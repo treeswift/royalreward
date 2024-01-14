@@ -754,5 +754,7 @@ int main(int argc, char** argv) {
     cont.generate();
     *stdout << cont.map();
 
+    // TODO add map tuning dump
+
     return 0;
 }

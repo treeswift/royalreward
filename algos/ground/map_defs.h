@@ -26,6 +26,10 @@ constexpr unsigned kDoRain = 0u; // >>1 for Polynesia
 constexpr unsigned kNLakes = 2u; // 0 for Desertia
 constexpr unsigned kEchoes = 5u;
 
+constexpr unsigned kLabels = 11u;
+constexpr unsigned kChests = 35u;
+constexpr unsigned kChases = 35u;
+
 // decay polynomial
 constexpr Real kDecay = 0.0f; // produces archipelagoes
 constexpr Real kDPow1 = 0.2f; // produces regular continents
@@ -54,7 +58,7 @@ constexpr char cCCWRT = ']';
 constexpr char cCCWRB = '}';
 
 constexpr char cEntry = '/';
-constexpr char cLabel = '!';
+constexpr char cLabel = '+';
 constexpr char cChest = '$';
 constexpr char cEnemy = '*';
 
