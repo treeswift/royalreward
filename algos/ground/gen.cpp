@@ -66,6 +66,10 @@ bool isshoal(unsigned x, unsigned y) const {
     return infirm(x, y) && (isfirm(x+1, y) || isfirm(x-1, y) || isfirm(x, y+1) || isfirm(x, y-1));
 }
 
+bool isshore(unsigned x, unsigned y, const Shift& diag) const {
+    return isfirm(x, y) && (infirm(x+diag.dx, y) || infirm(x, y+diag.dy));
+}
+
 bool isplain(unsigned x, unsigned y) const {
     const ChrMap& map = this->map();
     return map[y][x] == cPlain;
@@ -163,7 +167,7 @@ void segregate() {
             if(color != cWater) {
                 char ocolor = chm[yo][xo];
                 if(ocolor != cWater && color != ocolor) {
-                    map[y][x] = map[yo][xo] = cWater;
+                    map[y][x] = cWater; // leave <xo, yo>
                 }
             }
         };
@@ -175,10 +179,12 @@ void segregate() {
 
 void delugify(unsigned eat_shores) {
     ChrMap& map = this->map();
-    Block inset = conti.inset(2u);
+    Block inset = conti;
+    Point g_bay = visib.inset(8u).rand();
     for(; eat_shores; --eat_shores) {
         inset.visit([&]WITH_XY {
-            if(isshore(x, y)) {
+            Shift diag = Shift{1, 1} - Shift{x > g_bay.x, y > g_bay.y} * 2;
+            if(isshore(x, y, diag)) {
                 map[y][x] = cMagma;
             }
         });
@@ -202,19 +208,30 @@ void irrigate(unsigned x, unsigned y) {
 }
 
 void desertify() {
+    unsigned count = 0u;
     ChrMap& map = this->map();
-    // desertify
     visib.visit([&]WITH_XY{
         auto& cell = map[y][x];
         cell = cell == cWater ? cSands : cWoods;
     });
-    // MOREINFO: reasons for controlled irrigation? (the Bridge spell fixes most of the shortcomings, really)
-    irrigate(kMargin, kMargin);
+}
+
+unsigned countSand() {
+    unsigned sands = 0;
+    ChrMap& map = this->map();
+    conti.visit([&]WITH_XY {
+        sands += map[y][x] == cSands;
+    });
+    return sands;
 }
 
 void makeLakes() {
     delugify(kDoAcid);
-    for(unsigned fl = 0; fl < kNLakes; ++fl) {
+    desertify();
+    irrigate(kMargin, kMargin); // outer sea
+    unsigned sands = countSand();
+    unsigned lakes = sands * kNLakes / kMapDim;
+    for(unsigned fl = 0; fl < lakes; ++fl) {
         Point rp = conti.rand();
         irrigate(rp.x, rp.y);
     }
@@ -223,7 +240,7 @@ void makeLakes() {
 
 void petrify() {
     // principal point grid generation; can be extracted
-    constexpr Real kDecay = 0.05f;
+    constexpr Real kDecay = 0.01f;
     std::vector<Point> ppoints;
     constexpr unsigned kGrid = 3;
     Block grid = bound(0, kGrid);
@@ -232,7 +249,7 @@ void petrify() {
     grid.visit([&]WITH_XY {
         Point pp{kMapDim * x / kGrid, kMapDim * y / kGrid};
         ppoints.push_back(pp);
-        magnitudes.push_back(std::exp(rnd::upto(4)));
+        magnitudes.push_back(std::exp(rnd::zto1()*4));
         fossil.push_back((rnd::upto(255) & 128) >> 7);
     });
     auto factor = [&](const Point& p, unsigned ppi) {
@@ -259,7 +276,7 @@ void petrify() {
     constexpr Real kEyeOfTheCyclone = 1.f;
     auto dirvec = [&](const Point& p, unsigned ppi) {
         Shift s = ppoints.at(ppi) - p;
-        Real2 dv{s.dx, s.dy};
+        Real2 dv{s.dy, -s.dx}; // magnetic!
         return dv.normInPlace(kEyeOfTheCyclone);
     };
 
@@ -286,7 +303,7 @@ void petrify() {
                 wind *= factor(p, i);
                 flux += wind;
             }
-            if(flux.d2() > 0.01f) { // leave alone the undecided
+            if(flux.d2() > 0.001f) { // leave alone the undecided
                 Real2 unit = flux.normInPlace();
                 unit *= 2.f; // 0.5 becomes 1
                 Shift offset = {std::truncf(unit.x), std::truncf(unit.y)};
@@ -322,13 +339,14 @@ void petrify() {
             // ?  ?  ?  ?  ?  ?
             Shift dir_x = {dir.dx, 0};
             Shift dir_y = {0, dir.dy};
+            char c0 = at(map, p);
             char cd = at(map, p + dir);
             char ch = at(map, p + dir_x);
             char cv = at(map, p + dir_y);
-            auto isBarrier = [](char c) { return cWoods == c || cRocks == c; };
-            bool isbarrier = isBarrier(cd) && isBarrier(ch) && isBarrier(cv);
-            bool has_woods = cd == cWoods || ch == cWoods || cv == cWoods;
-            if(isbarrier && has_woods) {
+            auto impenetr = [](char c) { return cWoods == c || cRocks == c; };
+            bool barriers = impenetr(c0) && impenetr(cd) && impenetr(ch) && impenetr(cv);
+            bool haswoods = c0 == cWoods || cd == cWoods || ch == cWoods || cv == cWoods;
+            if(barriers && haswoods) {
                 Point d = p + dir * 2; // D for Diagonal
                 Point b = p + dir_x * 2, a = b - dir_y, c = b + dir_y;
                 Point f = p + dir_y * 2, e = f + dir_x, g = f - dir_x;
@@ -721,10 +739,9 @@ void dbgEcho(const EleMap& echo) {
 void generate() {
     formLand();
     segregate();
-    desertify();
+    makeLakes();
     castleize();
     paveRoads();
-    makeLakes();
     polish();
     petrify(); // petrification is conservative/transactional => works on a polished surface
     polish();  // +second polish may or may not be needed after a conservative petrification

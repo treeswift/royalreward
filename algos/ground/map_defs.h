@@ -21,9 +21,9 @@ constexpr char kColors = 15;
 constexpr char kMaxCol = 7;
 
 constexpr unsigned kNLines = 32u;
-constexpr unsigned kDoAcid = 0u;  // TODO softcode, test <3 on cont#3
+constexpr unsigned kDoAcid = 1u;  // TODO softcode, test <3 on cont#3
 constexpr unsigned kDoRain = 0u;  // TODO softcode, test <1 on cont#3
-constexpr unsigned kNLakes = 64u; // MOREINFO correlate with castles?
+constexpr unsigned kNLakes = 2u; // MOREINFO correlate with castles?
 constexpr unsigned kEchoes = 5u;
 
 // decay polynomial
