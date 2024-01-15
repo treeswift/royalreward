@@ -27,7 +27,9 @@ constexpr unsigned kNLakes = 2u; // 0 for Desertia
 constexpr unsigned kEchoes = 5u;
 
 constexpr unsigned kLabels = 11u;
+constexpr unsigned kTribes = 11u;
 constexpr unsigned kChests = 35u;
+constexpr unsigned kAddMes = 5;
 constexpr unsigned kChases = 35u;
 
 // decay polynomial
@@ -46,7 +48,7 @@ constexpr char cMagma = '\1';
 
 constexpr char cWater = ' ';
 constexpr char cWoods = '@';
-constexpr char cRocks = 'A';
+constexpr char cRocks = 'M';
 constexpr char cSands = '.';
 constexpr char cPlain = ':';
 
@@ -57,11 +59,19 @@ constexpr char cCCWLT = '{';
 constexpr char cCCWRB = ']';
 constexpr char cCCWRT = '}';
 
+constexpr char cGift1 = '(';
+constexpr char cGift2 = ')';
+
 constexpr char cEntry = '/';
-constexpr char cLabel = '+';
+constexpr char cTower = 't';
+constexpr char cMetro = 'o';
+constexpr char cLabel = '!';
+constexpr char cPaper = 'n';
+constexpr char cGlass = 'm';
+constexpr char cTribe = '&';
+constexpr char cAddMe = '+';
 constexpr char cChest = '$';
 constexpr char cEnemy = '*';
-
 
 } // namespace map
 

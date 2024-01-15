@@ -38,7 +38,7 @@ class Continent {
     Block visib = bound(0, kMapDim);
     Block conti = visib.inset(kShoalz);
     MapHolder<char> chrmem{cWater};
-    MapHolder<char> ovrmem{cWater};
+    MapHolder<Real> ampMap{1.f};
     std::vector<Point> castle_locs, wonder_locs, valued_locs, failed_locs;
 
     using Features = std::vector<Paint>;
@@ -513,7 +513,6 @@ void tunnelize(EleMap& echo) {
             Real rating = (at(echo, p) * 2.f + 0.02f * woods) * 0.15f;
             if((dither += rating) >= 1.f) {
                 dither -= std::trunc(dither);
-                wonder_locs.push_back(p);
                 valued_locs.push_back(p);
             }
         }
@@ -563,11 +562,9 @@ void stoneEcho(EleMap& echo) {
 
 void paveRoads() {
     ChrMap& map = this->map();
-    MapHolder<Real> ampMap{1.f};
     EleMap& echo = ampMap.map();
     stoneEcho(echo);
     tunnelize(echo);
-    dbgEcho(echo);
 
     // trails
     struct Edge {
@@ -716,19 +713,44 @@ void paveRoads() {
     }
 }
 
-void dbgEcho(const EleMap& echo) {
-    ChrMap& map = ovrmem.map();
-    conti.visit([&] WITH_XY {
-        if(map[y][x] == cWoods) {
-            float amp = echo[y][x];
-            // gamma correction:
-            amp = 1.f - amp;
-            amp = amp * amp;
-            amp = 1.f - amp;
-            // end of correction
-            map[y][x] = '0' + 10.f * amp;
+void specials() {
+    ChrMap& map = this->map();
+    EleMap& echo = ampMap.map();
+    // requried, desired
+    auto rating = [&]WITH_XY {
+        if(map[y][x] != cPlain) return 0.f;
+        auto isbarr = [](char c){ return cWoods == c || cRocks == c; };
+        auto ispass = [](char c){ return cSands == c || cPlain == c; };
+        char l = map[y][x-1], r = map[y][x-1];
+        char t = map[y+1][x], b = map[y-1][x];
+        unsigned access = ispass(l) + ispass(r) + ispass(t) + ispass(b);
+        unsigned hidden =(isbarr(l)||isbarr(r))&&(isbarr(t)||isbarr(b));
+        return hidden * (4 - access - echo[y][x]); // weights break ties
+    };
+
+    std::string bag;
+    bag.append({cGift1, cGift2});
+    bag.append({cPaper, cGlass});
+    bag.append({cMetro, cMetro});
+    bag.append(kTribes, cTribe);
+    bag.resize(kChests, cChest);
+    bag.append(kAddMes, cAddMe);
+    rnd::shuffle(bag);
+
+    std::multimap<Real, Point> sweetspots;
+    conti.visit([&]WITH_XY {
+        Real sugar = rating(x, y);
+        if(sugar > 0.f) {
+            sweetspots.insert({sugar, Point{x, y}});
         }
     });
+    auto itr = sweetspots.rbegin();
+    for(char c : bag) {
+        if(itr == sweetspots.rend()) break; // TODO also indicate underrun
+        at(map, itr->second) = c;
+        wonder_locs.push_back(itr->second);
+        ++itr;
+    }
 }
 
 void generate() {
@@ -742,6 +764,7 @@ void generate() {
     polish();  // +second polish may or may not be needed after a conservative petrification
     //
     markGates();
+    specials();
 }
 };
 
