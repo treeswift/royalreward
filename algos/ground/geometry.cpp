@@ -7,7 +7,7 @@ namespace map {
 
 int Shift::d2() const { return dx*dx + dy*dy; }
 
-float Shift::d() const { return std::sqrt((float) d2()); }
+Real Shift::d() const { return std::sqrt((Real) d2()); }
 
 Shift& Shift::operator+=(const Shift& delta) {
     dx += delta.dx;
@@ -88,7 +88,7 @@ Shift Point::operator-(const Point& base) const {
     return {x - base.x, y - base.y};
 }
 
-Point Point::blend(const Point& other, float f) const {
+Point Point::blend(const Point& other, Real f) const {
     return *this + (other - *this) * f;
 }
 

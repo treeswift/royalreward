@@ -4,13 +4,15 @@
 #include <cstdlib> // legacy std::rand
 #include <random>  // advanced engines
 
+#include "precise.h"
+
 namespace rnd {
 
 void seed(unsigned seed);
 
 unsigned upto(unsigned upper);
 
-float zto1();
+Real zto1();
 
 inline int inrg(int lower, int upper) { return upto(upper - lower) + lower; }
 

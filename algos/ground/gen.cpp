@@ -8,6 +8,7 @@
 #include <functional>
 
 #include "aynrand.h"
+#include "choices.h"
 #include "maps.h"
 
 namespace map{
@@ -113,7 +114,7 @@ void formLand() {
     ChrMap& map = chrmem.map();
 
     struct Allegiance {
-        float part[kColors];
+        Real part[kColors];
 
         Allegiance() { reset(); }
 
@@ -128,15 +129,15 @@ void formLand() {
             Real decay = kDecay + f.color * (kDPow2 * f.color + kDPow1); // Horner
             unsigned color = f.color;
             // color *= color & 1u; // more water but fewer islands!
-            float rbf = (dx * dx + dy * dy);
-            float prominence = 1.f; // decay, etc.
+            Real rbf = (dx * dx + dy * dy);
+            Real prominence = 1.f; // decay, etc.
             all.part[color] += prominence * expf(- decay * rbf);
         }
         unsigned idx = 0; // guaranteed to be overwritten
-        float max = 0.f;
-        float sum = 0.f;
+        Real max = 0.f;
+        Real sum = 0.f;
         for(unsigned color = 0; color <= kMaxCol; ++color) {
-            float pt = all.part[color];
+            Real pt = all.part[color];
             sum += pt;
             if(all.part[color] > max) {
                 max = pt;
@@ -144,12 +145,12 @@ void formLand() {
             }
         }
         // torn edge: make winning harder near water
-        float edge_d = std::min(
+        Real edge_d = std::min(
             std::min(x, kMapMax - x), 
             std::min(y, kMapMax - y)
         );
 
-        float lns = std::log10(sum + kRoughn) * kSmooth;
+        Real lns = std::log10(sum + kRoughn) * kSmooth;
 
         if(max * kWinner > sum && (lns + edge_d > kRugged)) { // majority winner
             map[y][x] = cWater + idx;
@@ -521,8 +522,8 @@ void tunnelize(EleMap& echo) {
 
 void stoneEcho(EleMap& echo) {
     ChrMap& map = this->map();
-    constexpr float kSpore = 0.36f;
-    constexpr float kDecay = 0.16f;
+    constexpr Real kSpore = 0.36f;
+    constexpr Real kDecay = 0.16f;
     auto coast = [&]WITH_XY {
         int grady = infirm(x-1, y+1) + infirm(x,y+1) + infirm(x+1,y+1) -
                    (isfirm(x-1, y-1) + infirm(x,y-1) + infirm(x+1,y-1));
@@ -535,14 +536,14 @@ void stoneEcho(EleMap& echo) {
     visib.inset(1).visit([&]WITH_XY {
         swap[y][x] = isshoal(x, y) ? coast(x, y) : (1e-4f * (unsigned) map[y][x]);
     });
-    auto blend = [](float mine, float with) {
+    auto blend = [](Real mine, Real with) {
         // should propagate incrementally, but not without resistance
-        float blend = 1.f - (1.f - mine) * (1.f - with);
+        Real blend = 1.f - (1.f - mine) * (1.f - with);
         return mine + (blend - mine) * kDecay;
     };
     auto blur = [&](EleMap& next, const EleMap& prev) {
         conti.visit([&]WITH_XY {
-            float echo = prev[y][x];
+            Real echo = prev[y][x];
             if(isfirm(x+1, y) && isfirm(x+2, y)) echo = blend(echo, prev[y][x+3]);
             if(isfirm(x-1, y) && isfirm(x-2, y)) echo = blend(echo, prev[y][x-3]);
             if(isfirm(x, y+1) && isfirm(x, y+2)) echo = blend(echo, prev[y+3][x]);
@@ -612,49 +613,28 @@ void paveRoads() {
             unsigned advance = rnd::upto(maze.size() * 3 + 1);
             Real weight;
             if(advance >= maze.size()) {
-                // int dx = (edge & 1);
-                // int sg = (edge & 2) - 1;
-                // dir = Shift{dx, 1 - dx} * sg;
-                std::vector<Real> weights;
-                Real total_weight = 0.f;
-                unsigned wcount = dirs.size() - is_castle_gate;
-                for(unsigned j = 0; j < wcount; ++j) {
+                auto weigh = [&](unsigned j) {
                     const Shift dir = dirs.at(j);
-                    Real weight = at(echo, probe+dir) + at(echo, probe+dir+dir);
-                    weights.push_back(weight);
-                    total_weight += weight;
-                }
-                float cast = rnd::zto1() * total_weight;
-                unsigned sel = wcount - 1;
-                for(unsigned j = 0; j < wcount; ++j) {
-                    if((cast -= weights[j]) <= 0.f) {
-                        sel = j;
-                        break;
-                    }
-                }
-                dir = dirs.at(sel);
-                weight = weights.at(sel);
+                    return at(echo, probe+dir) + at(echo, probe+dir+dir);
+                };
+                unsigned wcount = dirs.size() - maze.empty(); 
+                // NOTE: (is_castle_gate && maze.empty()) wb redundant
+                // -- non-castle start populates maze (see if() above)
+                constexpr Real prefer_last = 1.f; // no preference
+        
+                auto pick = rnk::pickWeighed(wcount, weigh);
+                weight = pick.weight;
+                dir = dirs.at(pick.sel);
             } else {
-                // probe = base.probe + base.dir * rnd::upto(base.edge + 1);
-                // dir = (edge & 1) ? base.dir.left() : base.dir.right();
                 const Edge& base = maze[advance];
-                Point retro = base.probe; // replace with multiplication
-                std::vector<Real> weights;
-                Real total_weight = 0.f;
-                for(unsigned j = 0; j <= base.edge; ++j) {
-                    Real weight = at(echo, retro);
-                    weights.push_back(weight);
-                    total_weight += weight;
-                    retro += base.dir;
-                }
-                float cast = rnd::zto1() * total_weight * 1.5f; // grow from end: 33% 
-                unsigned sel = base.edge;
-                for(unsigned j = 0; j <= base.edge; ++j) {
-                    if((cast -= weights[j]) <= 0.f) {
-                        sel = j;
-                        break;
-                    }
-                }
+                auto weigh = [&](unsigned j) {
+                    return at(echo, base.probe + base.dir * j);
+                };
+                constexpr Real prefer_last = 1.5f;
+                unsigned wcount = base.edge + 1;
+
+                // shoot 1.5 times ahead => grow from the end at 33% prob
+                unsigned sel = rnk::pickWeighed(wcount, weigh, 1.5f).sel;
                 probe = base.probe + base.dir * sel;
                 Shift ldir = base.dir.left();
                 Shift rdir = base.dir.right();

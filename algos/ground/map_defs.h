@@ -1,7 +1,7 @@
 #ifndef _ALGOS_GROUND_MAP_DEFS_H_
 #define _ALGOS_GROUND_MAP_DEFS_H_
 
-using Real = float; // double produces no real improvement atm
+#include "precise.h"
 
 namespace map{
 

@@ -1,8 +1,10 @@
 #ifndef _ALGOS_GROUND_GEOMETRY_H_
 #define _ALGOS_GROUND_GEOMETRY_H_
 
-#include <functional>
+#include "precise.h"
 #include "aynrand.h"
+
+#include <functional>
 
 namespace map {
 
@@ -10,7 +12,7 @@ struct Shift {
     int dx, dy;
 
     int d2() const;
-    float d() const;
+    Real d() const;
 
     Shift& operator+=(const Shift& delta);
     Shift& operator*=(int factor);
@@ -36,7 +38,7 @@ struct Point {
     Point& operator-=(const Shift& shift);
 
     Shift operator-(const Point& base) const;
-    Point blend(const Point& other, float f) const;
+    Point blend(const Point& other, Real f) const;
 
     bool operator==(const Point& other) const;
 };

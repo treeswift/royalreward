@@ -12,7 +12,7 @@ void seed(unsigned seed) {
     engine.seed(seed);
 }
 
-float zto1() {
+Real zto1() {
     return distro(engine);
 }
 
