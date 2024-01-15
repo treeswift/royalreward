@@ -747,7 +747,7 @@ void specials() {
     });
     // now enemies, now do-over
     placeSpots(bag.size(), sweetspots, [&](unsigned i, const Point& p) {
-        // wonder_locs.push_back(p); // TODO rpl w/switch
+        (void) p; // wonder_locs.push_back(p); // TODO rpl w/switch
         return bag[i];
     });
 }
