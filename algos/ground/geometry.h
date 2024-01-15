@@ -67,13 +67,13 @@ struct Block {
         for_rect(base.x, base.y, upto.x, upto.y, op);
     }
 
-    Block inset(unsigned inset) const {
+    Block inset(int inset) const {
         return {base + diag(inset), upto - diag(inset)};
     }
 };
 
 Block block(const Point& base, const Shift& size);
-Block square(const Point& base, unsigned side);
+Block square(const Point& base, unsigned side=1u);
 Block bound(unsigned base, unsigned upto);
 
 } // namespace map

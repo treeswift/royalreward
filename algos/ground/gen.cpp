@@ -35,12 +35,21 @@ bool goodPointForTrails(char c) {
     return goodPointForCEntry(c) || cSands == c;
 }
 
+Block nearby(const Point& p) {
+    return square(p, 1).inset(-1);
+}
+
+Block screen(const Point& p) {
+    return square(p, 1).inset(-2);
+}
+
 class Continent {
     Block visib = bound(0, kMapDim);
     Block conti = visib.inset(kShoalz);
     MapHolder<char> chrmem{cWater};
     MapHolder<Real> ampMap{1.f};
-    std::vector<Point> castle_locs, wonder_locs, valued_locs, failed_locs;
+    std::vector<Point> castle_locs, wonder_locs, enemy_locs;
+    std::vector<Point> valued_locs, failed_locs; //transient
 
     using Features = std::vector<Paint>;
 
@@ -506,9 +515,9 @@ void tunnelize(EleMap& echo) {
     conti.visit([&]WITH_XY {
         if(cWoods == map[y][x]) { // <implicitly protects castle gates
             Point p{x, y};
-            Block screen = square(p - Shift{2, 2}, 5); // TODO extract
+            Block scr = screen(p);
             unsigned woods = 0u;
-            screen.visit([&] WITH_XY {
+            scr.visit([&] WITH_XY {
                 woods += map[y][x] == cWoods;
             });
             Real rating = (at(echo, p) * 2.f + 0.02f * woods) * 0.15f;
@@ -721,10 +730,11 @@ void specials() {
     ChrMap& map = this->map();
     EleMap& echo = ampMap.map();
 
+    auto isbarr = [](char c){ return cWoods == c || cRocks == c; };
+    auto ispass = [](char c){ return cSands == c || cPlain == c; };
+
     SweetP sweetspots = sweepSpots([&]WITH_XY {
         if(map[y][x] != cPlain) return 0.f;
-        auto isbarr = [](char c){ return cWoods == c || cRocks == c; };
-        auto ispass = [](char c){ return cSands == c || cPlain == c; };
         char l = map[y][x-1], r = map[y][x+1];
         char t = map[y+1][x], b = map[y-1][x];
         unsigned access = ispass(l) + ispass(r) + ispass(t) + ispass(b);
@@ -746,6 +756,43 @@ void specials() {
         return cChest;
     });
     // now enemies, now do-over
+
+    MapHolder<Real> boredom{0.f};
+    EleMap& bore = boredom.map();
+    // in addition to crowding prevention, we can pre-mark an area as boring
+    SweetP enemyspots = sweepSpots([&]WITH_XY {
+        if(map[y][x] != cPlain) return 0.f;
+        const Real kUpperEstim = 24;
+        const Real kBaseRating = 6;
+        int people = 0;
+        int guards = 0;
+        int barrno = 0;
+        int seasea = 1;
+        Real dumb = .0f;
+        Block n = nearby({x, y});
+        nearby({x, y}).visit([&]WITH_XY {
+            char c = map[y][x];
+            barrno += isbarr(c);
+            guards += 4 * (cChest == c);
+            dumb   += (1.f - dumb) * bore[y][x];
+        });
+        screen({x, y}).visit([&]WITH_XY {
+            char c = map[y][x];
+            people += 2 * (cEntry == c)
+                    - 3 * (cTower == c);
+            seasea &= (cPlain == c || cWater == c);
+        });
+        seasea &= (rnd::zto1() < 0.10f); // 1/10 of empty seasides
+        barrno *= (rnd::zto1() < 0.02f); // 1/50 of narrow tunnels
+        Real rating = seasea ? kUpperEstim : (kBaseRating + people + guards + barrno);
+        bore[y][x] = (1.f / kUpperEstim) * rating + echo[y][x]; // ad hoc. too strong?
+        return (1.5f - dumb) * rating;
+    });
+    placeSpots(kIdiots, enemyspots, [&](unsigned, const Point& p){
+        enemy_locs.push_back(p);
+        return cEnemy;
+    });
+
     placeSpots(bag.size(), sweetspots, [&](unsigned i, const Point& p) {
         (void) p; // wonder_locs.push_back(p); // TODO rpl w/switch
         return bag[i];
