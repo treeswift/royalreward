@@ -28,7 +28,7 @@ constexpr unsigned kEchoes = 5u;
 
 constexpr unsigned kLabels = 11u;
 constexpr unsigned kTribes = 11u;
-constexpr unsigned kChests = 35u;
+constexpr unsigned kChests = 70u;
 constexpr unsigned kAddMes = 5;
 constexpr unsigned kChases = 35u;
 

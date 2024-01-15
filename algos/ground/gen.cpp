@@ -721,7 +721,7 @@ void specials() {
         if(map[y][x] != cPlain) return 0.f;
         auto isbarr = [](char c){ return cWoods == c || cRocks == c; };
         auto ispass = [](char c){ return cSands == c || cPlain == c; };
-        char l = map[y][x-1], r = map[y][x-1];
+        char l = map[y][x-1], r = map[y][x+1];
         char t = map[y+1][x], b = map[y-1][x];
         unsigned access = ispass(l) + ispass(r) + ispass(t) + ispass(b);
         unsigned hidden =(isbarr(l)||isbarr(r))&&(isbarr(t)||isbarr(b));
@@ -733,10 +733,11 @@ void specials() {
     bag.append({cPaper, cGlass});
     bag.append({cMetro, cMetro});
     bag.append(kTribes, cTribe);
-    bag.resize(kChests, cChest);
     bag.append(kAddMes, cAddMe);
+    bag.resize(kChests, cChest);
     rnd::shuffle(bag);
 
+    // extract 1
     std::multimap<Real, Point> sweetspots;
     conti.visit([&]WITH_XY {
         Real sugar = rating(x, y);
@@ -744,13 +745,22 @@ void specials() {
             sweetspots.insert({sugar, Point{x, y}});
         }
     });
+    auto onc = [&](char c, const Point& p) {
+        wonder_locs.push_back(p);
+        return c;
+    };
+    // auto onc = [&](char, const Point& p) {
+    //     wonder_locs.push_back(p);
+    //     return cChest;
+    // };
+    // extract 2
     auto itr = sweetspots.rbegin();
     for(char c : bag) {
         if(itr == sweetspots.rend()) break; // TODO also indicate underrun
-        at(map, itr->second) = c;
-        wonder_locs.push_back(itr->second);
+        at(map, itr->second) = onc(c, itr->second);
         ++itr;
     }
+    // now enemies, now do-over
 }
 
 void generate() {
