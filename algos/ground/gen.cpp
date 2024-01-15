@@ -691,11 +691,37 @@ void paveRoads() {
     }
 }
 
+using RankFN = std::function<Real WITH_XY>;
+using SweetP = rnk::Ranked<Point>;
+using PlaceP = std::function<char(char, const Point& p)>;
+
+SweetP sweepSpots(RankFN rating) {
+    rnk::Ranked<Point> sweetspots;
+    conti.visit([&]WITH_XY {
+        Real sugar = rating(x, y);
+        if(sugar > 0.f) {
+            sweetspots.insert({sugar, Point{x, y}});
+        }
+    });
+    return sweetspots;
+}
+
+bool placeSpots(unsigned count, const SweetP& sweetspots, PlaceP onc) {
+    ChrMap& map = this->map();
+    auto itr = sweetspots.crbegin();
+    for(unsigned i = 0; i < count; ++i) {
+        if(itr == sweetspots.crend()) return false;
+        at(map, itr->second) = onc(i, itr->second);
+        ++itr;
+    }
+    return true;
+}
+
 void specials() {
     ChrMap& map = this->map();
     EleMap& echo = ampMap.map();
-    // requried, desired
-    auto rating = [&]WITH_XY {
+
+    SweetP sweetspots = sweepSpots([&]WITH_XY {
         if(map[y][x] != cPlain) return 0.f;
         auto isbarr = [](char c){ return cWoods == c || cRocks == c; };
         auto ispass = [](char c){ return cSands == c || cPlain == c; };
@@ -704,7 +730,7 @@ void specials() {
         unsigned access = ispass(l) + ispass(r) + ispass(t) + ispass(b);
         unsigned hidden =(isbarr(l)||isbarr(r))&&(isbarr(t)||isbarr(b));
         return hidden * (4 - access - echo[y][x]); // weights break ties
-    };
+    });
 
     std::string bag;
     bag.append({cGift1, cGift2});
@@ -715,30 +741,15 @@ void specials() {
     bag.resize(kChests, cChest);
     rnd::shuffle(bag);
 
-    // extract 1
-    std::multimap<Real, Point> sweetspots;
-    conti.visit([&]WITH_XY {
-        Real sugar = rating(x, y);
-        if(sugar > 0.f) {
-            sweetspots.insert({sugar, Point{x, y}});
-        }
-    });
-    auto onc = [&](char c, const Point& p) {
+    placeSpots(bag.size(), sweetspots, [&](unsigned, const Point& p) {
         wonder_locs.push_back(p);
-        return c;
-    };
-    // auto onc = [&](char, const Point& p) {
-    //     wonder_locs.push_back(p);
-    //     return cChest;
-    // };
-    // extract 2
-    auto itr = sweetspots.rbegin();
-    for(char c : bag) {
-        if(itr == sweetspots.rend()) break; // TODO also indicate underrun
-        at(map, itr->second) = onc(c, itr->second);
-        ++itr;
-    }
+        return cChest;
+    });
     // now enemies, now do-over
+    placeSpots(bag.size(), sweetspots, [&](unsigned i, const Point& p) {
+        // wonder_locs.push_back(p); // TODO rpl w/switch
+        return bag[i];
+    });
 }
 
 void generate() {
