@@ -620,7 +620,6 @@ void paveRoads() {
                 unsigned wcount = dirs.size() - maze.empty(); 
                 // NOTE: (is_castle_gate && maze.empty()) wb redundant
                 // -- non-castle start populates maze (see if() above)
-                constexpr Real prefer_last = 1.f; // no preference
         
                 auto pick = rnk::pickWeighed(wcount, weigh);
                 weight = pick.weight;
@@ -630,7 +629,6 @@ void paveRoads() {
                 auto weigh = [&](unsigned j) {
                     return at(echo, base.probe + base.dir * j);
                 };
-                constexpr Real prefer_last = 1.5f;
                 unsigned wcount = base.edge + 1;
 
                 // shoot 1.5 times ahead => grow from the end at 33% prob
