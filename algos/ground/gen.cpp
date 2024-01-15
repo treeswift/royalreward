@@ -48,7 +48,7 @@ class Continent {
     Block conti = visib.inset(kShoalz);
     MapHolder<char> chrmem{cWater};
     MapHolder<Real> ampMap{1.f};
-    std::vector<Point> castle_locs, wonder_locs, enemy_locs;
+    std::vector<Point> castle_locs, wonder_locs, enemy_locs, plaza_locs;
     std::vector<Point> valued_locs, failed_locs; //transient
 
     using Features = std::vector<Paint>;
@@ -726,20 +726,63 @@ bool placeSpots(unsigned count, const SweetP& sweetspots, PlaceP onc) {
     return true;
 }
 
+bool isbarr(char c){ return cWoods == c || cRocks == c; }
+
+bool ispass(char c){ return cSands == c || cPlain == c; }
+
+bool ishard(char c){ return isbarr( c ) || cWater == c; }
+
 void specials() {
     ChrMap& map = this->map();
     EleMap& echo = ampMap.map();
 
-    auto isbarr = [](char c){ return cWoods == c || cRocks == c; };
-    auto ispass = [](char c){ return cSands == c || cPlain == c; };
+    std::vector<Shift> dirs = {{-1,-1}, {-1, 1}, { 1,-1}, { 1, 1}};
+    SweetP city_spots = sweepSpots([&]WITH_XY {
+        Point p{x, y};
+        if(at(map, p) == cPlain) {
+            bool l = ishard(map[x-1][y]);
+            bool r = ishard(map[x+1][y]);
+            bool t = ishard(map[x][y+1]);
+            bool b = ishard(map[x][y-1]);
+            bool impasse = l==r && t==b && l!=b;
+            if(!impasse) {
+                unsigned pc = 0;
+                unsigned ec = 0;
+                nearby(p).visit([&]WITH_XY {
+                    char c = map[y][x];
+                    pc += c == cPlain;
+                    ec |= c == cEntry;
+                });
+                for(const Shift& dir : dirs) {
+                    char h = at(map, p + Shift{dir.dx, 0});
+                    char v = at(map, p + Shift{0, dir.dy});
+                    char d = at(map, p + dir);
+                    if(cPlain == h || cPlain == v) {
+                        if(cWater == d || cWater == h || cWater == v) {
+                            //  + 0.1f * pc
+                            return (1.f + rnd::zto1()) * !ec; // TODO mark quadrant...
+                        }
+                    }
+                }
+            }
+        }
+        return 0.f;
+    });
+    // FIXME a city must not obscure a path -- can't be on a throughway
+    // FIXME (wish) favor open space
+    placeSpots(castle_locs.size(), city_spots, [&](unsigned, const Point& p) {
+        plaza_locs.push_back(p);
+        return cPlaza;
+    });
 
     SweetP sweetspots = sweepSpots([&]WITH_XY {
         if(map[y][x] != cPlain) return 0.f;
         char l = map[y][x-1], r = map[y][x+1];
         char t = map[y+1][x], b = map[y-1][x];
         unsigned access = ispass(l) + ispass(r) + ispass(t) + ispass(b);
+        unsigned nocity = cPlaza!=l&&cPlaza!=r &&cPlaza!=b && cPlaza!=t;
         unsigned hidden =(isbarr(l)||isbarr(r))&&(isbarr(t)||isbarr(b));
-        return hidden * (4 - access - echo[y][x]); // weights break ties
+        return hidden * nocity * (4 - access - echo[y][x]); // weights break ties
     });
 
     std::string bag;
@@ -769,7 +812,6 @@ void specials() {
         int barrno = 0;
         int seasea = 1;
         Real dumb = .0f;
-        Block n = nearby({x, y});
         nearby({x, y}).visit([&]WITH_XY {
             char c = map[y][x];
             barrno += isbarr(c);
@@ -779,7 +821,7 @@ void specials() {
         screen({x, y}).visit([&]WITH_XY {
             char c = map[y][x];
             people += 2 * (cEntry == c)
-                    - 3 * (cTower == c);
+                    - 3 * (cPlaza == c);
             seasea &= (cPlain == c || cWater == c);
         });
         seasea &= (rnd::zto1() < 0.10f); // 1/10 of empty seasides

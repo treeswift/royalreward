@@ -63,7 +63,7 @@ constexpr char cGift1 = '(';
 constexpr char cGift2 = ')';
 
 constexpr char cEntry = '/';
-constexpr char cTower = 't';
+constexpr char cPlaza = 't';
 constexpr char cMetro = 'o';
 constexpr char cLabel = '!';
 constexpr char cPaper = 'n';
