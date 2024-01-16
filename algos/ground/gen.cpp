@@ -48,7 +48,7 @@ class Continent {
     Block conti = visib.inset(kShoalz);
     MapHolder<char> chrmem{cWater};
     MapHolder<Real> ampMap{1.f};
-    std::vector<Point> castle_locs, wonder_locs, enemy_locs, plaza_locs;
+    std::vector<Point> castle_locs, labels_locs, plaza_locs, wonder_locs, enemy_locs;
     std::vector<Point> valued_locs, failed_locs; //transient
 
     using Features = std::vector<Paint>;
@@ -741,31 +741,58 @@ void specials() {
     ChrMap& map = this->map();
     EleMap& echo = ampMap.map();
 
+    auto island = [&]WITH_XY {
+        bool l = cWater == map[y][x-1];
+        bool r = cWater == map[y][x+1];
+        bool t = cWater == map[y+1][x];
+        bool b = cWater == map[y-1][x];
+        return l && r && t && b;
+    };
+
+    auto impasse = [&]WITH_XY {
+        bool l = ishard(map[y][x-1]);
+        bool r = ishard(map[y][x+1]);
+        bool t = ishard(map[y+1][x]);
+        bool b = ishard(map[y-1][x]);
+        return l==r && t==b && l!=b;
+    };
+
+    SweetP sign_spots = sweepSpots([&]WITH_XY {
+        Point p{x, y};
+        if(at(map, p) == cPlain && !impasse(x, y)) {
+            unsigned hard = 0;
+            screen(p).visit([&]WITH_XY {
+                char c = map[y][x];
+                hard += ishard(c);
+                hard += cPlain == c || cWater == c; // flatitude
+            });
+            return (rnd::zto1() - .5f) * hard + 25.f * island(x, y);
+        }
+        return 0.f;
+    });
+    placeSpots(kLabels, sign_spots, [&](unsigned, const Point& p) {
+        labels_locs.push_back(p);
+        return cLabel;
+    });
+
     std::vector<Shift> dirs = {{-1,-1}, {-1, 1}, { 1,-1}, { 1, 1}};
     SweetP city_spots = sweepSpots([&]WITH_XY {
         Point p{x, y};
-        if(at(map, p) == cPlain) {
-            bool l = ishard(map[x-1][y]);
-            bool r = ishard(map[x+1][y]);
-            bool t = ishard(map[x][y+1]);
-            bool b = ishard(map[x][y-1]);
-            bool impasse = l==r && t==b && l!=b;
-            if(!impasse) {
-                unsigned pc = 0;
-                unsigned ec = 0;
-                nearby(p).visit([&]WITH_XY {
-                    char c = map[y][x];
-                    pc += c == cPlain;
-                    ec |= c == cEntry;
-                });
-                for(const Shift& dir : dirs) {
-                    char h = at(map, p + Shift{dir.dx, 0});
-                    char v = at(map, p + Shift{0, dir.dy});
-                    char d = at(map, p + dir);
-                    if(cPlain == h || cPlain == v) {
-                        if(cWater == d || cWater == h || cWater == v) {
-                            return (.5f + 0.1f * pc + rnd::zto1()) * !ec; // TODO mark quadrant...
-                        }
+        if(at(map, p) == cPlain && !impasse(x, y)) {
+            unsigned pc = 0;
+            unsigned ec = 0;
+            nearby(p).visit([&]WITH_XY {
+                char c = map[y][x];
+                pc += c == cPlain;
+                ec |= c == cEntry;
+            });
+            for(const Shift& dir : dirs) {
+                char h = at(map, p + Shift{dir.dx, 0});
+                char v = at(map, p + Shift{0, dir.dy});
+                char d = at(map, p + dir);
+                if(cPlain == h || cPlain == v) {
+                    if(cWater == d || cWater == h || cWater == v) {
+                        return (.5f + 0.1f * pc + rnd::zto1()) * !ec; // TODO mark quadrant...
                     }
                 }
             }
