@@ -819,31 +819,23 @@ void specials() {
     // in addition to crowding prevention, we can pre-mark an area as boring
     SweetP enemyspots = sweepSpots([&]WITH_XY {
         if(map[y][x] != cPlain) return 0.f;
-        const Real kUpperEstim = 24;
-        const Real kBaseRating = 4;
-        int people = 0;
+        const Real kUpperEstim = 4;
         int guards = 0;
         int barrno = 0;
-        int seasea = 1;
         Real dumb = .0f;
         nearby({x, y}).visit([&]WITH_XY {
             char c = map[y][x];
             barrno += ishard(c); // "hard" includes water
-            guards |= 4 * (cChest == c);
+            guards |= cChest == c;
         });
         screen({x, y}).visit([&]WITH_XY {
             char c = map[y][x];
-            guards |= 4 * (cEntry == c);
-            guards |= 4 * (cPlaza == c);
-            seasea &= (cPlain == c || cWater == c);
+            guards |= cEntry == c || cPlaza == c;
             dumb   += (1.f - dumb) * bore[y][x];
         });
-        seasea &= (rnd::zto1() < 0.10f); // 1/10 of empty seasides
-        barrno *= (rnd::zto1() < 0.02f); // 1/50 of narrow tunnels
-        seasea &= people || guards;
-        barrno *= people || guards;
-        Real rating = seasea ? kUpperEstim : (kBaseRating + people + guards + barrno);
-        bore[y][x] = (1.f / kUpperEstim) * (rating + echo[y][x]); // ad hoc. too strong?
+        barrno *= (rnd::zto1() < 0.10f); // 1/10 of narrow tunnels
+        Real rating = echo[y][x] + guards + 0.25f * barrno;
+        bore[y][x] = (1.f / kUpperEstim) * rating;
         return (1.5f - dumb) * rating;
     });
     placeSpots(kIdiots, enemyspots, [&](unsigned, const Point& p){
