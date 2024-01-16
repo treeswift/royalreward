@@ -448,6 +448,19 @@ void polish() {
     });
 }
 
+void putCastle WITH_XY {
+    ChrMap& map = this->map();
+    map[y][x-1] = cCCWLB;
+    map[y+1][x-1] = cCCWLT;
+    map[y][x] = cCGate;
+    map[y+1][x] = cCRear + castle_locs.size();
+    map[y][x+1] = cCCWRB;
+    map[y+1][x+1] = cCCWRT;
+    map[y-1][x] = cPlain; // etc.etc.etc.
+    castle_locs.push_back({x, y});
+    valued_locs.push_back({x, y - 1});
+}
+
 void markGates() {
     ChrMap& map = this->map();
     // for(const Point& point : wonder_locs) {
@@ -466,36 +479,38 @@ void castleize() {
     ChrMap& map = this->map();
     constexpr unsigned kCastles = 9;
     unsigned castles = 0;
-    unsigned y = 0;
-    unsigned x = 0;
+    int y = 0;
+    int x = 0;
     Real dither = 0;
     auto goodPlaceForCastle = [&]WITH_XY {
         return goodPointForCastle(map[y][x]) && goodPointForCastle(map[y][x+1]) && goodPointForCastle(map[y][x-1])
         && goodPointForCastle(map[y+1][x]) && goodPointForCastle(map[y+1][x+1]) && goodPointForCastle(map[y+1][x-1])
         && goodPointForCEntry(map[y-1][x]);
     };
+    Real rad2 = (Real) kMapMem / kCastles / M_PI / 4; // TODO if castleization fails, reduce and retry
     while(castles < kCastles) {
         Point gate = conti.rand();
         y = gate.y;
 
         std::vector<int> ltr(kMapDim);
         int d = 0;
-        for(unsigned x = 0; x < kMapDim; ++x) { // shadows outer "x"
-            ltr[x] = goodPointForCastle(map[y][x]) ? ++d : (d = 0);
+        for(int x = 0; x < kMapDim; ++x) { // shadows outer "x"
+            ltr[x] = map[y][x] != cWater /*goodPointForCastle(map[y][x])*/ ? ++d : (d = 0);
         }
         // d = 0; // redundant as the edge of the map is always sea
         std::vector<Real> pbs(kMapDim, 0.f);
         Real sum = 0.f;
-        for(unsigned x = kMapDim; x; ) { // ditto
-            goodPointForCastle(map[y][--x]) ? ++d : (d = 0);
+        for(int x = kMapDim; x; ) { // ditto
+            map[y][--x] != cWater /*goodPointForCastle(map[y][--x])*/ ? ++d : (d = 0);
             if(d && ltr[x]) {
-                constexpr unsigned kPushInland = 2u;
+                constexpr int kPushInland = 2;
                 int l = kPushInland + ltr[x];  // left
                 int r = kPushInland + d;       // right
                 int a = std::abs(r - l) & ~1u; // asymmetry
                 Real prob = std::sqrt(std::sqrt(1.f / (r*r + l*l))) / (1 + a * a);
                 for(const Point& point : castle_locs) { // repulsion
-                    prob *= (1.f - 1.f / (point - Point{x, y}).d2());
+                    prob *= 1.f - 25.f / (25u + (point - Point{x, y}).d2());
+                    // prob *= (point - Point{x, y}).d2() >= rad2;
                 }
                 sum += (pbs[x] = prob);
             }
@@ -526,16 +541,7 @@ void castleize() {
                         resistance += 20;
                     }
 
-                // FIXME make transactional!
-                map[y][x-1] = cCCWLB;
-                map[y+1][x-1] = cCCWLT;
-                map[y][x] = cCGate;
-                map[y+1][x] = cCRear + castles;
-                map[y][x+1] = cCCWRB;
-                map[y+1][x+1] = cCCWRT;
-                map[y-1][x] = cPlain; // etc.etc.etc.
-                castle_locs.push_back({x, y});
-                valued_locs.push_back({x, y - 1});
+                putCastle(x, y);
                 ++castles; // if tran commit
             }
         }
@@ -803,9 +809,16 @@ void specials() {
         }
         return 0.f;
     });
+    Real sig2 = (Real) kMapMem / M_PI / castle_locs.size();
     placeSpots(kLabels, sign_spots, [&](unsigned, const Point& p) {
         labels_locs.push_back(p);
         return cLabel;
+    }, [&](const Point p) {
+        // if we don't do semantic proximity checks, iteration is faster
+        for(const Point& sign : labels_locs) {
+            if((p - sign).d2() < sig2) return false;
+        }
+        return true;
     });
 
     std::vector<Shift> dirs = {{-1,-1}, {-1, 1}, { 1,-1}, { 1, 1}};
@@ -893,8 +906,8 @@ void specials() {
             guards |= cEntry == c || cPlaza == c;
             dumb   += (1.f - dumb) * bore[y][x];
         });
-        barrno *= (rnd::zto1() < 0.10f); // 1/10 of narrow tunnels
-        Real rating = echo[y][x] + guards + 0.25f * barrno;
+        barrno *= (rnd::zto1() < 0.05f); // 1/20 of narrow tunnels
+        Real rating = echo[y][x] + guards + 0.15f * barrno;
         bore[y][x] = (1.f / kUpperEstim) * rating;
         return (1.5f - dumb) * rating;
     });
