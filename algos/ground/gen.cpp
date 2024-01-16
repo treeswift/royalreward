@@ -820,7 +820,7 @@ void specials() {
     SweetP enemyspots = sweepSpots([&]WITH_XY {
         if(map[y][x] != cPlain) return 0.f;
         const Real kUpperEstim = 24;
-        const Real kBaseRating = 6;
+        const Real kBaseRating = 4;
         int people = 0;
         int guards = 0;
         int barrno = 0;
@@ -828,20 +828,22 @@ void specials() {
         Real dumb = .0f;
         nearby({x, y}).visit([&]WITH_XY {
             char c = map[y][x];
-            barrno += isbarr(c);
-            guards += 4 * (cChest == c);
-            dumb   += (1.f - dumb) * bore[y][x];
+            barrno += ishard(c); // "hard" includes water
+            guards |= 4 * (cChest == c);
         });
         screen({x, y}).visit([&]WITH_XY {
             char c = map[y][x];
-            people += 2 * (cEntry == c)
-                    - 3 * (cPlaza == c);
+            guards |= 4 * (cEntry == c);
+            guards |= 4 * (cPlaza == c);
             seasea &= (cPlain == c || cWater == c);
+            dumb   += (1.f - dumb) * bore[y][x];
         });
         seasea &= (rnd::zto1() < 0.10f); // 1/10 of empty seasides
         barrno *= (rnd::zto1() < 0.02f); // 1/50 of narrow tunnels
+        seasea &= people || guards;
+        barrno *= people || guards;
         Real rating = seasea ? kUpperEstim : (kBaseRating + people + guards + barrno);
-        bore[y][x] = (1.f / kUpperEstim) * rating + echo[y][x]; // ad hoc. too strong?
+        bore[y][x] = (1.f / kUpperEstim) * (rating + echo[y][x]); // ad hoc. too strong?
         return (1.5f - dumb) * rating;
     });
     placeSpots(kIdiots, enemyspots, [&](unsigned, const Point& p){

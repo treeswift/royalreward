@@ -35,7 +35,7 @@ constexpr int kIdiots = 35u;
 // decay polynomial
 constexpr Real kDecay = 0.0f; // produces archipelagoes
 constexpr Real kDPow1 = 0.1f; // produces regular continents
-constexpr Real kDPow2 = 0.2f; // produces Laurasia/Gondwana
+constexpr Real kDPow2 = 0.0f; // produces Laurasia/Gondwana
 
 constexpr Real kWinner = 1.5f;  // reciprocal of threshold
 constexpr Real kRugged = 0.f;   // torn edges; rarely needs adjustment
