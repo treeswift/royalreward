@@ -5,44 +5,44 @@
 
 namespace map{
 
-constexpr unsigned kMapDim = 64u;
-constexpr unsigned kMapMax = kMapDim - 1u;
-constexpr unsigned kMapMem = kMapDim * kMapDim;
+constexpr int kMapDim = 64u;
+constexpr int kMapMax = kMapDim - 1u;
+constexpr int kMapMem = kMapDim * kMapDim;
 
-constexpr unsigned kMapExt = kMapDim + 1u;
-constexpr unsigned kExtSqr = kMapExt * kMapExt;
+constexpr int kMapExt = kMapDim + 1u;
+constexpr int kExtSqr = kMapExt * kMapExt;
 
-constexpr unsigned kMargin = 1u;
-constexpr unsigned kShoalz = 3u;
-constexpr unsigned kMEdgez = kMapDim - kShoalz;
-constexpr unsigned kMinBox = 2u;
-constexpr unsigned kFeaAmp = 16u;
+constexpr int kMargin = 1u;
+constexpr int kShoalz = 3u;
+constexpr int kMEdgez = kMapDim - kShoalz;
+constexpr int kMinBox = 2u;
+constexpr int kFeaAmp = 16u;
 constexpr char kColors = 15;
 constexpr char kMaxCol = 7; // 1 for Pangaia
 
-constexpr unsigned kNLines = 32u;
-constexpr unsigned kDoAcid = 1u;
-constexpr unsigned kDoRain = 0u; // >>1 for Polynesia
-constexpr unsigned kNLakes = 2u; // 0 for Desertia
-constexpr unsigned kEchoes = 5u;
+constexpr int kNLines = 32u;
+constexpr int kDoAcid = 1u;
+constexpr int kDoRain = 0u; // >>1 for Polynesia
+constexpr int kNLakes = 2u; // 0 for Desertia
+constexpr int kEchoes = 5u;
 
-constexpr unsigned kLabels = 11u;
-constexpr unsigned kTribes = 11u;
-constexpr unsigned kChests = 70u;
-constexpr unsigned kAddMes = 5;
-constexpr unsigned kIdiots = 35u;
+constexpr int kLabels = 11u;
+constexpr int kTribes = 11u;
+constexpr int kChests = 70u;
+constexpr int kAddMes = 5;
+constexpr int kIdiots = 35u;
 
 // decay polynomial
 constexpr Real kDecay = 0.0f; // produces archipelagoes
-constexpr Real kDPow1 = 0.2f; // produces regular continents
-constexpr Real kDPow2 = 0.0f; // produces Laurasia/Gondwana
+constexpr Real kDPow1 = 0.1f; // produces regular continents
+constexpr Real kDPow2 = 0.2f; // produces Laurasia/Gondwana
 
 constexpr Real kWinner = 1.5f;  // reciprocal of threshold
 constexpr Real kRugged = 0.f;   // torn edges; rarely needs adjustment
 constexpr Real kRoughn = 1e-5f; // log10(rcp(roughness)) is how far from the edges the tear ends
 constexpr Real kSmooth = 0.7f;
 
-constexpr unsigned kSeed = 2u;
+constexpr int kSeed = 2u;
 
 constexpr char cMagma = '\1';
 

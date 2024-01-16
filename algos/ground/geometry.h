@@ -32,7 +32,7 @@ Shift operator+(const Shift& left, const Shift& right);
 Shift operator-(const Shift& left, const Shift& right);
 
 struct Point {
-    unsigned x, y;
+    int x, y;
     
     Point& operator+=(const Shift& shift);
     Point& operator-=(const Shift& shift);
@@ -46,13 +46,13 @@ struct Point {
 Point operator+(const Point& base, const Shift& shift);
 Point operator-(const Point& base, const Shift& shift);
 
-Point corner(unsigned far);
+Point corner(int far);
 
-using with_xy = std::function<void(unsigned, unsigned)>;
-using bool_xy = std::function<bool(unsigned, unsigned)>;
-#define WITH_XY (unsigned x, unsigned y)
+using with_xy = std::function<void(int, int)>;
+using bool_xy = std::function<bool(int, int)>;
+#define WITH_XY (int x, int y)
 
-void for_rect(unsigned x0, unsigned y0, unsigned xm, unsigned ym, with_xy op);
+void for_rect(int x0, int y0, int xm, int ym, with_xy op);
 
 struct Block {
     Point base, upto;
@@ -63,6 +63,10 @@ struct Block {
         return base + size().rand();
     }
 
+    bool covers(const Point& p) const {
+        return p.x >= base.x && p.y >= base.y && p.x < upto.x && p.y < upto.y;
+    }
+
     void visit(with_xy op) {
         for_rect(base.x, base.y, upto.x, upto.y, op);
     }
@@ -70,11 +74,14 @@ struct Block {
     Block inset(int inset) const {
         return {base + diag(inset), upto - diag(inset)};
     }
+
+    Block& operator&=(const Block& other);
 };
 
 Block block(const Point& base, const Shift& size);
-Block square(const Point& base, unsigned side=1u);
-Block bound(unsigned base, unsigned upto);
+Block square(const Point& base, int side=1u);
+Block bound(int base, int upto);
+Block operator&(const Block& base, const Block& other);
 
 } // namespace map
 

@@ -96,23 +96,35 @@ bool Point::operator==(const Point& other) const {
     return x == other.x && y == other.y;
 }
 
-Point corner(unsigned far) { return {far, far}; }
+Point corner(int far) { return {far, far}; }
 
 Block block(const Point& base, const Shift& size) {
     return {base, base + size};
 }
 
-Block square(const Point& base, unsigned side) {
+Block square(const Point& base, int side) {
     return {base, base + diag(side)};
 }
 
-Block bound(unsigned base, unsigned upto) {
+Block bound(int base, int upto) {
     return {{base, base}, {upto, upto}};
 }
 
-void for_rect(unsigned x0, unsigned y0, unsigned xm, unsigned ym, with_xy op) {
-    for(unsigned y = y0; y < ym; ++y) {
-        for(unsigned x = x0; x < xm; ++x) {
+Block& Block::operator&=(const Block& other) {
+    base.x = std::max(base.x, other.base.x);
+    base.y = std::max(base.y, other.base.y);
+    upto.x = std::min(upto.x, other.upto.x);
+    upto.y = std::min(upto.y, other.upto.y);
+    return *this;
+}
+
+Block operator&(const Block& base, const Block& other) {
+    Block copy = base; return copy &= other;
+}
+
+void for_rect(int x0, int y0, int xm, int ym, with_xy op) {
+    for(int y = y0; y < ym; ++y) {
+        for(int x = x0; x < xm; ++x) {
             op(x, y);
         }
     }

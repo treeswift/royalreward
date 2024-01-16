@@ -37,7 +37,7 @@ private:
 with_xy paint4(bool_xy test, with_xy flip);
 with_xy paint8(bool_xy test, with_xy flip);
 
-inline bool isinner(unsigned x, unsigned y) {
+inline bool isinner(int x, int y) {
     return x >= kMargin && y >= kMargin && x < kMapMax && y < kMapMax;
 }
 

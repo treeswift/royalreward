@@ -702,7 +702,6 @@ void paveRoads() {
 
 using RankFN = std::function<Real WITH_XY>;
 using SweetP = rnk::Ranked<Point>;
-using PlaceP = std::function<char(char, const Point& p)>;
 
 SweetP sweepSpots(RankFN rating) {
     rnk::Ranked<Point> sweetspots;
@@ -715,12 +714,18 @@ SweetP sweepSpots(RankFN rating) {
     return sweetspots;
 }
 
-bool placeSpots(unsigned count, const SweetP& sweetspots, PlaceP onc) {
+using PrediP = std::function<bool(const Point&)>;
+using PlaceP = std::function<char(char, const Point& p)>;
+
+bool placeSpots(unsigned count, const SweetP& sweetspots, PlaceP onc, PrediP canc = [](const Point&){ return true; }) {
     ChrMap& map = this->map();
     auto itr = sweetspots.crbegin();
-    for(unsigned i = 0; i < count; ++i) {
+    for(unsigned i = 0; i < count; ) {
         if(itr == sweetspots.crend()) return false;
-        at(map, itr->second) = onc(i, itr->second);
+        if(canc(itr->second)) {
+            at(map, itr->second) = onc(i, itr->second);
+            ++i;
+        }
         ++itr;
     }
     return true;
@@ -759,8 +764,7 @@ void specials() {
                     char d = at(map, p + dir);
                     if(cPlain == h || cPlain == v) {
                         if(cWater == d || cWater == h || cWater == v) {
-                            //  + 0.1f * pc
-                            return (1.f + rnd::zto1()) * !ec; // TODO mark quadrant...
+                            return (.5f + 0.1f * pc + rnd::zto1()) * !ec; // TODO mark quadrant...
                         }
                     }
                 }
@@ -768,11 +772,21 @@ void specials() {
         }
         return 0.f;
     });
-    // FIXME a city must not obscure a path -- can't be on a throughway
     // FIXME (wish) favor open space
+
+    MapHolder<char> nations{true};
+    ChrMap& nat = nations.map();
+    Real rad2 = (Real) kMapMem / M_PI / castle_locs.size();
     placeSpots(castle_locs.size(), city_spots, [&](unsigned, const Point& p) {
+        paint4([&]WITH_XY {
+            return (Point{x, y} - p).d2() <= rad2 && (cPlain == map[y][x]) && nat[y][x];
+        }, [&]WITH_XY {
+            nat[y][x] = false;
+        })(p.x, p.y);
         plaza_locs.push_back(p);
         return cPlaza;
+    }, [&](const Point& p) {
+        return at(nat, p);
     });
 
     SweetP sweetspots = sweepSpots([&]WITH_XY {
