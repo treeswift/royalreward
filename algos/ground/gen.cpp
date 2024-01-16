@@ -895,6 +895,8 @@ void generate() {
 
 int main(int argc, char** argv) {
     using namespace map;
+    (void) argc;
+    (void) argv;
 
     rnd::seed(kSeed);
     Continent cont;
