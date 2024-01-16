@@ -19,6 +19,7 @@ constexpr int kMinBox = 2u;
 constexpr int kFeaAmp = 16u;
 constexpr char kColors = 15;
 constexpr char kMaxCol = 7; // 1 for Pangaia
+static_assert(kMaxCol+1 < kColors, "tectonic array");
 
 constexpr int kNLines = 32u;
 constexpr int kDoAcid = 1u;

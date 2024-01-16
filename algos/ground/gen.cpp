@@ -46,6 +46,10 @@ Block screen(const Point& p) {
 class Continent {
     Block visib = bound(0, kMapDim);
     Block conti = visib.inset(kShoalz);
+    Point entry = {11, 3};
+    Point ruler = {11, 8};
+    Block trail = Block{entry, ruler + Shift{1, 1}};
+    Block major = trail.inset(-3);
     MapHolder<char> chrmem{cWater};
     MapHolder<Real> ampMap{1.f};
     std::vector<Point> castle_locs, labels_locs, plaza_locs, wonder_locs, enemy_locs;
@@ -98,7 +102,7 @@ void stroke(Features& features, const Point& p0, const Point& p1, char color) {
     }
 }
 
-std::vector<Paint> minerals() {
+std::vector<Paint> tectonics(char banner = '\1') {
     std::vector<Paint> features;
 
     Block sbox = bound(kMinBox, kMinBox + kFeaAmp);
@@ -115,11 +119,40 @@ std::vector<Paint> minerals() {
         char color = rnd::upto(kMaxCol) + 1u;
         stroke(features, p0, p1, color);
     }
+
+    fprintf(stderr, "feature count=%lu\n", features.size());
+    for(const auto& feature : features) {
+        fprintf(stderr, "f: %u,%u = %d\n", feature.x, feature.y, feature.color);
+    }
+
+    fprintf(stderr, "major: %u,%u - %u,%u\n", major.base.x, major.base.y, major.upto.x, major.upto.y);
+    if(banner != '\255') {
+        fprintf(stderr, "feature count=%lu\n", features.size());
+        for(auto itr = features.begin(); itr != features.end(); ) {
+            if(major.covers(*itr) && (itr->color != banner)) {
+                fprintf(stderr, "erase\n");
+                itr = features.erase(itr);
+            } else {
+                fprintf(stderr, "keep\n");
+                ++itr;
+            }
+        }
+        fprintf(stderr, "feature count=%lu\n", features.size());
+        // trail.visit([&]WITH_XY { features.push_back({Point{x, y}, banner}); });
+        features.push_back({entry, banner});
+        features.push_back({ruler, banner});
+
+        fprintf(stderr, "feature count=%lu\n", features.size());
+        for(const auto& feature : features) {
+            fprintf(stderr, "f: %u,%u = %d\n", feature.x, feature.y, feature.color);
+        }
+    }
+
     return features;
 }
 
 void formLand() {
-    auto features = minerals();
+    auto features = tectonics(kMaxCol + 1); // or: 1, or: kMaxCol + 1
     ChrMap& map = chrmem.map();
 
     struct Allegiance {

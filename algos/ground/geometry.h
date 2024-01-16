@@ -59,6 +59,8 @@ struct Block {
 
     Shift size() const { return upto - base; }
 
+    unsigned area() const { Shift sz = size(); return sz.dx * sz.dy; }
+
     Point rand() const {
         return base + size().rand();
     }
