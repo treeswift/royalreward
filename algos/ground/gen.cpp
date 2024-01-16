@@ -49,7 +49,7 @@ class Continent {
     Point entry = {11, 3};
     Point ruler = {11, 8};
     Block trail = Block{entry, ruler + Shift{1, 1}};
-    Block major = trail.inset(-3);
+    Block major = trail.inset(-14);
     MapHolder<char> chrmem{cWater};
     MapHolder<Real> ampMap{1.f};
     std::vector<Point> castle_locs, labels_locs, plaza_locs, wonder_locs, enemy_locs;
