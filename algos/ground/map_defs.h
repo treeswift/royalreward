@@ -25,7 +25,8 @@ constexpr char kMidSea = 0;
 constexpr char kOnLand = 1;
 constexpr char kIsland = kMaxCol + 1;
 constexpr char kMature = '\255'; // disable
-constexpr char kGround = kIsland; // kIsland;
+constexpr char kGround = kMidSea; // kIsland;
+constexpr bool kWizard = true;
 
 constexpr int kNLines = 32u;
 constexpr int kDoAcid = 1u;

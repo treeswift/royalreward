@@ -48,6 +48,7 @@ class Continent {
     Block conti = visib.inset(kShoalz);
     Point entry = {11, 3};
     Point ruler = {11, 8};
+    Point magic = {11, 19};
     Block trail = Block{entry, ruler + Shift{1, 1}};
     Block major = trail.inset(-7) & visib;
     MapHolder<char> chrmem{cWater};
@@ -141,6 +142,9 @@ std::vector<Paint> tectonics() {
         // trail.visit([&]WITH_XY { features.push_back({Point{x, y}, kGround}); });
         features.push_back({entry, kGround});
         features.push_back({ruler, kGround});
+        if(kWizard) {
+            features.push_back({magic, kGround});
+        }
 
         fprintf(stderr, "feature count=%lu\n", features.size());
         for(const auto& feature : features) {
@@ -484,6 +488,9 @@ void markHaven() {
     }
     map[6][11] = cEntry;
     map[3][12] = cPlain; // will be Hero's Haven
+    if(kWizard) {
+        map[19][11] = cTribe;
+    }
 }
 
 void markGates() {
@@ -667,7 +674,8 @@ void paveRoads() {
         // ...or extract loop body and apply to both vecs?
         Point probe = valued_locs[li];
         bool is_castle_gate = li < castle_locs.size();
-        bool is_origin_gate = li == castle_locs.size() && kGround != kMature;
+        bool is_origin_gate = kGround != kMature && li == castle_locs.size();
+        bool is_wizard_cell = kGround != kMature && li == castle_locs.size() + 1 && kWizard;
         auto edgecond = is_castle_gate ? castle_edgecond : wonder_edgecond;
         auto pathterm = is_castle_gate ? castle_pathterm : wonder_pathterm;
 
@@ -675,7 +683,11 @@ void paveRoads() {
 
         bool inland = true;
         if(!is_castle_gate) {
+            if(is_wizard_cell) {
+                probe = {11, 19};
+            }
             if(is_origin_gate) {
+                probe = {11, 6};
                 maze.push_back({probe, {0, -1}, 3});
                 inland = false;
             } else if(onplain(probe.x, probe.y)) {
@@ -898,6 +910,7 @@ void specials() {
 
     SweetP sweetspots = sweepSpots([&]WITH_XY {
         if(map[y][x] != cPlain) return 0.f;
+        if(kGround != kMature && trail.covers({x, y})) return -1.f;
         char l = map[y][x-1], r = map[y][x+1];
         char t = map[y+1][x], b = map[y-1][x];
         unsigned access = ispass(l) + ispass(r) + ispass(t) + ispass(b);
