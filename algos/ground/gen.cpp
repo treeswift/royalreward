@@ -985,6 +985,7 @@ struct GoldenKey {
             case cAddMe:
             case cChest:
             case cEnemy:
+            // TODO add options to bury the key under cLabel or cEntry
                 c = cPlain;
         }
         return c;
