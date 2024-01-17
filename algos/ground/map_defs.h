@@ -35,7 +35,7 @@ constexpr int kNLakes = 2u; // 0 for Desertia
 constexpr int kEchoes = 5u;
 
 constexpr int kCastles = 9u;
-constexpr int kLabels = 11u;
+constexpr int kLabels = 22u;
 constexpr int kTribes = 11u;
 constexpr int kChests = 70u;
 constexpr int kAddMes = 5;
