@@ -34,6 +34,7 @@ constexpr int kDoRain = 0u; // >>1 for Polynesia
 constexpr int kNLakes = 2u; // 0 for Desertia
 constexpr int kEchoes = 5u;
 
+constexpr int kCastles = 9u;
 constexpr int kLabels = 11u;
 constexpr int kTribes = 11u;
 constexpr int kChests = 70u;
@@ -50,7 +51,7 @@ constexpr Real kRugged = 0.f;   // torn edges; rarely needs adjustment
 constexpr Real kRoughn = 1e-5f; // log10(rcp(roughness)) is how far from the edges the tear ends
 constexpr Real kSmooth = 0.7f;
 
-constexpr int kSeed = 2u;
+constexpr int kSeed = 1u;
 
 constexpr char cMagma = '\1';
 

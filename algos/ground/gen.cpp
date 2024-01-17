@@ -489,7 +489,6 @@ void markGates() {
 void castleize() {
     // castle placement
     ChrMap& map = this->map();
-    constexpr unsigned kCastles = 9;
     unsigned castles = 0;
     int y = 0;
     int x = 0;
@@ -973,11 +972,14 @@ void generate() {
 };
 
 struct GoldenKey {
-    struct Burial { Point p; unsigned cindex = 0; bool unique = true; };
+    struct Burial { Point p; unsigned cindex = 0; unsigned ucount = 0; bool unique = true; };
     Block conti;
 
     static char convert(char c) {
-        switch(c) { // replace w/a LUT?
+        if(c >= cCRear && c <= cCRear + kCastles) {
+            c = cCRear;
+        }
+        else switch(c) { // replace w/a LUT?
             case cPaper:
             case cGlass:
             case cGift1:
@@ -985,7 +987,6 @@ struct GoldenKey {
             case cAddMe:
             case cChest:
             case cEnemy:
-            // TODO add options to bury the key under cLabel or cEntry
                 c = cPlain;
         }
         return c;
@@ -996,9 +997,8 @@ struct GoldenKey {
         hash.reserve(25);
         screen(p).visit([&]WITH_XY {
             char c = convert(map[y][x]);
-            if(c == cPlain) {
-                hash.push_back(c); // (25+ovh)*4*64*64 >= 400k... may want to pack
-            }
+            // TODO add options to bury the key under cSands, cLabel or cEntry
+            hash.push_back(c); // (25+ovh)*4*64*64 >= 400k... may want to pack
         });
         return hash;
     }
@@ -1010,8 +1010,10 @@ struct GoldenKey {
             spot.p = Point{x, y};
             char c = convert(map[y][x]);
             if(cPlain == c) {
+                stats_locs++;
                 std::string key = look(map, spot.p);
-                auto ins = candidates.insert({key, spot});
+                auto ins = papermaps.insert({key, spot});
+                ins.first->second.ucount++;
                 bool& uniq = ins.first->second.unique;
                 if(ins.second) {
                     uniq = true;
@@ -1028,8 +1030,12 @@ struct GoldenKey {
 
     Burial select() const {
         if(stats_puts <= stats_rejc) {
-            fprintf(stderr, "No unique map locations! %u, %u\n", stats_puts, stats_rejc);
-            std::abort();
+            for(const auto& k : papermaps) {
+                fprintf(stderr, "%s [%u]\n", k.first.c_str(), k.second.ucount);
+            }
+            fprintf(stderr, "No unique map locations! %lu=%u?=%u+%u\n", papermaps.size(), stats_locs, stats_puts, stats_rejc);
+            // std::abort();
+            return spot;
         }
         unsigned attemptcount = 32;
         while(attemptcount > 0) {
@@ -1037,8 +1043,8 @@ struct GoldenKey {
             const ChrMap& map = *(maps.at(cindex));
             Point p = conti.rand();
             std::string hash = look(map, p);
-            auto itr = candidates.find(hash);
-            if(itr != candidates.cend() && itr->second.unique) {
+            auto itr = papermaps.find(hash);
+            if(itr != papermaps.cend() && itr->second.unique) {
                 return itr->second;
             }
             --attemptcount;
@@ -1046,23 +1052,25 @@ struct GoldenKey {
         // brewt force
         unsigned pick = rnd::upto(stats_puts - stats_rejc);
         unsigned item = 0;
-        for(auto itr = candidates.cbegin(); itr != candidates.cend(); ++itr) {
+        for(auto itr = papermaps.cbegin(); itr != papermaps.cend(); ++itr) {
             if(item == pick) {
                 return itr->second;
             }
             item += itr->second.unique;
         }
-        fprintf(stderr, "No unique location found! %u, %u\n", stats_puts, stats_rejc);
-        std::abort();
+        fprintf(stderr, "No unique location found! %lu=%u?=%u+%u\n", papermaps.size(), stats_locs, stats_puts, stats_rejc);
+        // std::abort();
+        return spot;
     }
 
+    unsigned stats_locs = 0;
     unsigned stats_puts = 0;
     unsigned stats_rejc = 0;
 
 private:
     Burial spot;
     std::vector<const ChrMap*> maps;
-    std::map<std::string, Burial> candidates;
+    std::map<std::string, Burial> papermaps;
 };
 
 } // namespace map
