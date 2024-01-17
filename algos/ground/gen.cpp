@@ -49,7 +49,7 @@ class Continent {
     Point entry = {11, 3};
     Point ruler = {11, 8};
     Block trail = Block{entry, ruler + Shift{1, 1}};
-    Block major = trail.inset(-14);
+    Block major = trail.inset(-7) & visib;
     MapHolder<char> chrmem{cWater};
     MapHolder<Real> ampMap{1.f};
     std::vector<Point> castle_locs, labels_locs, plaza_locs, wonder_locs, enemy_locs;
@@ -102,7 +102,7 @@ void stroke(Features& features, const Point& p0, const Point& p1, char color) {
     }
 }
 
-std::vector<Paint> tectonics(char banner = '\1') {
+std::vector<Paint> tectonics() {
     std::vector<Paint> features;
 
     Block sbox = bound(kMinBox, kMinBox + kFeaAmp);
@@ -126,10 +126,10 @@ std::vector<Paint> tectonics(char banner = '\1') {
     }
 
     fprintf(stderr, "major: %u,%u - %u,%u\n", major.base.x, major.base.y, major.upto.x, major.upto.y);
-    if(banner != '\255') {
+    if(kGround != kMature) {
         fprintf(stderr, "feature count=%lu\n", features.size());
         for(auto itr = features.begin(); itr != features.end(); ) {
-            if(major.covers(*itr) && (itr->color != banner)) {
+            if(major.covers(*itr) && (itr->color != kGround)) {
                 fprintf(stderr, "erase\n");
                 itr = features.erase(itr);
             } else {
@@ -138,9 +138,9 @@ std::vector<Paint> tectonics(char banner = '\1') {
             }
         }
         fprintf(stderr, "feature count=%lu\n", features.size());
-        // trail.visit([&]WITH_XY { features.push_back({Point{x, y}, banner}); });
-        features.push_back({entry, banner});
-        features.push_back({ruler, banner});
+        // trail.visit([&]WITH_XY { features.push_back({Point{x, y}, kGround}); });
+        features.push_back({entry, kGround});
+        features.push_back({ruler, kGround});
 
         fprintf(stderr, "feature count=%lu\n", features.size());
         for(const auto& feature : features) {
@@ -152,7 +152,7 @@ std::vector<Paint> tectonics(char banner = '\1') {
 }
 
 void formLand() {
-    auto features = tectonics(kMaxCol + 1); // or: 1, or: kMaxCol + 1
+    auto features = tectonics();
     ChrMap& map = chrmem.map();
 
     struct Allegiance {
@@ -168,8 +168,9 @@ void formLand() {
         for(const Paint& f : features) {
             int dx = f.x - x;
             int dy = f.y - y;
-            Real decay = kDecay + f.color * (kDPow2 * f.color + kDPow1); // Horner
             unsigned color = f.color;
+            unsigned dcolor = color ? color : kMaxCol + 1;
+            Real decay = kDecay + dcolor * (kDPow2 * dcolor + kDPow1); // Horner
             // color *= color & 1u; // more water but fewer islands!
             Real rbf = (dx * dx + dy * dy);
             Real prominence = 1.f; // decay, etc.
@@ -178,12 +179,12 @@ void formLand() {
         unsigned idx = 0; // guaranteed to be overwritten
         Real max = 0.f;
         Real sum = 0.f;
-        for(unsigned color = 0; color <= kMaxCol; ++color) {
+        for(unsigned color = 0; color <= kMaxCol + 1; ++color) {
             Real pt = all.part[color];
             sum += pt;
             if(all.part[color] > max) {
                 max = pt;
-                idx = color + 1u;
+                idx = color;
             }
         }
         // torn edge: make winning harder near water
@@ -193,8 +194,13 @@ void formLand() {
         );
 
         Real lns = std::log10(sum + kRoughn) * kSmooth;
+        if(kGround != kMature && x <= ruler.x && y == edge_d) {
+            // 10-11,3 water; 12-... land
+            lns = (x & 2) ? -3 : -2;
+        }
+        bool edge_cond = (lns + edge_d > kRugged);
 
-        if(max * kWinner > sum && (lns + edge_d > kRugged)) { // majority winner
+        if(max * kWinner > sum && edge_cond) { // majority winner
             map[y][x] = cWater + idx;
         }
     });
@@ -448,27 +454,39 @@ void polish() {
     });
 }
 
-void putCastle WITH_XY {
+void putCastle(int x, int y, unsigned no) {
     ChrMap& map = this->map();
     map[y][x-1] = cCCWLB;
     map[y+1][x-1] = cCCWLT;
     map[y][x] = cCGate;
-    map[y+1][x] = cCRear + castle_locs.size();
+    map[y+1][x] = cCRear + no;
     map[y][x+1] = cCCWRB;
     map[y+1][x+1] = cCCWRT;
     map[y-1][x] = cPlain; // etc.etc.etc.
-    castle_locs.push_back({x, y});
-    valued_locs.push_back({x, y - 1});
+}
+
+void markHaven() {
+    ChrMap& map = this->map();
+    switch(kGround) {
+        case kMature:
+            return;
+        case kMidSea:
+            map[4][11] = cShaft;
+            map[5][11] = cShaft;
+            map[7][11] = cCGate;
+            break;
+        default:
+            putCastle(11, 7, 0);
+            map[8][11] = cCRear; // '0'
+            // TODO fix inlets west and east of Hero's Port
+            break;
+    }
+    map[6][11] = cEntry;
+    map[3][12] = cPlain; // will be Hero's Haven
 }
 
 void markGates() {
     ChrMap& map = this->map();
-    // for(const Point& point : wonder_locs) {
-    //     map[point.y][point.x] = cChest; // DBG: not real chests, more like forest clearings
-    // }
-    // for(const Point& point : failed_locs) {
-    //     map[point.y][point.x] = cLabel; // DBG: rejected nooks and secret places
-    // }
     for(const Point& point : castle_locs) {
         map[point.y-1][point.x] = cEntry;
     }
@@ -483,11 +501,11 @@ void castleize() {
     int x = 0;
     Real dither = 0;
     auto goodPlaceForCastle = [&]WITH_XY {
-        return goodPointForCastle(map[y][x]) && goodPointForCastle(map[y][x+1]) && goodPointForCastle(map[y][x-1])
+        return (kGround == kMature || !major.covers({x, y}))
+        && goodPointForCastle(map[y][x]) && goodPointForCastle(map[y][x+1]) && goodPointForCastle(map[y][x-1])
         && goodPointForCastle(map[y+1][x]) && goodPointForCastle(map[y+1][x+1]) && goodPointForCastle(map[y+1][x-1])
         && goodPointForCEntry(map[y-1][x]);
     };
-    Real rad2 = (Real) kMapMem / kCastles / M_PI / 4; // TODO if castleization fails, reduce and retry
     while(castles < kCastles) {
         Point gate = conti.rand();
         y = gate.y;
@@ -541,7 +559,9 @@ void castleize() {
                         resistance += 20;
                     }
 
-                putCastle(x, y);
+                castle_locs.push_back({x, y});
+                valued_locs.push_back({x, y - 1});
+                putCastle(x, y, castle_locs.size());
                 ++castles; // if tran commit
             }
         }
@@ -549,6 +569,10 @@ void castleize() {
 }
 
 void tunnelize(EleMap& echo) {
+    if(kGround != kMature) {
+        valued_locs.push_back({11, 7});
+    }
+
     ChrMap& map = this->map();
     Real dither = 0.f;
     conti.visit([&]WITH_XY {
@@ -642,6 +666,7 @@ void paveRoads() {
         // ...or extract loop body and apply to both vecs?
         Point probe = valued_locs[li];
         bool is_castle_gate = li < castle_locs.size();
+        bool is_origin_gate = li == castle_locs.size() && kGround != kMature;
         auto edgecond = is_castle_gate ? castle_edgecond : wonder_edgecond;
         auto pathterm = is_castle_gate ? castle_pathterm : wonder_pathterm;
 
@@ -649,10 +674,14 @@ void paveRoads() {
 
         bool inland = true;
         if(!is_castle_gate) {
-            if(onplain(probe.x, probe.y)) {
+            if(is_origin_gate) {
+                maze.push_back({probe, {0, -1}, 3});
+                inland = false;
+            } else if(onplain(probe.x, probe.y)) {
                 inland = false; // equivalent to "continue"
+            } else {
+                maze.push_back({probe, {0, 0}, 1}); // allow oases
             }
-            maze.push_back({probe, {0, 0}, 1}); // allow oases
         }
 
         while(inland) {
@@ -850,6 +879,10 @@ void specials() {
     MapHolder<char> nations{true};
     ChrMap& nat = nations.map();
     Real rad2 = (Real) kMapMem / M_PI / castle_locs.size();
+    if(kGround != kMature) {
+        Real maxFactor = city_spots.rbegin()->first;
+        city_spots.insert(city_spots.end(), {maxFactor * 2.f, {12, 3}}); // Hero's Port
+    }
     placeSpots(castle_locs.size(), city_spots, [&](unsigned, const Point& p) {
         paint4([&]WITH_XY {
             return (Point{x, y} - p).d2() <= rad2 && (cPlain == map[y][x]) && nat[y][x];
@@ -857,7 +890,7 @@ void specials() {
             nat[y][x] = false;
         })(p.x, p.y);
         plaza_locs.push_back(p);
-        return cPlaza;
+        return cHaven;
     }, [&](const Point& p) {
         return at(nat, p);
     });
@@ -867,7 +900,7 @@ void specials() {
         char l = map[y][x-1], r = map[y][x+1];
         char t = map[y+1][x], b = map[y-1][x];
         unsigned access = ispass(l) + ispass(r) + ispass(t) + ispass(b);
-        unsigned nocity = cPlaza!=l&&cPlaza!=r &&cPlaza!=b && cPlaza!=t;
+        unsigned nocity = cHaven!=l&&cHaven!=r &&cHaven!=b && cHaven!=t;
         unsigned hidden =(isbarr(l)||isbarr(r))&&(isbarr(t)||isbarr(b));
         return hidden * nocity * (4 - access - echo[y][x]); // weights break ties
     });
@@ -892,6 +925,7 @@ void specials() {
     // in addition to crowding prevention, we can pre-mark an area as boring
     SweetP enemyspots = sweepSpots([&]WITH_XY {
         if(map[y][x] != cPlain) return 0.f;
+        if(kGround != kMature && trail.covers({x, y})) return -1.f;
         const Real kUpperEstim = 4;
         int guards = 0;
         int barrno = 0;
@@ -903,7 +937,7 @@ void specials() {
         });
         screen({x, y}).visit([&]WITH_XY {
             char c = map[y][x];
-            guards |= cEntry == c || cPlaza == c;
+            guards |= cEntry == c || cHaven == c;
             dumb   += (1.f - dumb) * bore[y][x];
         });
         barrno *= (rnd::zto1() < 0.05f); // 1/20 of narrow tunnels
@@ -928,6 +962,7 @@ void generate() {
     makeLakes();
     castleize();
     paveRoads();
+    markHaven();
     polish();
     petrify(); // petrification is conservative/transactional => works on a polished surface
     polish();  // +second polish may or may not be needed after a conservative petrification

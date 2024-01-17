@@ -21,6 +21,12 @@ constexpr char kColors = 15;
 constexpr char kMaxCol = 7; // 1 for Pangaia
 static_assert(kMaxCol+1 < kColors, "tectonic array");
 
+constexpr char kMidSea = 0;
+constexpr char kOnLand = 1;
+constexpr char kIsland = kMaxCol + 1;
+constexpr char kMature = '\255'; // disable
+constexpr char kGround = kIsland; // kIsland;
+
 constexpr int kNLines = 32u;
 constexpr int kDoAcid = 1u;
 constexpr int kDoRain = 0u; // >>1 for Polynesia
@@ -54,7 +60,7 @@ constexpr char cSands = '.';
 constexpr char cPlain = ':';
 
 constexpr char cCGate = 'F';
-constexpr char cCRear = '1';
+constexpr char cCRear = '0';
 constexpr char cCCWLB = '[';
 constexpr char cCCWLT = '{';
 constexpr char cCCWRB = ']';
@@ -64,7 +70,7 @@ constexpr char cGift1 = '(';
 constexpr char cGift2 = ')';
 
 constexpr char cEntry = '/';
-constexpr char cPlaza = 't';
+constexpr char cHaven = 't';
 constexpr char cMetro = 'o';
 constexpr char cLabel = '!';
 constexpr char cPaper = 'n';
@@ -73,6 +79,8 @@ constexpr char cTribe = '&';
 constexpr char cAddMe = '+';
 constexpr char cChest = '$';
 constexpr char cEnemy = '*';
+
+constexpr char cShaft = '#';
 
 } // namespace map
 
