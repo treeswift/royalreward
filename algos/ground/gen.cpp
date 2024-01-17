@@ -121,34 +121,18 @@ std::vector<Paint> tectonics() {
         stroke(features, p0, p1, color);
     }
 
-    fprintf(stderr, "feature count=%lu\n", features.size());
-    for(const auto& feature : features) {
-        fprintf(stderr, "f: %u,%u = %d\n", feature.x, feature.y, feature.color);
-    }
-
-    fprintf(stderr, "major: %u,%u - %u,%u\n", major.base.x, major.base.y, major.upto.x, major.upto.y);
     if(kGround != kMature) {
-        fprintf(stderr, "feature count=%lu\n", features.size());
         for(auto itr = features.begin(); itr != features.end(); ) {
             if(major.covers(*itr) && (itr->color != kGround)) {
-                fprintf(stderr, "erase\n");
                 itr = features.erase(itr);
             } else {
-                fprintf(stderr, "keep\n");
                 ++itr;
             }
         }
-        fprintf(stderr, "feature count=%lu\n", features.size());
-        // trail.visit([&]WITH_XY { features.push_back({Point{x, y}, kGround}); });
         features.push_back({entry, kGround});
         features.push_back({ruler, kGround});
         if(kWizard) {
             features.push_back({magic, kGround});
-        }
-
-        fprintf(stderr, "feature count=%lu\n", features.size());
-        for(const auto& feature : features) {
-            fprintf(stderr, "f: %u,%u = %d\n", feature.x, feature.y, feature.color);
         }
     }
 
