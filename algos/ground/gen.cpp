@@ -44,21 +44,23 @@ Block screen(const Point& p) {
 }
 
 class Continent {
-    Block visib = bound(0, kMapDim);
-    Block conti = visib.inset(kShoalz);
-    Point entry = {11, 3};
-    Point ruler = {11, 8};
-    Point magic = {11, 19};
-    Block trail = Block{entry, ruler + Shift{1, 1}};
-    Block major = trail.inset(-7) & visib;
     MapHolder<char> chrmem{cWater};
     MapHolder<Real> ampMap{1.f};
-    std::vector<Point> castle_locs, labels_locs, plaza_locs, wonder_locs, enemy_locs;
-    std::vector<Point> valued_locs, failed_locs; //transient
 
     using Features = std::vector<Paint>;
 
 public:
+    const Block visib = bound(0, kMapDim);
+    const Block conti = visib.inset(kShoalz);
+    const Point entry = {11, 3};
+    const Point ruler = {11, 8};
+    const Point magic = {11, 19};
+    const Block trail = Block{entry, ruler + Shift{1, 1}};
+    const Block major = trail.inset(-7) & visib;
+
+    std::vector<Point> castle_locs, labels_locs, plaza_locs, wonder_locs, enemy_locs;
+    std::vector<Point> valued_locs, failed_locs; //transient
+
     Continent() = default; // TODO inject constants
 
     ChrMap& map() { return chrmem.map(); }
@@ -970,6 +972,98 @@ void generate() {
 }
 };
 
+struct GoldenKey {
+    struct Burial { Point p; unsigned cindex = 0; bool unique = true; };
+    Block conti;
+
+    static char convert(char c) {
+        switch(c) { // replace w/a LUT?
+            case cPaper:
+            case cGlass:
+            case cGift1:
+            case cGift2:
+            case cAddMe:
+            case cChest:
+            case cEnemy:
+                c = cPlain;
+        }
+        return c;
+    }
+
+    std::string look(const ChrMap& map, const Point& p) const {
+        std::string hash;
+        hash.reserve(25);
+        screen(p).visit([&]WITH_XY {
+            char c = convert(map[y][x]);
+            if(c == cPlain) {
+                hash.push_back(c); // (25+ovh)*4*64*64 >= 400k... may want to pack
+            }
+        });
+        return hash;
+    }
+
+    void consider(const Continent& cont) {
+        const auto& map = cont.map();
+        conti = cont.conti; // FIXME make static in Continent
+        conti.visit([&]WITH_XY {
+            spot.p = Point{x, y};
+            char c = convert(map[y][x]);
+            if(cPlain == c) {
+                std::string key = look(map, spot.p);
+                auto ins = candidates.insert({key, spot});
+                bool& uniq = ins.first->second.unique;
+                if(ins.second) {
+                    uniq = true;
+                    stats_puts++;
+                } else {
+                    stats_rejc += uniq;
+                    uniq = false;
+                }
+            }
+        });
+        maps.push_back(&map);
+        spot.cindex++;
+    }
+
+    Burial select() const {
+        if(stats_puts <= stats_rejc) {
+            fprintf(stderr, "No unique map locations! %u, %u\n", stats_puts, stats_rejc);
+            std::abort();
+        }
+        unsigned attemptcount = 32;
+        while(attemptcount > 0) {
+            unsigned cindex = rnd::upto(spot.cindex);
+            const ChrMap& map = *(maps.at(cindex));
+            Point p = conti.rand();
+            std::string hash = look(map, p);
+            auto itr = candidates.find(hash);
+            if(itr != candidates.cend() && itr->second.unique) {
+                return itr->second;
+            }
+            --attemptcount;
+        }
+        // brewt force
+        unsigned pick = rnd::upto(stats_puts - stats_rejc);
+        unsigned item = 0;
+        for(auto itr = candidates.cbegin(); itr != candidates.cend(); ++itr) {
+            if(item == pick) {
+                return itr->second;
+            }
+            item += itr->second.unique;
+        }
+        fprintf(stderr, "No unique location found! %u, %u\n", stats_puts, stats_rejc);
+        std::abort();
+    }
+
+    unsigned stats_puts = 0;
+    unsigned stats_rejc = 0;
+
+private:
+    Burial spot;
+    std::vector<const ChrMap*> maps;
+    std::map<std::string, Burial> candidates;
+};
+
 } // namespace map
 
 int main(int argc, char** argv) {
@@ -980,6 +1074,12 @@ int main(int argc, char** argv) {
     rnd::seed(kSeed);
     Continent cont;
     cont.generate();
+
+    GoldenKey gk;
+    gk.consider(cont);
+    map::Point k = gk.select().p;
+    at(cont.map(), k) = cPrize; // FIXME display only, move out
+
     *stdout << cont.map();
 
     // TODO add map tuning dump

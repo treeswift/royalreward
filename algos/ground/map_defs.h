@@ -83,6 +83,8 @@ constexpr char cEnemy = '*';
 
 constexpr char cShaft = '#';
 
+constexpr char cPrize = 'v'; // debugging display only
+
 } // namespace map
 
 #endif

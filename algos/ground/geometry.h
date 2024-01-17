@@ -69,7 +69,7 @@ struct Block {
         return p.x >= base.x && p.y >= base.y && p.x < upto.x && p.y < upto.y;
     }
 
-    void visit(with_xy op) {
+    void visit(with_xy op) const {
         for_rect(base.x, base.y, upto.x, upto.y, op);
     }
 
