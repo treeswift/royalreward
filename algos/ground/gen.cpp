@@ -1079,9 +1079,13 @@ int main(int argc, char** argv) {
     GoldenKey gk;
     gk.consider(cont);
     map::Point k = gk.select().p;
-    at(cont.map(), k) = cPrize; // FIXME display only, move out
 
+    // replace the following with *stdout << gk
+    char c = cPrize;
+    char& pl = at(cont.map(), k);
+    std::swap(c, pl);
     *stdout << cont.map();
+    std::swap(c, pl);
 
     // TODO add map tuning dump
 
