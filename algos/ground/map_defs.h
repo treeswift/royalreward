@@ -17,16 +17,16 @@ constexpr int kShoalz = 3u;
 constexpr int kMEdgez = kMapDim - kShoalz;
 constexpr int kMinBox = 2u;
 constexpr int kFeaAmp = 16u;
-constexpr char kColors = 15;
+constexpr char kColors = 17;
 constexpr char kMaxCol = 7; // 1 for Pangaia
-static_assert(kMaxCol+1 < kColors, "tectonic array");
+static_assert(kMaxCol+2 < kColors, "tectonic array");
 
 constexpr char kMidSea = 0;
 constexpr char kOnLand = 1;
 constexpr char kIsland = kMaxCol + 1;
 constexpr char kMature = '\255'; // disable
 constexpr char kGround = kMidSea; // kIsland;
-constexpr bool kWizard = true;
+constexpr char kWizard = kIsland;
 
 constexpr int kNLines = 32u;
 constexpr int kDoAcid = 1u;

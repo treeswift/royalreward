@@ -133,8 +133,8 @@ std::vector<Paint> tectonics() {
         }
         features.push_back({entry, kGround});
         features.push_back({ruler, kGround});
-        if(kWizard) {
-            features.push_back({magic, kGround});
+        if(kWizard != kMature) {
+            features.push_back({magic, kWizard});
         }
     }
 
@@ -474,7 +474,7 @@ void markHaven() {
     }
     map[6][11] = cEntry;
     map[3][12] = cPlain; // will be Hero's Haven
-    if(kWizard) {
+    if(kWizard != kMature) {
         map[19][11] = cTribe;
     }
 }
@@ -660,7 +660,7 @@ void paveRoads() {
         Point probe = valued_locs[li];
         bool is_castle_gate = li < castle_locs.size();
         bool is_origin_gate = kGround != kMature && li == castle_locs.size();
-        bool is_wizard_cell = kGround != kMature && li == castle_locs.size() + 1 && kWizard;
+        bool is_wizard_cell = kGround != kMature && li == castle_locs.size() + 1 && kWizard != kMature;
         auto edgecond = is_castle_gate ? castle_edgecond : wonder_edgecond;
         auto pathterm = is_castle_gate ? castle_pathterm : wonder_pathterm;
 
