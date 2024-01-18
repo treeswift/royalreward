@@ -1081,7 +1081,7 @@ struct GoldenKey {
             // std::abort();
             return spot;
         }
-        unsigned attemptcount = 32;
+        unsigned attemptcount = 32; // more than enough, but given the fallback is brute force iteration, err on the safe side
         while(attemptcount > 0) {
             unsigned cindex = rnd::upto(spot.cindex);
             const ChrMap& map = *(maps.at(cindex));
@@ -1089,7 +1089,7 @@ struct GoldenKey {
             std::string hash = look(map, p);
             auto itr = papermaps.find(hash);
             if(itr != papermaps.cend() && itr->second.unique) {
-                return itr->second;
+                return spot = itr->second;
             }
             --attemptcount;
         }
@@ -1107,12 +1107,16 @@ struct GoldenKey {
         return spot;
     }
 
+    const Burial& selected() const {
+        return spot;
+    }
+
     unsigned stats_locs = 0;
     unsigned stats_puts = 0;
     unsigned stats_rejc = 0;
 
 private:
-    Burial spot;
+    mutable Burial spot;
     std::vector<const ChrMap*> maps;
     std::map<std::string, Burial> papermaps;
 };
@@ -1137,9 +1141,9 @@ int main(int argc, char** argv) {
     char& pl = at(cont.map(), k);
     std::swap(c, pl);
     // wrap the following in *stdout << continent
-    cont.maskCities(false);
+    // cont.maskCities(false);
     *stdout << cont.map();
-    cont.maskCities();
+    // cont.maskCities();
     std::swap(c, pl); // ... gk
 
     // TODO add map tuning dump
