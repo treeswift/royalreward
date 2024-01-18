@@ -58,7 +58,7 @@ public:
     const Block trail = Block{entry, ruler + Shift{1, 1}};
     const Block major = trail.inset(-7) & visib;
 
-    std::vector<Point> castle_locs, labels_locs, plaza_locs, wonder_locs, enemy_locs;
+    std::vector<Point> castle_locs, labels_locs, haven_locs, wonder_locs, enemy_locs;
     std::vector<Point> valued_locs, failed_locs; //transient
 
     Continent() = default; // TODO inject constants
@@ -887,7 +887,7 @@ void specials() {
         }, [&]WITH_XY {
             nat[y][x] = false;
         })(p.x, p.y);
-        plaza_locs.push_back(p);
+        haven_locs.push_back(p);
         return cHaven;
     }, [&](const Point& p) {
         return at(nat, p);
@@ -955,6 +955,49 @@ void specials() {
     });
 }
 
+Real cityCost(unsigned i) {
+    return (haven_locs[i] - castle_locs[i]).d();
+}
+
+Real cityCost() {
+    Real cost = 0.f;
+    for(unsigned i = 0; i < kCastles; ++i) {
+        cost += cityCost(i);
+    }
+    return cost;
+}
+
+void citymize() {
+    // fprintf(stderr, "E Sum(d2)=%f\n", cityCost());
+    constexpr unsigned kAtt = kCastles * kCastles;
+    for(unsigned a = 0; a < kAtt; ++a) {
+        unsigned i = rnd::upto(kCastles);
+        unsigned j = rnd::upto(kCastles);
+        if(i != j) {
+            Real pre = cityCost(i) + cityCost(j);
+            Real post = (haven_locs[i] - castle_locs[j]).d() + (haven_locs[j] - castle_locs[i]).d();
+            if(post < pre) {
+                // NOTE flip castles, not cities, to spare Hero's Haven
+                std::swap(castle_locs[i], castle_locs[j]);
+            }
+        }
+    }
+    // fprintf(stderr, "X Sum(d2)=%f\n", cityCost());
+    ChrMap& map = this->map();
+    for(unsigned i = 0; i < kCastles; ++i) {
+        // re-label castles
+        const Point& p = castle_locs[i];
+        at(map, p + Shift{0, 1}) = cCRear + 1 + i;
+    }
+}
+
+void maskCities(bool mask = true) {
+    ChrMap& map = this->map();
+    for(unsigned i = 0; i < kCastles; ++i) {
+        at(map, haven_locs[i]) = mask ? cHaven : cCRear + 1 + i;
+    }
+}
+
 void generate() {
     formLand();
     segregate();
@@ -968,6 +1011,7 @@ void generate() {
     //
     markGates();
     specials();
+    citymize();
 }
 };
 
@@ -1092,8 +1136,11 @@ int main(int argc, char** argv) {
     char c = cPrize;
     char& pl = at(cont.map(), k);
     std::swap(c, pl);
+    // wrap the following in *stdout << continent
+    cont.maskCities(false);
     *stdout << cont.map();
-    std::swap(c, pl);
+    cont.maskCities();
+    std::swap(c, pl); // ... gk
 
     // TODO add map tuning dump
 
