@@ -913,6 +913,12 @@ bool placeSpots(unsigned count, const SweetP& sweetspots, PlaceP onc, PrediP can
 
 bool isbarr(char c){ return cWoods == c || cRocks == c; }
 
+bool issand(char c){ return cSands == c; }
+
+bool iswalk(char c){ return cPlain == c; }
+
+bool is_dry(char c){ return isbarr( c ) || cSands == c; }
+
 bool ispass(char c){ return cSands == c || cPlain == c; }
 
 bool ishard(char c){ return isbarr( c ) || cWater == c; }
@@ -1011,10 +1017,12 @@ void specials() {
         if(kGround != kMature && trail.covers({x, y})) return -1.f;
         char l = map[y][x-1], r = map[y][x+1];
         char t = map[y+1][x], b = map[y-1][x];
-        unsigned access = ispass(l) + ispass(r) + ispass(t) + ispass(b);
-        unsigned nocity = cHaven!=l&&cHaven!=r &&cHaven!=b && cHaven!=t;
-        unsigned hidden =(isbarr(l)||isbarr(r))&&(isbarr(t)||isbarr(b));
-        return hidden * nocity * (4 - access - echo[y][x]); // weights break ties
+        int access = ispass(l) + ispass(r) + ispass(t) + ispass(b);
+        int desert = issand(l) + issand(r) + issand(t) + issand(b);
+        int nocity = cHaven!=l&&cHaven!=r &&cHaven!=b && cHaven!=t;
+        int hidden =(is_dry(l)||is_dry(r))&&(is_dry(t)||is_dry(b));
+        Real aridity = std::max(-1.7f + desert, 0.f) * 1.3f;
+        return hidden * nocity * (4.f - echo[y][x] + aridity - access); // weights break ties
     });
 
     std::string bag;
