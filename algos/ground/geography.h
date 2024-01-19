@@ -16,8 +16,6 @@ struct Paint : public Point {
 using Features = std::vector<Paint>;
 
 // extract into choices.h
-using RankFN = std::function<Real WITH_XY>;
-using SweetP = rnk::Ranked<Point>;
 // ditto
 using PrediP = std::function<bool(const Point&)>;
 using PlaceP = std::function<char(char, const Point& p)>;
@@ -132,10 +130,7 @@ public:
 
     // stages: accumulation of wealth, in many ways
 
-    // FIXME whew... this really should be extracted into "choices"
-    SweetP sweepSpots(RankFN rating);
-    bool placeSpots(unsigned count, const SweetP& sweetspots, PlaceP onc, PrediP canc = [](const Point&){ return true; });
-    void specials(); // calls the above two multiple times
+    void specials();
 
     // stages: migration and population exchange, for convenience
 

@@ -25,4 +25,15 @@ Pick pickWeighed(unsigned wcount, Rate weigh, Real favor_last) {
     return {sel, weights[sel]};
 }
 
+SweetP sweetSpots(const map::Block& block, RankFN rating) {
+    Ranked<map::Point> sweetspots;
+    block.visit([&]WITH_XY {
+        Real sugar = rating(x, y);
+        if(sugar > 0.f) {
+            sweetspots.insert({sugar, map::Point{x, y}});
+        }
+    });
+    return sweetspots;
+}
+
 }

@@ -2,6 +2,7 @@
 #define _ALGOS_GROUND_CHOICES_H_
 
 #include "precise.h"
+#include "geometry.h"
 #include <functional>
 #include <map>
 
@@ -21,6 +22,11 @@ Pick pickWeighed(unsigned wcount, Rate weigh, Real favor_last = 1.f);
 
 template<typename T>
 using Ranked = std::multimap<Real, T>;
+
+using RankFN = std::function<Real WITH_XY>;
+using SweetP = rnk::Ranked<map::Point>;
+
+SweetP sweetSpots(const map::Block& block, RankFN rating);
 
 }
 

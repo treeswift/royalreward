@@ -824,30 +824,6 @@ void Continent::segment() {
     }
 }
 
-SweetP Continent::sweepSpots(RankFN rating) {
-    rnk::Ranked<Point> sweetspots;
-    conti.visit([&]WITH_XY {
-        Real sugar = rating(x, y);
-        if(sugar > 0.f) {
-            sweetspots.insert({sugar, Point{x, y}});
-        }
-    });
-    return sweetspots;
-}
-
-bool Continent::placeSpots(unsigned count, const SweetP& sweetspots, PlaceP onc, PrediP canc) {
-    auto itr = sweetspots.crbegin();
-    for(unsigned i = 0; i < count; ) {
-        if(itr == sweetspots.crend()) return false;
-        if(canc(itr->second)) {
-            at(map, itr->second) = onc(i, itr->second);
-            ++i;
-        }
-        ++itr;
-    }
-    return true;
-}
-
 bool isbarr(char c){ return cWoods == c || cRocks == c; }
 
 bool issand(char c){ return cSands == c; }
@@ -861,6 +837,21 @@ bool ispass(char c){ return cSands == c || cPlain == c; }
 bool ishard(char c){ return isbarr( c ) || cWater == c; }
 
 void Continent::specials() {
+    using namespace rnk;
+    auto sweepSpots = [&](RankFN rating) { return sweetSpots(conti, rating); };
+    auto placeSpots = [&](unsigned count, const SweetP& sweetspots, PlaceP onc, PrediP canc = [](const Point&){ return true; }) {
+        auto itr = sweetspots.crbegin();
+        for(unsigned i = 0; i < count; ) {
+            if(itr == sweetspots.crend()) return false;
+            if(canc(itr->second)) {
+                at(map, itr->second) = onc(i, itr->second);
+                ++i;
+            }
+            ++itr;
+        }
+        return true;
+    };
+
     auto island = [&]WITH_XY {
         bool l = cWater == map[y][x-1];
         bool r = cWater == map[y][x+1];

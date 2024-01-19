@@ -52,6 +52,8 @@ const T& at(const Map<T>& map, Point p) {
     return map[p.y][p.x];
 }
 
+Block screen(const Point& p);
+
 using IO = decltype(*stdout);
 IO& operator<<(IO& out, const ChrMap& map);
 std::ostream& operator<<(std::ostream& out, const ChrMap& map);

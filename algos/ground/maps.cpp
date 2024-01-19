@@ -34,6 +34,10 @@ with_xy paint8(bool_xy test, with_xy flip) {
     };
 }
 
+Block screen(const Point& p) {
+    return square(p, 1).inset(-2);
+}
+
 std::ostream& operator<<(std::ostream& out, const ChrMap& map) {
     for(int y = kMapDim; y; ) {
         --y;
