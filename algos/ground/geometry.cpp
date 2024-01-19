@@ -130,4 +130,13 @@ void for_rect(int x0, int y0, int xm, int ym, with_xy op) {
     }
 }
 
+Block nearby(const Point& p) {
+    return square(p, 1).inset(-1);
+}
+
+Block screen(const Point& p) {
+    return square(p, 1).inset(-2);
+}
+
+
 } // namespace map

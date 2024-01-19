@@ -85,6 +85,9 @@ Block square(const Point& base, int side=1u);
 Block bound(int base, int upto);
 Block operator&(const Block& base, const Block& other);
 
+Block nearby(const Point& p);
+Block screen(const Point& p); // technically belongs in `maps.h` but 5x5 is baked into so many places that oh okay
+
 } // namespace map
 
 #endif

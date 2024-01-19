@@ -8,6 +8,8 @@ executable('gen',
             'algos/ground/aynrand.cpp',
             'algos/ground/choices.cpp',
             'algos/ground/geometry.cpp',
+            'algos/ground/geography.cpp',
+            'algos/ground/goldenkey.cpp',
             'algos/ground/maps.cpp',
             'algos/ground/gen.cpp',
             install : true)
