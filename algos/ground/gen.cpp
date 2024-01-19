@@ -839,11 +839,7 @@ void mark_sq(int x, int y, int seg_id) {
     seg[y][x] = seg[y][x+1] = seg[y+1][x] = seg[y+1][x+1] = seg_id;
 }
 
-// void segment(char match, bool_xy test, mark_xy mark) { // TODO extract into here
-//     ;
-// }
-
-void segment(char match) {
+void segment(char match, char subst) {
     // TODO extract paintsq(cWoods|cRocks);
     // TODO reuse for aridization (desert).
 
@@ -865,20 +861,48 @@ void segment(char match) {
     });
     unsigned outliers = 0;
     conti.visit([&]WITH_XY {
-        if(map[y][x] == match && !seg[y][x]) {
-            map[y][x] = cPlain;
-            outliers++;
+        if(map[y][x] == match) {
+            if(!seg[y][x]) {
+                map[y][x] = cPlain;
+                outliers++;
+            } else {
+                map[y][x] = subst;
+            }
         }
     });
-    fprintf(stderr, "Outliers [%c]: %u\n", match, outliers);
+    // fprintf(stderr, "Outliers [%c]: %u\n", match, outliers);
+}
+
+void segment(char match) {
+    segment(match, match); // no substitution
 }
 
 void segment() {
     segment(cWoods);
     segment(cRocks);
     segment(cSands);
-    // segment(cWater);
-    // for Desertia, segment cPlain and replace with cSands
+    // segment(cWater); // needs proper sea shelf bounds
+    if(kAridize) {
+        segment(cPlain, cSands);
+    }
+    if(kSuomize) {
+        unsigned woods = 0, rocks = 0;
+        conti.visit([&]WITH_XY {
+            char& c = map[y][x];
+            woods += cWoods == c;
+            rocks += cRocks == c;
+        });
+        bool want_more_woods = cWoods == kSuomize;
+        bool have_more_rocks = rocks >= woods;
+        if(want_more_woods == have_more_rocks) {
+            conti.visit([&]WITH_XY {
+                char& c = map[y][x];
+                if(c == cWoods || c == cRocks) {
+                    c ^= (cWoods ^ cRocks);
+                }
+            });
+        }
+    }
 }
 
 using RankFN = std::function<Real WITH_XY>;
@@ -1126,8 +1150,7 @@ void generate() {
     markHaven();
     polish();
     petrify(); // petrification is conservative/transactional => works on a polished surface
-    //polish();// +second polish may or may not be needed after a conservative petrification
-    segment();
+    segment(); // second polish included inside
     //
     markGates();
     specials();

@@ -88,6 +88,10 @@ constexpr char cShaft = '#';
 
 constexpr char cPrize = 'v'; // debugging display only
 
+// realy-really very last touches
+constexpr bool kAridize = false;
+constexpr char kSuomize = false; // other valid options are cWoods and cRocks
+
 } // namespace map
 
 #endif
