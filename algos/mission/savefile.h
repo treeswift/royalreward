@@ -1,3 +1,6 @@
+#ifndef _ALGOS_MISSION_SAVEFILE_H_
+#define _ALGOS_MISSION_SAVEFILE_H_
+
 #include "map_defs.h"
 #include "maps.h"
 
@@ -32,7 +35,7 @@ struct SavedLoc {
 
 struct SaveFile {
 
-SaveFile() = default;
+SaveFile();
 
 char name[11];
 char type; // A-C, starting from 0; mission option
@@ -118,3 +121,5 @@ constexpr unsigned kSavedSize = sizeof(SaveFile); // IDE hover, no other reason 
 static_assert(0x4fc5 == kSavedSize, "The packed structure must produce a valid DAT file.");
 
 } // namespace dat
+
+#endif
