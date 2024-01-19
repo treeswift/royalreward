@@ -46,6 +46,9 @@ Block screen(const Point& p) {
 class Continent {
     MapHolder<char> chrmem{cWater};
     MapHolder<Real> ampMap{1.f};
+    MapHolder<int> segments{0};
+    unsigned currt_segment = 1u;
+    unsigned alloc_seg() { return currt_segment++; }
 
     using Features = std::vector<Paint>;
 
@@ -58,16 +61,15 @@ public:
     const Block trail = Block{entry, ruler + Shift{1, 1}};
     const Block major = trail.inset(-7) & visib;
 
+    ChrMap& map = chrmem.map();
+    IntMap& seg = segments.map();
+
     std::vector<Point> castle_locs, labels_locs, haven_locs, wonder_locs, enemy_locs;
     std::vector<Point> valued_locs, failed_locs; //transient
 
     Continent() = default; // TODO inject constants
 
-    ChrMap& map() { return chrmem.map(); }
-    const ChrMap& map() const { return chrmem.map(); }
-
 bool isfirm(unsigned x, unsigned y) const {
-    const ChrMap& map = this->map();
     return map[y][x] != cWater;
 }
 
@@ -88,7 +90,6 @@ bool isshore(unsigned x, unsigned y, const Shift& diag) const {
 }
 
 bool isplain(unsigned x, unsigned y) const {
-    const ChrMap& map = this->map();
     return map[y][x] == cPlain;
 }
 
@@ -143,7 +144,6 @@ std::vector<Paint> tectonics() {
 
 void formLand() {
     auto features = tectonics();
-    ChrMap& map = chrmem.map();
 
     struct Allegiance {
         Real part[kColors];
@@ -197,7 +197,6 @@ void formLand() {
 }
 
 void segregate() {
-    ChrMap& map = this->map();
     MapHolder<char> chrout{chrmem};
     ChrMap& chm = chrout.map();
     conti.visit([&]WITH_XY{
@@ -217,7 +216,6 @@ void segregate() {
 }
 
 void delugify(unsigned eat_shores) {
-    ChrMap& map = this->map();
     Block inset = conti;
     Point g_bay = visib.inset(8u).rand();
     for(; eat_shores; --eat_shores) {
@@ -236,7 +234,6 @@ void delugify(unsigned eat_shores) {
 }
 
 void irrigate(unsigned x, unsigned y) {
-    ChrMap& map = this->map();
     bool_xy issand = [&]WITH_XY {
         return x < kMapDim && y < kMapDim && (cSands == map[y][x]);
     };
@@ -247,7 +244,6 @@ void irrigate(unsigned x, unsigned y) {
 }
 
 void desertify() {
-    ChrMap& map = this->map();
     visib.visit([&]WITH_XY{
         auto& cell = map[y][x];
         cell = cell == cWater ? cSands : cWoods;
@@ -256,7 +252,6 @@ void desertify() {
 
 unsigned countSand() {
     unsigned sands = 0;
-    ChrMap& map = this->map();
     conti.visit([&]WITH_XY {
         sands += map[y][x] == cSands;
     });
@@ -326,7 +321,6 @@ void petrify() {
     // - rinse, repeat
 
     struct Coral { Point p; Shift dir; };
-    ChrMap& map = this->map();
     std::multimap<Real, Coral> candydates; // sic(k)
     // AND-convolve 2x2 wood patches once I have enough spatial imagination
     // MapHolder<char> sqmem{false};
@@ -430,7 +424,6 @@ void petrify() {
 void polish() {
     // make sure there are no lone trees (every tree is a part of at least one 2x2 woods square)
     // also applies to sands, mountains, though there may or may not be mountains at this point
-    ChrMap& map = this->map();
     conti.visit([&]WITH_XY{
         char color = map[y][x];
         auto isalso = [&](int dx, int dy) {
@@ -445,7 +438,6 @@ void polish() {
 }
 
 void putCastle(int x, int y, unsigned no) {
-    ChrMap& map = this->map();
     map[y][x-1] = cCCWLB;
     map[y+1][x-1] = cCCWLT;
     map[y][x] = cCGate;
@@ -456,7 +448,6 @@ void putCastle(int x, int y, unsigned no) {
 }
 
 void markHaven() {
-    ChrMap& map = this->map();
     switch(kGround) {
         case kMature:
             return;
@@ -480,7 +471,6 @@ void markHaven() {
 }
 
 void markGates() {
-    ChrMap& map = this->map();
     for(const Point& point : castle_locs) {
         map[point.y-1][point.x] = cEntry;
     }
@@ -488,7 +478,6 @@ void markGates() {
 
 void castleize() {
     // castle placement
-    ChrMap& map = this->map();
     unsigned castles = 0;
     int y = 0;
     int x = 0;
@@ -566,7 +555,6 @@ void tunnelize(EleMap& echo) {
         valued_locs.push_back({11, 7});
     }
 
-    ChrMap& map = this->map();
     Real dither = 0.f;
     conti.visit([&]WITH_XY {
         if(cWoods == map[y][x]) { // <implicitly protects castle gates
@@ -586,7 +574,6 @@ void tunnelize(EleMap& echo) {
 }
 
 void stoneEcho(EleMap& echo) {
-    ChrMap& map = this->map();
     constexpr Real kSpore = 0.36f;
     constexpr Real kDecay = 0.16f;
     auto coast = [&]WITH_XY {
@@ -627,7 +614,6 @@ void stoneEcho(EleMap& echo) {
 }
 
 void paveRoads() {
-    ChrMap& map = this->map();
     EleMap& echo = ampMap.map();
     stoneEcho(echo);
     tunnelize(echo);
@@ -766,6 +752,135 @@ void paveRoads() {
     }
 }
 
+void vandalize() {
+    unsigned outlier = 0;
+    unsigned needcor = 0;
+
+    // not strictly necessary, but reduces the amount of needed correction
+    conti.visit([&]WITH_XY {
+        char c = map[y][x];
+        if(cRocks == c || cWoods == c || cSands == c || cWater == c) {
+            if(is_hexen(x, y)) {
+                ++outlier;
+                if(cPlain == map[y-1][x-1]) map[y-1][x-1] = c; else
+                if(cPlain == map[y-1][x+1]) map[y-1][x+1] = c; else
+                if(cPlain == map[y+1][x-1]) map[y+1][x-1] = c; else
+                if(cPlain == map[y+1][x+1]) map[y+1][x+1] = c; else
+                ++needcor;
+            }
+        }
+    });
+
+    // reduces 39 => 12, but many corrections are actually avoidable
+    fprintf(stderr, "Hexen spots: %u, Unfixed spots: %u\n", outlier, needcor);
+}
+
+struct Outliers {};
+
+bool is_square(unsigned x, unsigned y, int c) {
+    return map[y+1][x] == c && map[y+1][x+1] == c && map[y][x+1] == c && map[y][x] == c;
+};
+
+bool is_square WITH_XY {
+    char c = map[y][x];
+    return map[y+1][x] == c && map[y+1][x+1] == c && map[y][x+1] == c;
+};
+
+bool is_locked WITH_XY {
+    char c = map[y][x];
+    return (map[y-1][x] != c || map[y-1][x+1] != c)
+        && (map[y+2][x] != c || map[y+2][x+1] != c)
+        && (map[y][x-1] != c || map[y+1][x-1] != c)
+        && (map[y][x+2] != c || map[y+1][x+2] != c);
+}
+
+bool is_locked_square WITH_XY {
+    return is_square(x, y) && is_locked(x, y);
+}
+
+bool is_hexen WITH_XY {
+    char c = map[y][x];
+    if((map[y-1][x-1] != c && map[y+1][x+1] != c)
+    || (map[y-1][x+1] != c && map[y+1][x-1] != c)) {
+        unsigned samec = 0u;
+        nearby({x, y}).visit([&] WITH_XY {
+            samec += map[y][x] == c;
+        });
+        // 7 cells make up the "eight" shape
+        return samec == 7;
+    }
+    return false;
+}
+
+bool is_freesq WITH_XY {
+    return !seg[y][x] && !seg[y][x+1] && !seg[y+1][x] && !seg[y+1][x+1];
+};
+
+bool is_friendly(int seg, int ours) {
+    return !seg || seg == ours;
+}
+
+bool is_ourssq(unsigned x, unsigned y, int segment) {
+    int lt = seg[y][x];
+    int rt = seg[y][x+1];
+    int lb = seg[y+1][x];
+    int rb = seg[y+1][x+1];
+    bool may_advance = !lt || !rt || !lb || !rb;
+    bool no_conflict = is_friendly(lt, segment)
+                    || is_friendly(rt, segment)
+                    || is_friendly(lb, segment)
+                    || is_friendly(rb, segment);
+    return may_advance && no_conflict;
+};
+
+// using mark_xy = std::function<void(unsigned x, unsigned y, unsigned mark)>;
+
+void mark_sq(int x, int y, int seg_id) {
+    seg[y][x] = seg[y][x+1] = seg[y+1][x] = seg[y+1][x+1] = seg_id;
+}
+
+// void segment(char match, bool_xy test, mark_xy mark) { // TODO extract into here
+//     ;
+// }
+
+void segment(char match) {
+    // TODO extract paintsq(cWoods|cRocks);
+    // TODO reuse for aridization (desert).
+
+    // first, detect immobile blocks
+    conti.visit([&]WITH_XY {
+        if(map[y][x] == match && is_locked_square(x, y) && is_freesq(x, y)) {
+            mark_sq(x, y, alloc_seg());
+        }
+    });
+    conti.visit([&]WITH_XY {
+        if(is_square(x, y, match) && is_freesq(x, y)) {
+            const unsigned seg_id = alloc_seg();
+            paint4([&]WITH_XY {
+                return conti.covers({x, y}) && is_square(x, y, match) && is_ourssq(x, y, seg_id);
+            }, [&]WITH_XY {
+                mark_sq(x, y, seg_id);
+            })(x, y);
+        }
+    });
+    unsigned outliers = 0;
+    conti.visit([&]WITH_XY {
+        if(map[y][x] == match && !seg[y][x]) {
+            map[y][x] = cPlain;
+            outliers++;
+        }
+    });
+    fprintf(stderr, "Outliers [%c]: %u\n", match, outliers);
+}
+
+void segment() {
+    segment(cWoods);
+    segment(cRocks);
+    segment(cSands);
+    // segment(cWater);
+    // for Desertia, segment cPlain and replace with cSands
+}
+
 using RankFN = std::function<Real WITH_XY>;
 using SweetP = rnk::Ranked<Point>;
 
@@ -784,7 +899,6 @@ using PrediP = std::function<bool(const Point&)>;
 using PlaceP = std::function<char(char, const Point& p)>;
 
 bool placeSpots(unsigned count, const SweetP& sweetspots, PlaceP onc, PrediP canc = [](const Point&){ return true; }) {
-    ChrMap& map = this->map();
     auto itr = sweetspots.crbegin();
     for(unsigned i = 0; i < count; ) {
         if(itr == sweetspots.crend()) return false;
@@ -804,7 +918,6 @@ bool ispass(char c){ return cSands == c || cPlain == c; }
 bool ishard(char c){ return isbarr( c ) || cWater == c; }
 
 void specials() {
-    ChrMap& map = this->map();
     EleMap& echo = ampMap.map();
 
     auto island = [&]WITH_XY {
@@ -983,7 +1096,6 @@ void citymize() {
         }
     }
     // fprintf(stderr, "X Sum(d2)=%f\n", cityCost());
-    ChrMap& map = this->map();
     for(unsigned i = 0; i < kCastles; ++i) {
         // re-label castles
         const Point& p = castle_locs[i];
@@ -992,7 +1104,6 @@ void citymize() {
 }
 
 void maskCities(bool mask = true) {
-    ChrMap& map = this->map();
     for(unsigned i = 0; i < kCastles; ++i) {
         at(map, haven_locs[i]) = mask ? cHaven : cCRear + 1 + i;
     }
@@ -1007,7 +1118,8 @@ void generate() {
     markHaven();
     polish();
     petrify(); // petrification is conservative/transactional => works on a polished surface
-    polish();  // +second polish may or may not be needed after a conservative petrification
+    //polish();// +second polish may or may not be needed after a conservative petrification
+    segment();
     //
     markGates();
     specials();
@@ -1048,7 +1160,7 @@ struct GoldenKey {
     }
 
     void consider(const Continent& cont) {
-        const auto& map = cont.map();
+        const auto& map = cont.map;
         conti = cont.conti; // FIXME make static in Continent
         conti.visit([&]WITH_XY {
             spot.p = Point{x, y};
@@ -1138,11 +1250,11 @@ int main(int argc, char** argv) {
 
     // replace the following with *stdout << gk
     char c = cPrize;
-    char& pl = at(cont.map(), k);
+    char& pl = at(cont.map, k);
     std::swap(c, pl);
     // wrap the following in *stdout << continent
     // cont.maskCities(false);
-    *stdout << cont.map();
+    *stdout << cont.map;
     // cont.maskCities();
     std::swap(c, pl); // ... gk
 

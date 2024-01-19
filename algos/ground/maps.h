@@ -16,6 +16,7 @@ template<typename T> using Map = T[kMapExt][kMapExt];
 
 using ChrMap = Map<char>;
 using EleMap = Map<Real>;
+using IntMap = Map<int>;
 
 template<typename T>
 struct MapHolder {

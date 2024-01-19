@@ -26,6 +26,7 @@ constexpr char kOnLand = 1;
 constexpr char kIsland = kMaxCol + 1;
 constexpr char kMature = '\255'; // disable
 constexpr char kGround = kMidSea; // kIsland;
+constexpr char kHermit = kIsland + 1;
 constexpr char kWizard = kIsland;
 
 constexpr int kNLines = 32u;
@@ -53,6 +54,7 @@ constexpr Real kSmooth = 0.7f;
 
 constexpr int kSeed = 1u;
 
+constexpr char cSpace = '\0';
 constexpr char cMagma = '\1';
 
 constexpr char cWater = ' ';
