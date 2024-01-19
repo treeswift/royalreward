@@ -24,7 +24,7 @@ static_assert(kMaxCol+2 < kColors, "tectonic array");
 constexpr char kMidSea = 0;
 constexpr char kOnLand = 1;
 constexpr char kIsland = kMaxCol + 1;
-constexpr char kMature = '\255'; // disable
+constexpr char kMature = -1; // disable
 constexpr char kGround = kMidSea; // kIsland;
 constexpr char kHermit = kIsland + 1;
 constexpr char kWizard = kIsland;

@@ -3,6 +3,9 @@
 
 #include "map_defs.h"
 #include "maps.h"
+#include "mission.h"
+#include "geography.h"
+#include "goldenkey.h"
 
 #include <cstdint>
 
@@ -23,25 +26,47 @@ constexpr unsigned kTrophies = 0x8;
 constexpr unsigned kPartsOfWorld = 0x4;
 constexpr unsigned kTechnologies = 0x7 * 2;
 constexpr unsigned kArmySlots = 5;
+constexpr unsigned kIdiotArmy = 3;
 constexpr unsigned kAlphabet = 26;
 constexpr unsigned kWantedSlots = 5;
 constexpr unsigned kPackedMaps = (map::kMapMem * kPartsOfWorld) >> 3;
 constexpr unsigned kkVolunteers = map::kAddMes;
 
+struct UIOptions {}; // move to UI
+
 #pragma pack(1)
 struct SavedLoc {
     char x, y;
+
+    SavedLoc& operator=(const map::Point& p);
 };
 
 struct SaveFile {
 
+enum Mount {
+    Boat = 0,
+    Bird = 4,
+    Land = 8,
+};
+
+static constexpr char kNada = -1;
+
 SaveFile();
+
+void setHeroName(const std::string& name);
+void setHeroType(Prototype::Type t);
+void setHeroLoc(const map::Point& p);
+void setUIOptions(UIOptions opt = {});
+void setLevel(); // also initializes 
+void setMap(unsigned idx, const map::Continent& cont);
+void setEnemies(); // also initializes offers/rewards
+void setGoldenKey(const map::GoldenKey::Burial spot);
 
 char name[11];
 char type; // A-C, starting from 0; mission option
 char rank; // 0-3, starting from 0
 char intuition; // depends on type
-char memory;    // depends on type
+char education; // depends on type
 bool caught[kEnemies];
 bool found[kTrophies];
 bool avail[kPartsOfWorld];  // 1 0 0 0
@@ -55,13 +80,13 @@ char delay; // interface option = 4
 char level; // mission option
 bool sound; // = true
 bool blimp; // = true
-bool alive; // = true
+bool livid; // = true
 bool sized; // = true
 char myPoW; // begins with 0
 SavedLoc pos;  // starting position
 SavedLoc last; // ditto
 SavedLoc boat; // = 0
-char btPoW;  // = 0xff initially
+char boatPofW; // = 0xff initially
 char mount; // = 8/land {0/water, 4/air}
 char cgapal; // =0, irrelevant
 char techno[kAlphabet]; // randomized
@@ -84,22 +109,22 @@ SavedLoc allmaps[kPartsOfWorld];
 SavedLoc tunnels[kPartsOfWorld][2];
 SavedLoc tribes[kPartsOfWorld][map::kTribes];
 SavedLoc idiots[kPartsOfWorld][map::kIdiots];
-char iunits[kPartsOfWorld][map::kIdiots][3];
-char itroops[kPartsOfWorld][map::kIdiots][3]; // char!!! not uint16_t!!! (are rogue ghosts rounded up? verify!)
+char iunits[kPartsOfWorld][map::kIdiots][kIdiotArmy];
+char itroops[kPartsOfWorld][map::kIdiots][kIdiotArmy]; // char!!! not uint16_t!!! (are rogue ghosts rounded up? verify!)
 char trunits[kPartsOfWorld][map::kTribes];
-char trstock[kPartsOfWorld][map::kTribes];
+char trtroop[kPartsOfWorld][map::kTribes];
 
 char key_ciph;
 uint16_t base_command; // depends on mission
 uint16_t curr_command; // = ^^^
-uint16_t salary; // depends on mission?
+uint16_t salary; // depends on mission
 uint16_t casualties; // = 0
 
 uint16_t troops[kArmySlots];  // = depends on type
 uint16_t guards[kAlphabet][kArmySlots]; // = depends on enemy placement + randomized for squatters
 
 uint16_t stasis;
-uint16_t d_left;
+uint16_t d_left; // from time
 uint16_t score; // = 0
 char reserved[2]; // = 0
 uint32_t money; // == from mission
