@@ -4,16 +4,26 @@ project('royalreward', 'cpp',
 
 add_global_arguments('-Wno-narrowing', language: 'cpp')
 
-executable('gen',
-            'algos/ground/aynrand.cpp',
-            'algos/ground/choices.cpp',
-            'algos/ground/genesis.cpp',
-            'algos/ground/geometry.cpp',
-            'algos/ground/geo_formation.cpp',
-            'algos/ground/geo_landscape.cpp',
-            'algos/ground/geo_power.cpp',
-            'algos/ground/geo_wealth.cpp',
-            'algos/ground/goldenkey.cpp',
-            'algos/ground/maps.cpp',
-            'algos/ground/gen.cpp',
-            install : true)
+subdir('algos/ground')
+gen = static_library('gen', gen_files,
+    include_directories: 'algos/ground',
+)
+
+executable('gen', files('backyard/gen.cpp'),
+    include_directories: 'algos/ground',
+    link_with: [gen],
+    install : false)
+
+subdir('algos/mission')
+chr = static_library('chr', chr_files,
+    include_directories: 'algos/mission',
+)
+
+subdir('modena')
+executable('mod', mod_files,
+    include_directories: [
+        'algos/ground',
+        'algos/mission',
+    ],
+    link_with: [gen, chr],
+    install : true)
