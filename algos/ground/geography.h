@@ -13,7 +13,7 @@ struct Paint : public Point {
     char color;
 };
 
-using Features = std::vector<Paint>;
+using Minerals = std::vector<Paint>;
 
 // extract into choices.h
 // ditto
@@ -21,7 +21,7 @@ using PrediP = std::function<bool(const Point&)>;
 using PlaceP = std::function<char(char, const Point& p)>;
 
 class Continent {
-    Features features; // TODO rename to Minerals
+    Minerals minerals;
     MapHolder<char> chrmem{cWater};
     MapHolder<Real> tenmem{1.f};
     MapHolder<int> segments{0};
@@ -100,12 +100,12 @@ public:
     void desertify();
     void makeLakes();
     void petrify();
-    void stoneEcho(); // likely future roads
 
     // stages: power structures (castles and roads)
 
     void castleize();
     void tunnelize();
+    void stoneEcho(); // likely future roads
     void paveRoads();
 
     // stages: adjustment, also known as wear and tear
