@@ -2,6 +2,7 @@
 #define _ALGOS_MISSION_SAVEFILE_H_
 
 #include "map_defs.h"
+#include "dat_defs.h"
 #include "maps.h"
 #include "mission.h"
 #include "geography.h"
@@ -21,13 +22,8 @@ namespace dat {
  * depends upon. The reason is obvious, but feel free to ask me if you wonder why.
  */
 
-constexpr unsigned kEnemies = 0x11;
-constexpr unsigned kTrophies = 0x8;
-constexpr unsigned kPartsOfWorld = 0x4;
-constexpr unsigned kTechnologies = 0x7 * 2;
 constexpr unsigned kArmySlots = 5;
 constexpr unsigned kIdiotArmy = 3;
-constexpr unsigned kAlphabet = 26;
 constexpr unsigned kWantedSlots = 5;
 constexpr unsigned kPackedMaps = (map::kMapMem * kPartsOfWorld) >> 3;
 constexpr unsigned kkVolunteers = map::kAddMes;
@@ -144,6 +140,9 @@ static_assert(0xfc5 == kMapOffset, "Non-map data must fit in 0xfc5 (4037) bytes"
 
 constexpr unsigned kSavedSize = sizeof(SaveFile); // IDE hover, no other reason to extract
 static_assert(0x4fc5 == kSavedSize, "The packed structure must produce a valid DAT file.");
+
+using IO = decltype(*stdout);
+IO& operator<<(IO& out, const SaveFile& map);
 
 } // namespace dat
 

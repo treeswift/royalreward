@@ -1,5 +1,7 @@
 #include "mission.h"
 
+#include "dat_defs.h"
+
 #include <cstdlib>
 #include <cstdio>
 
@@ -7,16 +9,23 @@ namespace dat {
 
 namespace {
 
-const char* kCastes[] = {
-    "Knight",
-    "Paladin",
-    "Sorceress",
-    "Barbarian",
+constexpr const char kCastles[kPartsOfWorld] = {11, 6, 6, 3}; // total 26
+constexpr const char kEnemies[kPartsOfWorld] =  {6, 4, 4, 3}; // total 17
+
+constexpr unsigned kRanks = 4;
+
+const char* kCastes[][kRanks] = {
+    {"Knight",    "General",    "Marshall", "Lord"},
+    {"Paladin",   "Crusader",   "Avenger",  "Champion"},
+    {"Sorceress", "Magician",   "Mage",     "Archmage"},
+    {"Barbarian", "Chieftain",  "Warlord",  "Overlord"},
 };
 
-}
+} // anonymous
 
-const char* Prototype::Name(Type t) { return kCastes[t]; }
+//
+
+const char* Prototype::Name(int t, int rk) { return kCastes[t][rk]; }
 
 Prototype::Prototype(Type t) {
     using namespace mil;

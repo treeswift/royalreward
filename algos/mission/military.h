@@ -36,6 +36,8 @@ enum class Unit {
 
 static_assert(25 == static_cast<int>(Unit::Total), "Exactly 5x5 troop types must be defined");
 
+const char* unit_name(Unit u);
+
 struct Regiment {
     Unit unit;
     unsigned count;

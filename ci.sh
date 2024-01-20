@@ -4,5 +4,6 @@ AG=`pwd`/ag.txt
 if meson build && cd build && ninja
 then
 	time ./gen > "$AG"
-	time ./mod
+	# time ./mod
+	./dat "$1"
 fi

@@ -7,10 +7,11 @@ namespace dat {
 SavedLoc& SavedLoc::operator=(const map::Point& p) {
     x = p.x;
     y = p.y;
+    return *this;
 }
 
 SaveFile::SaveFile() {
-    *this = {}; // equivalent to memset(this, 0, sizeof(*this)) but respects RTTI
+    memset(name, 0, sizeof(*this));
 }
 
 void SaveFile::setHeroLoc(const map::Point& p) {
@@ -26,6 +27,22 @@ void SaveFile::setHeroLoc(const map::Point& p) {
     });
     mount = Mount::Land;
     boatPofW = kNada;
+}
+
+// debugging output
+
+IO& operator<<(IO& out, const SaveFile& sf) {
+    auto pio = &out;
+
+    // Name: Value # Comment
+    std::string name{sf.name, sf.name + sizeof(sf.name)};
+    fprintf(pio, "Name: %s\n", name.c_str());
+    fprintf(pio, "Type: %d # %s\n", sf.type, Prototype::Name(sf.type));
+    fprintf(pio, "Rank: %d # %s\n", sf.rank, Prototype::Name(sf.type, sf.rank));
+
+    // ....
+
+    return out;
 }
 
 } // namespace dat
