@@ -5,7 +5,7 @@
 namespace map {
 
 void Continent::delugify(unsigned eat_shores) {
-    Block inset = conti;
+    Block inset = shelf;
     Point g_bay = visib.inset(8u).rand();
     for(; eat_shores; --eat_shores) {
         inset.visit([&]WITH_XY {
@@ -41,7 +41,7 @@ void Continent::desertify() {
 
 unsigned Continent::countSand() const {
     unsigned sands = 0;
-    conti.visit([&]WITH_XY {
+    shelf.visit([&]WITH_XY {
         sands += map[y][x] == cSands;
     });
     return sands;
@@ -54,7 +54,7 @@ void Continent::makeLakes() {
     unsigned sands = countSand();
     unsigned lakes = sands * kNLakes / kMapDim;
     for(unsigned fl = 0; fl < lakes; ++fl) {
-        Point rp = conti.rand();
+        Point rp = shelf.rand();
         irrigate(rp.x, rp.y);
     }
     delugify(kDoRain);
@@ -107,7 +107,7 @@ void Continent::petrify() {
     // AND-convolve 2x2 wood patches once I have enough spatial imagination
     // MapHolder<char> sqmem{false};
     // ChrMap& sqm = sqmem.map();
-    conti.visit([&]WITH_XY {
+    shelf.visit([&]WITH_XY {
         char& c = map[y][x];
         if(c == cWoods) {
             Real2 flux = {};
@@ -206,7 +206,7 @@ void Continent::petrify() {
 void Continent::polish() {
     // make sure there are no lone trees (every tree is a part of at least one 2x2 woods square)
     // also applies to sands, mountains, though there may or may not be mountains at this point
-    conti.visit([&]WITH_XY{
+    shelf.visit([&]WITH_XY{
         char color = map[y][x];
         auto isalso = [&](int dx, int dy) {
             return map[y+dy][x+dx] == color
@@ -224,7 +224,7 @@ void Continent::vandalize() {
     unsigned needcor = 0;
 
     // not strictly necessary, but reduces the amount of needed correction
-    conti.visit([&]WITH_XY {
+    shelf.visit([&]WITH_XY {
         char c = map[y][x];
         if(cRocks == c || cWoods == c || cSands == c || cWater == c) {
             if(is_hexen(x, y)) {
@@ -307,23 +307,23 @@ void Continent::segment(char match, char subst) {
     // TODO reuse for aridization (desert).
 
     // first, detect immobile blocks
-    conti.visit([&]WITH_XY {
+    shelf.visit([&]WITH_XY {
         if(map[y][x] == match && is_locked_square(x, y) && is_freesq(x, y)) {
             mark_sq(x, y, alloc_seg());
         }
     });
-    conti.visit([&]WITH_XY {
+    shelf.visit([&]WITH_XY {
         if(is_square(x, y, match) && is_freesq(x, y)) {
             const unsigned seg_id = alloc_seg();
             paint4([&]WITH_XY {
-                return conti.covers({x, y}) && is_square(x, y, match) && is_ourssq(x, y, seg_id);
+                return shelf.covers({x, y}) && is_square(x, y, match) && is_ourssq(x, y, seg_id);
             }, [&]WITH_XY {
                 mark_sq(x, y, seg_id);
             })(x, y);
         }
     });
     unsigned outliers = 0;
-    conti.visit([&]WITH_XY {
+    shelf.visit([&]WITH_XY {
         if(map[y][x] == match) {
             if(!seg[y][x]) {
                 map[y][x] = cPlain;
@@ -350,7 +350,7 @@ void Continent::segment() {
     }
     if(kSuomize) {
         unsigned woods = 0, rocks = 0;
-        conti.visit([&]WITH_XY {
+        shelf.visit([&]WITH_XY {
             char& c = map[y][x];
             woods += cWoods == c;
             rocks += cRocks == c;
@@ -358,7 +358,7 @@ void Continent::segment() {
         bool want_more_woods = cWoods == kSuomize;
         bool have_more_rocks = rocks >= woods;
         if(want_more_woods == have_more_rocks) {
-            conti.visit([&]WITH_XY {
+            shelf.visit([&]WITH_XY {
                 char& c = map[y][x];
                 if(c == cWoods || c == cRocks) {
                     c ^= (cWoods ^ cRocks);

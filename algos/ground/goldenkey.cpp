@@ -32,8 +32,8 @@ std::string GoldenKey::look(const ChrMap& map, const Point& p) {
 
 void GoldenKey::consider(const Continent& cont) {
     const auto& map = cont.map;
-    conti = cont.conti; // FIXME make static in Continent
-    conti.visit([&]WITH_XY {
+    shelf = cont.shelf; // FIXME make static in Continent
+    shelf.visit([&]WITH_XY {
         spot.p = Point{x, y};
         char c = convert(map[y][x]);
         if(cPlain == c) {
@@ -68,7 +68,7 @@ GoldenKey::Burial GoldenKey::select() const {
     while(attemptcount > 0) {
         unsigned cindex = rnd::upto(spot.cindex);
         const ChrMap& map = *(maps.at(cindex));
-        Point p = conti.rand();
+        Point p = shelf.rand();
         std::string hash = look(map, p);
         auto itr = papermaps.find(hash);
         if(itr != papermaps.cend() && itr->second.unique) {

@@ -56,7 +56,7 @@ void Continent::formLand() {
         void reset() { std::fill(part, part + kColors, 0.f); }
     };
 
-    conti.visit([&]WITH_XY{
+    shelf.visit([&]WITH_XY{
         Allegiance all;
         for(const Paint& f : minerals) {
             int dx = f.x - x;
@@ -102,7 +102,7 @@ void Continent::formLand() {
 void Continent::segregate() {
     MapHolder<char> chrout{chrmem};
     ChrMap& chm = chrout.map();
-    conti.visit([&]WITH_XY{
+    shelf.visit([&]WITH_XY{
         char color = chm[y][x];
         auto segregate = [&](unsigned xo, unsigned yo) {
             if(color != cWater) {

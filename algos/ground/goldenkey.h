@@ -12,7 +12,7 @@ namespace map {
 
 struct GoldenKey {
     struct Burial { Point p; unsigned cindex = 0; unsigned ucount = 0; bool unique = true; };
-    Block conti;
+    Block shelf;
 
     // service methods
     static char convert(char c);

@@ -30,7 +30,7 @@ class Continent {
 
 public:
     const Block visib = bound(0, kMapDim);
-    const Block conti = visib.inset(kShoalz);
+    const Block shelf = visib.inset(kShoalz);
     const Point entry = {11, 3};
     const Point ruler = {11, 8};
     const Point magic = {11, 19};

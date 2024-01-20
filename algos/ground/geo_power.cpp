@@ -66,7 +66,7 @@ void Continent::castleize() {
         && goodPointForCEntry(map[y-1][x]);
     };
     while(castles < kCastles) {
-        Point gate = conti.rand();
+        Point gate = shelf.rand();
         y = gate.y;
 
         std::vector<int> ltr(kMapDim);
@@ -133,7 +133,7 @@ void Continent::tunnelize() {
     }
 
     Real dither = 0.f;
-    conti.visit([&]WITH_XY {
+    shelf.visit([&]WITH_XY {
         if(cWoods == map[y][x]) { // <implicitly protects castle gates
             Point p{x, y};
             Block scr = screen(p);
@@ -171,7 +171,7 @@ void Continent::stoneEcho() {
         return mine + (blend - mine) * kDecay;
     };
     auto blur = [&](EleMap& next, const EleMap& prev) {
-        conti.visit([&]WITH_XY {
+        shelf.visit([&]WITH_XY {
             Real echo = prev[y][x];
             if(isfirm(x+1, y) && isfirm(x+2, y)) echo = blend(echo, prev[y][x+3]);
             if(isfirm(x-1, y) && isfirm(x-2, y)) echo = blend(echo, prev[y][x-3]);
@@ -184,7 +184,7 @@ void Continent::stoneEcho() {
         blur(echo, swap);
         blur(swap, echo);
     }
-    conti.visit([&]WITH_XY {
+    shelf.visit([&]WITH_XY {
         Real weight = swap[y][x];
         echo[y][x] = weight * weight;
     });

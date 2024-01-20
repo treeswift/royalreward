@@ -16,7 +16,7 @@ bool ishard(char c){ return isbarr( c ) || cWater == c; }
 
 void Continent::specials() {
     using namespace rnk;
-    auto sweepSpots = [&](RankFN rating) { return sweetSpots(conti, rating); };
+    auto sweepSpots = [&](RankFN rating) { return sweetSpots(shelf, rating); };
     auto placeSpots = [&](unsigned count, const SweetP& sweetspots, PlaceP onc, PrediP canc = [](const Point&){ return true; }) {
         auto itr = sweetspots.crbegin();
         for(unsigned i = 0; i < count; ) {
