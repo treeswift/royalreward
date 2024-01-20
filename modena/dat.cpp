@@ -6,13 +6,17 @@
 
 using namespace dat;
 
-// TODO filter out command line switches, modifying args
-
 int main(int argc, char** argv) {
+    OutOpt oo;
+
+    // TODO filter out command line switches, modifying args
+    // oo.conts = {1, 1};
+
     // actual output to stdout, human-readable to stderr
-    fprintf(stderr, "\n==== DAT file verifier ====\n\n");
     if(argc <= 1) {
+        fprintf(stderr, "==== DAT file verifier ====\n");
         fprintf(stderr, "Expected: DAT filename list\n");
+        return 1;
     }
     for(int i = 1; i < argc; ++i) {
         std::string filename{argv[i]};
@@ -35,6 +39,8 @@ int main(int argc, char** argv) {
             continue;
         }
         fprintf(stdout, "@Path: %s\n", filename.c_str());
-        *stdout << sf;
+        sf.dump(*stdout, oo);
     }
+
+    DumpStats(*stdout);
 }

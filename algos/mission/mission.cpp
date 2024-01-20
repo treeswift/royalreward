@@ -9,8 +9,8 @@ namespace dat {
 
 namespace {
 
-constexpr const char kCastles[kPartsOfWorld] = {11, 6, 6, 3}; // total 26
-constexpr const char kEnemies[kPartsOfWorld] =  {6, 4, 4, 3}; // total 17
+constexpr const char kCastles[kContinents] = {11, 6, 6, 3}; // total 26
+constexpr const char kEnemies[kContinents] =  {6, 4, 4, 3}; // total 17
 
 constexpr unsigned kRanks = 4;
 
