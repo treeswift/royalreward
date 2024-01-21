@@ -133,7 +133,7 @@ void Continent::specials() {
     bag.append({cGift1, cGift2});
     bag.append({cPaper, cGlass});
     bag.append({cMetro, cMetro});
-    bag.append(kTribes, cTribe);
+    bag.append(kDwells, cTribe);
     bag.append(kAddMes, cAddMe);
     bag.resize(kChests, cChest);
     rnd::shuffle(bag);

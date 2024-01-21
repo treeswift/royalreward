@@ -21,7 +21,7 @@ constexpr char kMidSea = 0;
 constexpr char kOnLand = 1;
 constexpr char kMature = -1; // disable
 
-constexpr int kTribes = 11; // FIXME not really fixed, 11 is only a hard cap. Adjust in Legends!
+constexpr int kTribes = 11;
 constexpr int kAddMes = 5;   // fixed
 constexpr int kIdiots = 35; // fixed
 
@@ -61,44 +61,6 @@ constexpr char cEnemy = '*';
 constexpr char cRafts = '#';
 
 constexpr char cPrize = 'v'; // debugging display only
-
-struct Geology {
-
-int kMinBox = 2u;
-int kFeaAmp = 16u;
-char kMaxCol = 7; // 1 for Pangaia
-// TODO: static_assert(kMaxCol+2 < kColors, "tectonic array"); // make a runtime check
-
-char kIsland = kMaxCol + 1; // TODO change to allocCol() call
-char kHermit = kIsland + 1; // TODO change to allocCol() call
-char kGround = kMidSea; // kIsland;
-char kWizard = kIsland;
-
-unsigned kNLines = 32u;
-unsigned kDoAcid = 1u;
-unsigned kDoRain = 0u; // >>1 for Polynesia
-unsigned kNLakes = 2u; // 0 for Desertia
-unsigned kEchoes = 5u;
-
-// decay polynomial
-Real kDecay = 0.0f; // produces archipelagoes
-Real kDPow1 = 0.1f; // produces regular continents
-Real kDPow2 = 0.0f; // produces Laurasia/Gondwana
-
-Real kWinner = 1.5f;  // reciprocal of threshold
-Real kRugged = 0.f;   // torn edges; rarely needs adjustment
-Real kRoughn = 1e-5f; // log10(rcp(roughness)) is how far from the edges the tear ends
-Real kSmooth = 0.7f;
-
-unsigned kCastles = 9u; // flexible, but for now can't exceed cCMaxF-cCRear (TODO validate)
-unsigned kLabels = 22u; // resource-determined
-unsigned kChests = 70u; // flexible, but default=good
-
-// realy-really very last touches
-bool kAridize = false;
-char kSuomize = false; // other valid options are cWoods and cRocks
-    
-};
 
 } // namespace map
 

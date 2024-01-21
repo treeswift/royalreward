@@ -28,6 +28,9 @@ using SweetP = rnk::Ranked<map::Point>;
 
 SweetP sweetSpots(const map::Block& block, RankFN rating);
 
+using PrediP = std::function<bool(const map::Point&)>;
+using PlaceP = std::function<char(char, const map::Point& p)>;
+
 }
 
 #endif

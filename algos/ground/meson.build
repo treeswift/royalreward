@@ -6,6 +6,7 @@ gen_files = files(
     'geo_landscape.cpp',
     'geo_power.cpp',
     'geo_wealth.cpp',
+    'geology.cpp',
     'geometry.cpp',
     'goldenkey.cpp',
     'maps.cpp',

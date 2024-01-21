@@ -61,6 +61,7 @@ Army IrregularArmy(int continent, bool standing);
 Army Fort_Garrison(int continent, char lord);
 
 // recruitment stations
+unsigned TribeCount(int continent);
 Regiment Recruiting(int continent);
 
 } // namespace mil

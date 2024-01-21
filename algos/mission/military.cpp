@@ -1,6 +1,7 @@
 #include "military.h"
 
 #include "dat_defs.h"
+#include "map_defs.h"
 #include "aynrand.h"
 
 #include <vector>
@@ -200,6 +201,10 @@ Regiment Recruiting(int continent) {
     unsigned folk = bits & 0x3;
     Unit unit = tiers.at(tier).at(folk);
     return {Stat(unit).tp, unit};
+}
+
+unsigned TribeCount(int continent) {
+    return map::kTribes - censa.at(continent).at(0);
 }
 
 } // namespace mil

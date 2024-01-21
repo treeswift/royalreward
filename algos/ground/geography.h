@@ -2,6 +2,7 @@
 #define _ALGOS_GROUND_GEOGRAPHY_H_
 
 #include "geometry.h"
+#include "geology.h"
 #include "choices.h"
 #include "maps.h"
 
@@ -14,11 +15,6 @@ struct Paint : public Point {
 };
 
 using Minerals = std::vector<Paint>;
-
-// extract into choices.h
-// ditto
-using PrediP = std::function<bool(const Point&)>;
-using PlaceP = std::function<char(char, const Point& p)>;
 
 class Continent : public Geology // injection of settings
 {
@@ -45,7 +41,7 @@ public:
     std::vector<Point> castle_locs, labels_locs, haven_locs, wonder_locs, enemy_locs;
     std::vector<Point> valued_locs, failed_locs; //transient
 
-    Continent() = default; // TODO inject constants
+    inline Continent(const Geology& geo = {}) : Geology(geo) {}
 
     // queries
 
