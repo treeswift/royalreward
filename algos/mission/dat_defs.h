@@ -5,7 +5,8 @@ namespace dat {
 
 constexpr unsigned kAlphabet = 26;
 constexpr unsigned kContinents = 4;
-constexpr unsigned kTechnologies = 7 * 2;
+constexpr unsigned kTechControls = 7;
+constexpr unsigned kTechnologies = kTechControls * 2;
 constexpr unsigned kEnemies = 0x11;
 constexpr unsigned kTrophies = 0x8;
 
