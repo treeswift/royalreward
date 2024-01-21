@@ -43,8 +43,6 @@ const char* kCastes[][kRanks] = {
 
 } // anonymous
 
-//
-
 const char* Prototype::Name(int t, int rk) { return kCastes[t][rk]; }
 
 Prototype::Prototype(Type t) {

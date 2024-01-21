@@ -2,6 +2,8 @@
 
 #include "dat_defs.h"
 
+#include <array>
+
 namespace loc {
 
 namespace { 
@@ -16,24 +18,24 @@ constexpr const char* conts[kContinents] = {
 };
 
 constexpr const char* lords[kEnemies] = {
-    // continent 1
+    // original continent 1
     "Peter the Petty",
     "Ruddy the Hacker",
     "Hillary Clinton",
     "Jeffrey Epstein",
     "Abduwali Moose",
     "Alexander Dugin",
-    // continent 2
+    // original continent 2
     "Gen. William Sherman",
     "Prince Nimrond",
     "Polyphemus",
     "Otto Ostborn",
-    // continent 3
+    // original continent 3
     "Merrylane Mansion",
     "Eugene Wagner",
     "Kim Jong Hun",
     "Joseph Hide'em",
-    // continent 4
+    // original continent 4
     "John Maynard Keynes",
     "Claus Swab",
     "Chief Salamander",
@@ -146,6 +148,13 @@ const char* LordName(char code) {
         default:
            return lords[code & 0x1f];
     }
+}
+
+// TODO customize / randomize in Mission (MissionBuilder?)
+std::array<unsigned, kContinents> umvirates = {6, 4, 4, 3};
+
+unsigned LordCount(unsigned continent) {
+    return umvirates.at(continent);
 }
 
 } // namespace loc
