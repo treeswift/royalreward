@@ -3,6 +3,7 @@
 
 #include "dat_defs.h"
 #include "geography.h"
+#include "goldenkey.h"
 #include "military.h"
 
 #include <vector>
@@ -22,7 +23,7 @@ namespace dat {
 /**
  * Fortress-haven pair.
  */
-struct FHPair {
+struct Nation {
     // Fortress NAME-haven NAME correspondence is fixed in original resources;
     //  the rest is flexible.
     // We need just enough fortresses in a part of the world to sustain known
@@ -30,13 +31,25 @@ struct FHPair {
     // Haven -> technology correspondences can be shuffled independently.
 
     char continent;
-    char inner_idx;
     char enemy_idx; // global
+    unsigned inner_idx;
+};
+
+struct Intel {
+    const map::Continent & lookback;
+    std::vector<mil::Army> standing;
+    std::vector<mil::Army> rambling;
+    std::vector<mil::Regiment> recruitment;
+    map::Point mm, nn, g1, g2; // specials
+
+    Intel(const Intel&) = default;
+    Intel& operator=(const Intel&) = default;
+    Intel(unsigned cidx, const map::Continent & cont);
 };
 
 struct Mission {
     unsigned free_forts = kAlphabet;
-    unsigned free_lords = kAlphabet;
+    unsigned free_lords = kEnemies;
 
     Mission(const Mission& other) = default;
     Mission& operator=(const Mission& other) = default;
@@ -46,22 +59,21 @@ struct Mission {
     // For now, let Modena care about it.
     Mission();
 
+    inline unsigned continents() const { return world.size(); }
+
     void chart(const map::Continent& cont, unsigned enemies);
     void chart(const map::Continent& cont); // default count
 
-    std::vector<map::Continent*> world; // up to "parts"
-    std::vector<FHPair> geopolitics; // up to "alphabet"
+    std::vector<Intel> world; // up to kContinents
+    std::vector<Nation> geopolitics; // up to kAlphabet
+    std::string toponymics;
     std::string technologies;
+    map::GoldenKey gk;
 
-    // castles to locations!
-    // castles to enemies
-    // castle troops
-    // roaming troops
-    // dwelling troops
-    // map::Point fort, port;
-    // map::Point airp, bayp;
 private: // ctor-called
+    void allocNames();
     void allocTech();
+    void propose(unsigned fortresses, unsigned enemies);
 };
 
 struct Prototype {

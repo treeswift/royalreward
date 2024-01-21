@@ -1,6 +1,7 @@
 #include "mission.h"
 
 #include "dat_defs.h"
+#include "legends.h"
 
 #include <cstdlib>
 #include <cstdio>
@@ -13,6 +14,10 @@ namespace {
 // constexpr const char kEnemies[kContinents] =  {6, 4, 4, 3}; // total 17
 
 constexpr unsigned kRanks = 4;
+
+// TOOD All the text constants below should be moved to `legends.cpp` or
+// TODO otherwise separated; `mission.cpp` should be reserved for logic,
+// TODO not presentation.
 
 const char* kCastes[][kRanks] = {
     {
@@ -99,7 +104,17 @@ Prototype::Prototype(Type t) {
 }
 
 Mission::Mission() {
+    allocNames();
     allocTech();
+}
+
+void Mission::allocNames() {
+    // Mapping from sequentially added nations (forts/ports) to random continents.
+    // NOTE: we can only preserve original placement if the breakdown is the same.
+    for(unsigned c = 0; c < kAlphabet; ++c) {
+        toponymics.push_back((char) c);
+    }
+    rnd::shuffle(toponymics);
 }
 
 void Mission::allocTech() {
@@ -110,6 +125,106 @@ void Mission::allocTech() {
         technologies.push_back((char) rnd::upto(kTechnologies));
     }
     rnd::shuffle(technologies);
+}
+
+void Mission::chart(const map::Continent& cont) {
+    chart(cont, loc::LordCount(continents()));
+}
+
+void Mission::propose(unsigned fortresses, unsigned enemies) {
+    if(enemies > fortresses) {
+        fprintf(stderr, "Not enough fortresses (%u) to host the enemies (%u).\n",
+            fortresses, enemies);
+        abort();
+    }
+    if(continents() >= kContinents) {
+        fprintf(stderr, "Four continents already defined.\n");
+        abort();
+    }
+    if(fortresses > free_forts) {
+        fprintf(stderr, "Defining too many forts/ports: %u out of %u.\n",
+            fortresses, free_forts);
+        abort();
+    }
+    if(enemies > free_lords) {
+        fprintf(stderr, "Defining too many enemies: %u out of %u.\n",
+            enemies, free_lords);
+        abort();
+    }
+    free_forts -= fortresses;
+    free_lords -= enemies;
+    if(continents() == kContinents - 1) {
+        if(free_forts) {
+            fprintf(stderr, "Not all fortresses defined: %u left.\n", free_forts);
+            abort();
+        }
+        if(free_lords) {
+            fprintf(stderr, "Not all enemies defined: %u left.\n", free_lords);
+            abort();
+        }
+    }
+}
+
+// WISDOM: we extract SaveFile-independent metadata here
+// to prevent lazy or read-time inferences/randomizations.
+Intel::Intel(unsigned cidx, const map::Continent & cont) : lookback(cont) {
+    using namespace map;
+    // Indices within `valued_locs` are shuffled
+    // by `specials()` in geo_wealth.cpp anyway.
+    // Examine the map itself (or pre-extract tribe_locs).
+    for(const Point& p : cont.valued_locs) {
+        char c = at(cont.map, p);
+        switch(c) {
+            case cTribe: recruitment.push_back(mil::Recruiting(cidx));
+                break;
+            case cGift1: g1 = p;
+                break;
+            case cGift2: g2 = p;
+                break;
+            case cPaper: nn = p;
+                break;
+            case cGlass: mm = p;
+                break;
+            default:
+                fprintf(stderr, "Unexpected object encountered on the map: %c at %d, %d. "
+                        "Human intervention required.\n", c, p.x, p.y);
+                abort();
+        }
+    }
+    for(const Point& p : cont.enemy_locs) {
+        (void) p; // can be accessed via lookback.enemy_locs
+        rambling.push_back(mil::IrregularArmy(cidx, false));
+    }
+}
+
+void Mission::chart(const map::Continent& cont, unsigned enemies) {
+    unsigned fortresses = cont.forts_locs.size();
+    unsigned curr_lords = kAlphabet - free_lords;
+    propose(fortresses, enemies);
+
+    Nation nation = {continents(), curr_lords, 0};
+    world.emplace_back(nation.continent, cont); // item constructor collects intel
+        // on roaming armies. We may want refine the division of
+        // responsibilities, here, but forts are special anyway,
+        // and let's first make it work.
+    while(nation.inner_idx < enemies) {
+        geopolitics.push_back(nation);
+        world.back().standing.push_back(mil::Fort_Garrison(nation.continent, nation.enemy_idx));
+        ++nation.inner_idx;
+        ++nation.enemy_idx;
+    }
+    nation.enemy_idx = kSquatter;
+    while(nation.inner_idx < fortresses) {
+        geopolitics.push_back(nation);
+        world.back().standing.push_back(mil::IrregularArmy(nation.continent, true));
+        ++nation.inner_idx;
+    }
+    gk.consider(cont);
+
+    // seal the puzzle
+    if(continents() == kContinents) {
+        gk.select();
+    }
 }
 
 } // namespace dat

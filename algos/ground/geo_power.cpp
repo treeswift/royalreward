@@ -48,7 +48,7 @@ void Continent::markHome() {
 }
 
 void Continent::markGates() {
-    for(const Point& point : castle_locs) {
+    for(const Point& point : forts_locs) {
         map[point.y-1][point.x] = cEntry;
     }
 }
@@ -85,7 +85,7 @@ void Continent::castleize() {
                 int r = kPushInland + d;       // right
                 int a = std::abs(r - l) & ~1u; // asymmetry
                 Real prob = std::sqrt(std::sqrt(1.f / (r*r + l*l))) / (1 + a * a);
-                for(const Point& point : castle_locs) { // repulsion
+                for(const Point& point : forts_locs) { // repulsion
                     prob *= 1.f - 25.f / (25u + (point - Point{x, y}).d2());
                     // prob *= (point - Point{x, y}).d2() >= rad2;
                 }
@@ -118,9 +118,9 @@ void Continent::castleize() {
                         resistance += 20;
                     }
 
-                castle_locs.push_back({x, y});
+                forts_locs.push_back({x, y});
                 valued_locs.push_back({x, y - 1});
-                putCastle(x, y, castle_locs.size());
+                putCastle(x, y, forts_locs.size());
                 ++castles; // if tran commit
             }
         }
@@ -220,9 +220,9 @@ void Continent::paveRoads() {
         // we want the element modifiable + want its index
         // ...or extract loop body and apply to both vecs?
         Point probe = valued_locs[li];
-        bool is_castle_gate = li < castle_locs.size();
-        bool is_origin_gate = kGround != kMature && li == castle_locs.size();
-        bool is_wizard_cell = kGround != kMature && li == castle_locs.size() + 1 && kWizard != kMature;
+        bool is_castle_gate = li < forts_locs.size();
+        bool is_origin_gate = kGround != kMature && li == forts_locs.size();
+        bool is_wizard_cell = kGround != kMature && li == forts_locs.size() + 1 && kWizard != kMature;
         auto edgecond = is_castle_gate ? castle_edgecond : wonder_edgecond;
         auto pathterm = is_castle_gate ? castle_pathterm : wonder_pathterm;
 

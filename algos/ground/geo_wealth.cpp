@@ -59,7 +59,7 @@ void Continent::specials() {
         }
         return 0.f;
     });
-    Real sig2 = (Real) kMapMem / M_PI / castle_locs.size();
+    Real sig2 = (Real) kMapMem / M_PI / forts_locs.size();
     placeSpots(kLabels, sign_spots, [&](unsigned, const Point& p) {
         labels_locs.push_back(p);
         return cLabel;
@@ -99,18 +99,18 @@ void Continent::specials() {
 
     MapHolder<char> nations{true};
     ChrMap& nat = nations.map();
-    Real rad2 = (Real) kMapMem / M_PI / castle_locs.size();
+    Real rad2 = (Real) kMapMem / M_PI / forts_locs.size();
     if(kGround != kMature) {
         Real maxFactor = city_spots.rbegin()->first;
         city_spots.insert(city_spots.end(), {maxFactor * 2.f, {12, 3}}); // Hero's Port
     }
-    placeSpots(castle_locs.size(), city_spots, [&](unsigned, const Point& p) {
+    placeSpots(forts_locs.size(), city_spots, [&](unsigned, const Point& p) {
         paint4([&]WITH_XY {
             return (Point{x, y} - p).d2() <= rad2 && (cPlain == map[y][x]) && nat[y][x];
         }, [&]WITH_XY {
             nat[y][x] = false;
         })(p.x, p.y);
-        haven_locs.push_back(p);
+        ports_locs.push_back(p);
         return cHaven;
     }, [&](const Point& p) {
         return at(nat, p);
@@ -181,7 +181,7 @@ void Continent::specials() {
 }
 
 Real Continent::cityCost(unsigned i) const {
-    return (haven_locs[i] - castle_locs[i]).d();
+    return (ports_locs[i] - forts_locs[i]).d();
 }
 
 Real Continent::cityCost() const {
@@ -200,24 +200,24 @@ void Continent::citymize() {
         unsigned j = rnd::upto(kCastles);
         if(i != j) {
             Real pre = cityCost(i) + cityCost(j);
-            Real post = (haven_locs[i] - castle_locs[j]).d() + (haven_locs[j] - castle_locs[i]).d();
+            Real post = (ports_locs[i] - forts_locs[j]).d() + (ports_locs[j] - forts_locs[i]).d();
             if(post < pre) {
                 // NOTE flip castles, not cities, to spare Hero's Haven
-                std::swap(castle_locs[i], castle_locs[j]);
+                std::swap(forts_locs[i], forts_locs[j]);
             }
         }
     }
     // fprintf(stderr, "X Sum(d2)=%f\n", cityCost());
     for(unsigned i = 0; i < kCastles; ++i) {
         // re-label castles
-        const Point& p = castle_locs[i];
+        const Point& p = forts_locs[i];
         at(map, p + Shift{0, 1}) = cCRear + 1 + i;
     }
 }
 
 void Continent::maskCities(bool mask) {
     for(unsigned i = 0; i < kCastles; ++i) {
-        at(map, haven_locs[i]) = mask ? cHaven : cCRear + 1 + i;
+        at(map, ports_locs[i]) = mask ? cHaven : cCRear + 1 + i;
     }
 }
 

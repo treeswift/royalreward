@@ -38,7 +38,7 @@ public:
     EleMap& echo = tenmem.map();
     IntMap& seg = segments.map();
 
-    std::vector<Point> castle_locs, labels_locs, haven_locs, wonder_locs, enemy_locs;
+    std::vector<Point> forts_locs, labels_locs, ports_locs, wonder_locs, enemy_locs;
     std::vector<Point> valued_locs, failed_locs; //transient
 
     inline Continent(const Geology& geo = {}) : Geology(geo) {}
