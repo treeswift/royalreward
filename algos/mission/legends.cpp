@@ -21,7 +21,7 @@ constexpr const char* lords[kEnemies] = {
     // original continent 1
     "Peter the Petty",
     "Ruddy the Hacker",
-    "Hickory Blinton",
+    "Hickory Linden",
     "Jeffrey Epstein",
     "Abduwali Moose",
     "Alexander Dugin",
