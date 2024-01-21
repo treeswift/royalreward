@@ -100,17 +100,21 @@ struct TileConv {
         return lut.at(c);
     }
 
-    int tileoff(const IntMap& seg, const Point& p) const {
+    int tileoff(char c, const ChrMap& map, const IntMap& seg, const Point& p) const {
         int base_seg = at(seg, p);
         int bit = 1;
         int msk = 0;
         nearby(p).visit([&]WITH_XY { // y, then x
-            if(at(seg, {x, y}) == base_seg) {
+            if(at(seg, {x, y}) == base_seg && at(map, {x, y}) == c) {
                 msk |= bit;
             }
             bit <<= !(p.x == x && p.y == y);
         });
         return cor.at(msk);
+    }
+
+    int tileoff(const ChrMap& map, const IntMap& seg, const Point& p) const {
+        return tileoff(at(map, p), map, seg, p);
     }
 
     char tribe(mil::Landscape l) const {
@@ -120,7 +124,7 @@ struct TileConv {
     char operator()(const ChrMap& map, const IntMap& seg, const Point& p) const {
         char c = at(map, p);
         if(c == cWater || c == cWoods || c == cSands || c == cRocks) {
-            c += tileoff(seg, p); // always nonpositive
+            c += tileoff(c, map, seg, p); // always nonpositive
         }
         return c;
     }
