@@ -61,18 +61,18 @@ void Continent::formLand() {
         for(const Paint& f : minerals) {
             int dx = f.x - x;
             int dy = f.y - y;
-            unsigned color = f.color;
-            unsigned dcolor = color ? color : kMaxCol + 1;
+            int color = f.color;
+            int dcolor = color ? color : kMaxCol + 1;
             Real decay = kDecay + dcolor * (kDPow2 * dcolor + kDPow1); // Horner
             // color *= color & 1u; // more water but fewer islands!
             Real rbf = (dx * dx + dy * dy);
             Real prominence = 1.f; // decay, etc.
             all.part[color] += prominence * expf(- decay * rbf);
         }
-        unsigned idx = 0; // guaranteed to be overwritten
+        int idx = 0; // guaranteed to be overwritten
         Real max = 0.f;
         Real sum = 0.f;
-        for(unsigned color = 0; color <= kMaxCol + 1; ++color) {
+        for(int color = 0; color <= kMaxCol + 1; ++color) {
             Real pt = all.part[color];
             sum += pt;
             if(all.part[color] > max) {

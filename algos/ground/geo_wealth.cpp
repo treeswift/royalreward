@@ -194,7 +194,7 @@ Real Continent::cityCost() const {
 
 void Continent::citymize() {
     // fprintf(stderr, "E Sum(d2)=%f\n", cityCost());
-    constexpr unsigned kAtt = kCastles * kCastles;
+    const unsigned kAtt = kCastles * kCastles;
     for(unsigned a = 0; a < kAtt; ++a) {
         unsigned i = rnd::upto(kCastles);
         unsigned j = rnd::upto(kCastles);

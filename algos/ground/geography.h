@@ -20,7 +20,8 @@ using Minerals = std::vector<Paint>;
 using PrediP = std::function<bool(const Point&)>;
 using PlaceP = std::function<char(char, const Point& p)>;
 
-class Continent {
+class Continent : public Geology // injection of settings
+{
     Minerals minerals;
     MapHolder<char> chrmem{cWater};
     MapHolder<Real> tenmem{1.f};

@@ -6,6 +6,8 @@
 
 using namespace map;
 
+constexpr int kSeed = 1u;
+
 int main(int argc, char** argv) {
     using namespace map;
     (void) argc;

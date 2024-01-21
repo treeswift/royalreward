@@ -3,7 +3,7 @@
 namespace map {
 
 char GoldenKey::convert(char c) {
-    if(c >= cCRear && c <= cCRear + kCastles) {
+    if(c >= cCRear && c <= cCMaxF) {
         c = cCRear;
     }
     else switch(c) { // replace w/a LUT?

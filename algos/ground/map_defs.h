@@ -15,44 +15,17 @@ constexpr int kExtSqr = kMapExt * kMapExt;
 constexpr int kMargin = 1u;
 constexpr int kShoalz = 3u;
 constexpr int kMEdgez = kMapDim - kShoalz;
-constexpr int kMinBox = 2u;
-constexpr int kFeaAmp = 16u;
-constexpr char kColors = 17;
-constexpr char kMaxCol = 7; // 1 for Pangaia
-static_assert(kMaxCol+2 < kColors, "tectonic array");
+constexpr char kColors = 17; // array size
 
 constexpr char kMidSea = 0;
 constexpr char kOnLand = 1;
-constexpr char kIsland = kMaxCol + 1;
 constexpr char kMature = -1; // disable
-constexpr char kGround = kMidSea; // kIsland;
-constexpr char kHermit = kIsland + 1;
-constexpr char kWizard = kIsland;
 
-constexpr int kNLines = 32u;
-constexpr int kDoAcid = 1u;
-constexpr int kDoRain = 0u; // >>1 for Polynesia
-constexpr int kNLakes = 2u; // 0 for Desertia
-constexpr int kEchoes = 5u;
+constexpr int kTribes = 11u; // fixed
+constexpr int kAddMes = 5;   // fixed
+constexpr int kIdiots = 35u; // fixed
 
-constexpr int kCastles = 9u;
-constexpr int kLabels = 22u;
-constexpr int kTribes = 11u;
-constexpr int kChests = 70u;
-constexpr int kAddMes = 5;
-constexpr int kIdiots = 35u;
-
-// decay polynomial
-constexpr Real kDecay = 0.0f; // produces archipelagoes
-constexpr Real kDPow1 = 0.1f; // produces regular continents
-constexpr Real kDPow2 = 0.0f; // produces Laurasia/Gondwana
-
-constexpr Real kWinner = 1.5f;  // reciprocal of threshold
-constexpr Real kRugged = 0.f;   // torn edges; rarely needs adjustment
-constexpr Real kRoughn = 1e-5f; // log10(rcp(roughness)) is how far from the edges the tear ends
-constexpr Real kSmooth = 0.7f;
-
-constexpr int kSeed = 1u;
+// fixed until here
 
 constexpr char cSpace = '\0';
 constexpr char cMagma = '\1';
@@ -65,6 +38,7 @@ constexpr char cPlain = ':';
 
 constexpr char cCGate = 'F';
 constexpr char cCRear = '0';
+constexpr char cCMaxF = '9';
 constexpr char cCCWLB = '[';
 constexpr char cCCWLT = '{';
 constexpr char cCCWRB = ']';
@@ -88,9 +62,43 @@ constexpr char cRafts = '#';
 
 constexpr char cPrize = 'v'; // debugging display only
 
+struct Geology {
+
+int kMinBox = 2u;
+int kFeaAmp = 16u;
+char kMaxCol = 7; // 1 for Pangaia
+// TODO: static_assert(kMaxCol+2 < kColors, "tectonic array"); // make a runtime check
+
+char kIsland = kMaxCol + 1; // TODO change to allocCol() call
+char kHermit = kIsland + 1; // TODO change to allocCol() call
+char kGround = kMidSea; // kIsland;
+char kWizard = kIsland;
+
+unsigned kNLines = 32u;
+unsigned kDoAcid = 1u;
+unsigned kDoRain = 0u; // >>1 for Polynesia
+unsigned kNLakes = 2u; // 0 for Desertia
+unsigned kEchoes = 5u;
+
+// decay polynomial
+Real kDecay = 0.0f; // produces archipelagoes
+Real kDPow1 = 0.1f; // produces regular continents
+Real kDPow2 = 0.0f; // produces Laurasia/Gondwana
+
+Real kWinner = 1.5f;  // reciprocal of threshold
+Real kRugged = 0.f;   // torn edges; rarely needs adjustment
+Real kRoughn = 1e-5f; // log10(rcp(roughness)) is how far from the edges the tear ends
+Real kSmooth = 0.7f;
+
+unsigned kCastles = 9u; // flexible, but for now can't exceed cCMaxF-cCRear (TODO validate)
+unsigned kLabels = 22u; // resource-determined
+unsigned kChests = 70u; // flexible, but default=good
+
 // realy-really very last touches
-constexpr bool kAridize = false;
-constexpr char kSuomize = false; // other valid options are cWoods and cRocks
+bool kAridize = false;
+char kSuomize = false; // other valid options are cWoods and cRocks
+    
+};
 
 } // namespace map
 
