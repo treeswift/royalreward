@@ -3,6 +3,6 @@ dat_files = files(
 )
 
 mod_files = files(
+    'console.cpp',
     'mod.cpp',
-    'settings_stdin.cpp',
 )
