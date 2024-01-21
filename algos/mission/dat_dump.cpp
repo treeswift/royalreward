@@ -2,6 +2,7 @@
 #include "legends.h"
 
 #include "cstring"
+#include <iomanip>
 #include <sstream>
 #include <list>
 
@@ -140,14 +141,14 @@ void SaveFile::dump(IO& out, const Aspects& oo) const {
             char lord = lords[i];
             prefix << "c=" << (int) cont << delim;
             prefix << "f=" << (char)('A' + i) << delim;
-            prefix << "l=" << std::hex << (0xff & lord) << std::dec << delim;
+            prefix << "l=" << std::setw(2) << (0xff & lord) << std::setw(0) << delim;
             GPRINTF("\t# %s (%s), under %s", loc::FortName(i), loc::ContName(cont), loc::LordName(lord));
             for(unsigned j = 0; j < kArmySlots; ++j) {
                 unsigned size = guards[i][j];
                 char unit = gunits[i][j];
                 if(unit + 1) {
                     mil::UnitDef stat = mil::Stat(unit);
-                    GPRINTF("u=%d sz=%u hp=%u sl=%u\t# %u %s HP=%u", unit, size, stat.hp, stat.sl, size, stat.name, stat.hp * size);
+                    GPRINTF("a=%d u=%d sz=%u hp=%u sl=%u\t# %u %s HP=%u", j, unit, size, stat.hp, stat.sl, size, stat.name, stat.hp * size);
                     if((lords[i] & 0x1f) == 0x1f) { // 0x7f or 0xff, or... what?
                         distrib[cont].onArmy(unit, size);
                     }

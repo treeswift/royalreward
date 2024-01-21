@@ -53,8 +53,8 @@ Prototype::Prototype(Type t) {
     {
     case A:
         command = 100;
-        army.push_back({Unit::Recruits, 20});
-        army.push_back({Unit::Bowmen, 2});
+        army.push_back({20, Recruits});
+        army.push_back({2, Bowmen});
         salary  = 1000;
         savings = 7500;
         is_a_bookworm = false;
@@ -64,8 +64,8 @@ Prototype::Prototype(Type t) {
 
     case B:
         command = 80;
-        army.push_back({Unit::Housewives, 20});
-        army.push_back({Unit::Recruits, 20});
+        army.push_back({20, Housewives});
+        army.push_back({20, Recruits});
         salary  = 1000;
         savings = 10000;
         is_a_bookworm = false;
@@ -75,8 +75,8 @@ Prototype::Prototype(Type t) {
 
     case C:
         command = 60;
-        army.push_back({Unit::Housewives, 30});
-        army.push_back({Unit::Fairies, 10});
+        army.push_back({30, Housewives});
+        army.push_back({10, Fairies});
         salary  = 3000;
         savings = 10000;
         is_a_bookworm = true;
@@ -86,7 +86,7 @@ Prototype::Prototype(Type t) {
 
     case D:
         command = 100;
-        army.push_back({Unit::Canines, 20});
+        army.push_back({20, Canines});
         salary  = 2000;
         savings = 7500;
         is_a_bookworm = false;

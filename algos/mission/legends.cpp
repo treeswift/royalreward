@@ -30,8 +30,8 @@ constexpr const char* lords[kEnemies] = {
     "Otto Ostborn",
     // continent 3
     "Merrylane Mansion",
-    "Kim Jong Hun",
     "Eugene Wagner",
+    "Kim Jong Hun",
     "Joseph Hide'em",
     // continent 4
     "John Maynard Keynes",
@@ -139,9 +139,9 @@ const char* TechName(unsigned index, bool combat) {
 
 const char* LordName(char code) {
     switch(code) {
-        case -1:
+        case kCleansed:
             return "your rule";
-        case 0x7f:
+        case kSquatter:
             return "squatters";
         default:
            return lords[code & 0x1f];

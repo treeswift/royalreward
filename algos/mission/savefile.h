@@ -22,8 +22,6 @@ namespace dat {
  * depends upon. The reason is obvious, but feel free to ask me if you wonder why.
  */
 
-constexpr unsigned kArmySlots = 5;
-constexpr unsigned kIdiotArmy = 3;
 constexpr unsigned kWantedSlots = 5;
 constexpr unsigned kPackedMaps = (map::kMapMem * kContinents) >> 3;
 constexpr unsigned kkVolunteers = map::kAddMes;

@@ -10,6 +10,13 @@ constexpr unsigned kTechnologies = kTechControls * 2;
 constexpr unsigned kEnemies = 0x11;
 constexpr unsigned kTrophies = 0x8;
 
+constexpr unsigned kArmySlots = 5;
+constexpr unsigned kIdiotArmy = 3;
+
+// ad hoc convention we follow so far
+constexpr char kCleansed = -1;
+constexpr char kSquatter = 0x7f;
+
 } // namespace dat
 
 #endif

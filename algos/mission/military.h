@@ -49,11 +49,16 @@ const UnitDef& Stat(unsigned u);
 inline const char* Name(unsigned u) { return Stat(u).name; }
 
 struct Regiment {
-    Unit unit;
     unsigned count;
+    Unit unit;
 };
 
 using Army = std::vector<Regiment>;
+
+Regiment Irregular(int continent);
+Army IrregularArmy(int continent, bool standing);
+Army Fort_Garrison(int continent, char lord);
+
 
 } // namespace mil
 
