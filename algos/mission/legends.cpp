@@ -157,4 +157,10 @@ unsigned LordCount(unsigned continent) {
     return umvirates.at(continent);
 }
 
+std::array<unsigned, kContinents> signposts = {22, 22, 14, 13};
+
+unsigned SignCount(unsigned continent) {
+    return signposts.at(continent);
+}
+
 } // namespace loc

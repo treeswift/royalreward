@@ -22,6 +22,7 @@ const char* TechName(unsigned index, bool combat);
 const char* LordName(char code);
 
 unsigned LordCount(unsigned continent);
+unsigned SignCount(unsigned continent);
 
 } // namespace loc
 
