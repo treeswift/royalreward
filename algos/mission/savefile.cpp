@@ -128,7 +128,7 @@ void SaveFile::dump(IO& out, const OutOpt& oo) const {
     // if(!(~OutOpt::Hero & oo.sections)) return; 
 
     HPRINTF("\n## Continents");
-    prefix = {};
+    prefix = decltype(prefix){};
     for(unsigned i = oo.conts.f; i <= oo.conts.t; ++i) { // ...kContinents
         Mark mark(prefix);
         prefix << "c=" << i << delim;
@@ -157,7 +157,7 @@ void SaveFile::dump(IO& out, const OutOpt& oo) const {
 
     if(oo.sections & OutOpt::Fort) {
         HPRINTF("\n## Fortresses");
-        prefix = {};
+        prefix = decltype(prefix){};
         for(unsigned i = 0; i < kAlphabet; ++i) {
             Mark mark(prefix);
             char cont = contoffort[i];
