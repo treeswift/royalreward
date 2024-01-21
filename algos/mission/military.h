@@ -37,11 +37,20 @@ enum Unit {
 
 static_assert(25 == static_cast<int>(Unit::Total), "Exactly 5x5 troop types must be defined");
 
+enum Landscape {
+    Plain,
+    Trees,
+    Hills,
+    Grave,
+    Human,
+};
+
 struct UnitDef {
     unsigned hp; // hit points
     unsigned sl; // skill lvl
     std::array<unsigned, 4> occ;
     unsigned tp; // tribe pop
+    Landscape l;
     const char* name;
 };
 

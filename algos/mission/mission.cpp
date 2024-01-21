@@ -172,7 +172,8 @@ Intel::Intel(unsigned cidx, const map::Continent & cont) : lookback(cont) {
     // Indices within `valued_locs` are shuffled
     // by `specials()` in geo_wealth.cpp anyway.
     // Examine the map itself (or pre-extract tribe_locs).
-    for(const Point& p : cont.valued_locs) {
+    unsigned tunnel = 0;
+    for(const Point& p : cont.wonder_locs) { // FIXME can be optimized by moving intel collection to `specials()`
         char c = at(cont.map, p);
         switch(c) {
             case cTribe: recruitment.push_back(mil::Recruiting(cidx));
@@ -184,6 +185,8 @@ Intel::Intel(unsigned cidx, const map::Continent & cont) : lookback(cont) {
             case cPaper: nn = p;
                 break;
             case cGlass: mm = p;
+                break;
+            case cMetro: oo[tunnel++] = p;
                 break;
             default:
                 fprintf(stderr, "Unexpected object encountered on the map: %c at %d, %d. "

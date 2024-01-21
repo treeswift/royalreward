@@ -26,7 +26,14 @@ constexpr unsigned kWantedSlots = 5;
 constexpr unsigned kPackedMaps = (map::kMapMem * kContinents) >> 3;
 constexpr unsigned kkVolunteers = map::kAddMes;
 
-struct UIOptions {}; // move to UI
+struct UIOptions {
+    unsigned delay = 4;
+    bool sound = false;
+    bool wbeep = true;
+    bool livid = true;
+    bool sized = true;
+    unsigned pal = 0;
+}; // TODO move to UI
 
 // move to IOO, also extract from map::
 using IO = decltype(*stdout);
@@ -66,6 +73,13 @@ struct Aspects {
     bool within(const SavedLoc& loc) const;
 };
 
+/**
+ * Mission data that cannot be saved to SaveFile.
+ */
+struct Leftovers {
+    // TBD
+};
+
 struct SaveFile {
 
 enum Mount {
@@ -76,18 +90,23 @@ enum Mount {
 
 static constexpr byte kNada = -1;
 
+static std::string& sanitize(std::string& name, char rpl = '.');
+
 SaveFile();
 
-void setHeroName(const std::string& name);
+void setHeroName(std::string& name);
 void setHeroType(Prototype::Type t);
-void setHeroLoc(const map::Point& p);
-void setUIOptions(UIOptions opt = {}); // TODO declare UI options
-void setLevel(); // also initializes timers
-void setMap(unsigned idx, const map::Continent& cont); // FIXME replace w/ setMission, invert control
-void setEnemies(); // from Legends? also initializes offers/rewards
+void setHeroLoc(const map::Point& p, unsigned continent = 0); // default/historical:=11,5
+void setUIOptions(const UIOptions& opt = UIOptions());
+void setLevel(unsigned level); // also initializes timers
+void setMission(const Mission& mission, Leftovers& lovers);
+
+// service methods called by setMission
+void setMap(unsigned idx, const map::Continent& cont);
+void initWanted();
 void setGoldenKey(const map::GoldenKey::Burial spot);
 
-char name[11];
+char name[kNameSize + 1];
 byte type; // A-C, starting from 0; mission option
 byte rank; // 0-3, starting from 0
 byte intuition; // depends on type
@@ -100,7 +119,7 @@ byte known[kTechnologies];
 bool smart;     // depends on type: type == 2
 bool storm;
 byte wanted; // = 0xff
-byte units[kArmySlots]; // = depends on type
+char units[kArmySlots]; // = depends on type
 byte delay; // interface option = 4
 byte level; // mission option
 bool sound; // = true
@@ -114,7 +133,7 @@ SavedLoc boat; // = 0
 byte boatPofW; // = 0xff initially
 byte mount; // = 8/land {0/water, 4/air}
 byte cgapal; // =0, irrelevant
-byte techno[kAlphabet]; // randomized
+char techno[kAlphabet]; // randomized
 byte offers[kWantedSlots]; // fill 0-4
 byte last_offer; // = 4
 byte best_offer; // = 5
@@ -123,7 +142,7 @@ byte days_week; // = 5  (to end, initial)
 char lords[kAlphabet]; // randomize: 127 or enemy number
 byte cgate[kAlphabet]; // = 0
 byte tgate[kAlphabet]; // = 0
-byte key_part; // XOR
+byte key_cont; // XOR
 SavedLoc keyl; // XOR
 byte visit[kPackedMaps]; // = 0, but prefill w/initial screen: 0x7c 5 times since 0xe4 every 0x8
 
@@ -135,7 +154,7 @@ SavedLoc tunnels[kContinents][2];
 SavedLoc tribes[kContinents][map::kTribes];
 SavedLoc idiots[kContinents][map::kIdiots];
 char iunits[kContinents][map::kIdiots][kIdiotArmy];
-byte itroops[kContinents][map::kIdiots][kIdiotArmy]; // byte!!! not uint16_t!!! (are rogue ghosts rounded up? verify!)
+byte itroops[kContinents][map::kIdiots][kIdiotArmy]; // byte!!! not uint16_t!!! (rogue ghosts are trimmed to 8 bits)
 char trunits[kContinents][map::kTribes];
 byte trtroop[kContinents][map::kTribes];
 
@@ -152,7 +171,7 @@ uint16_t stasis;
 uint16_t d_left; // from time
 uint16_t score; // = 0
 byte reserved[2]; // = 0
-uint32_t money; // == from mission
+uint32_t money; // == from type
 byte maps[kContinents][map::kMapDim][map::kMapDim];
 
 void dump(IO& out, const Aspects& oo = Aspects()) const;

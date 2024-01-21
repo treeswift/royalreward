@@ -175,8 +175,12 @@ void Continent::specials() {
     });
 
     placeSpots(bag.size(), sweetspots, [&](unsigned i, const Point& p) {
-        (void) p; // wonder_locs.push_back(p); // TODO rpl w/switch
-        return bag[i];
+        char c = bag[i];
+        switch(c) {
+            case cAddMe: addme_locs.push_back(p); break;
+            case cTribe: tribe_locs.push_back(p); break;
+        }
+        return c;
     });
 }
 

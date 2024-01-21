@@ -13,6 +13,8 @@ constexpr unsigned kTrophies = 0x8;
 constexpr unsigned kArmySlots = 5;
 constexpr unsigned kIdiotArmy = 3;
 
+constexpr unsigned kNameSize = 10;
+
 // ad hoc convention we follow so far
 constexpr char kCleansed = -1;
 constexpr char kSquatter = 0x7f;

@@ -4,6 +4,7 @@ project('royalreward', 'cpp',
 
 add_global_arguments('-Wno-narrowing', language: 'cpp')
 add_global_arguments('-Wno-char-subscripts', language: 'cpp')
+add_global_arguments('-Wno-stringop-truncation', language: 'cpp')
 
 subdir('algos/ground')
 gen = static_library('gen', gen_files,

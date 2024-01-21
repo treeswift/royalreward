@@ -40,6 +40,7 @@ public:
 
     std::vector<Point> forts_locs, labels_locs, ports_locs, wonder_locs, enemy_locs;
     std::vector<Point> valued_locs, failed_locs; //transient
+    std::vector<Point> addme_locs, tribe_locs; // refined wonder_locs
 
     inline Continent(const Geology& geo = {}) : Geology(geo) {}
 

@@ -41,6 +41,7 @@ struct Intel {
     std::vector<mil::Army> rambling;
     std::vector<mil::Regiment> recruitment;
     map::Point mm, nn, g1, g2; // specials
+    map::Point oo[2]; // tunnel
 
     Intel(const Intel&) = default;
     Intel& operator=(const Intel&) = default;
