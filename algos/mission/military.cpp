@@ -100,31 +100,31 @@ std::vector<Army> regular = {
 #define NO 0
 #define MB 0
 std::vector<UnitDef> udefs = {
-    {  1, 1, {10, 20, MB,100}, "Housewives"},
-    {  1, 1, {20, 50,100,127}, "Fairies"},
-    {  2, 2, {NO, NO, NO, NO}, "Recruits"},
-    {  3, 2, { 5, 15, 30, 75}, "Canines"},
-    {  3, 2, { 5, 10, 25, MB}, "Scarecrows"},
-    {  5, 2, { 5, 10, 25, 75}, "Lunatics"},
-    {  5, 2, {10, 25, 50,100}, "Woodsfolk"},
-    {  5, 2, { 5, 15, 30, 75}, "Goblins"},
-    { 10, 2, {NO, NO, NO, NO}, "Bowmen"},
-    { 10, 3, { 5, 10, 25, 50}, "Firstborn"},
-    { 10, 3, {NO, NO, NO, NO}, "Spearmen"},
-    { 15, 3, { 4,  8, 15, 30}, "Bedouins"},
-    { 20, 3, { 4, 10, 20, 50}, "Minesfolk"},
-    { 10, 4, { 2,  4, 10, 20}, "Specters"},
-    { 35, 5, {NO, NO, NO, NO}, "Noblemen"},
-    { 40, 4, { 2,  4,  8, 15}, "Cannibals"},
-    { 40, 4, { 2,  4, 10, 20}, "Huns"},
-    { 50, 4, { 2,  4,  8, 15}, "Kobolds"},
-    { 20, 4, {NO, NO, NO, NO}, "Horsemen"},
-    { 25, 5, { 2,  3,  6, 10}, "Wizards"},
-    { 25, 5, { 2,  2,  4, 10}, "Illuminati"},
-    { 30, 5, { 2,  4, 10, 25}, "Batmen"},
-    { 60, 5, { 2,  2,  5, 10}, "Titans"},
-    { 50, 6, { 2,  2,  5, 10}, "Jinns"},
-    {200, 6, { 2,  2,  2,  5}, "Salamanders"},
+    {  1, 1, {10, 20, MB,100}, 250, "Housewives"},
+    {  1, 1, {20, 50,100,127}, 200, "Fairies"},
+    {  2, 2, {NO, NO, NO, NO},  NO, "Recruits"},
+    {  3, 2, { 5, 15, 30, 75}, 150, "Canines"},
+    {  3, 2, { 5, 10, 25, MB}, 150, "Scarecrows"},
+    {  5, 2, { 5, 10, 25, 75}, 100, "Lunatics"},
+    {  5, 2, {10, 25, 50,100}, 250, "Woodsfolk"},
+    {  5, 2, { 5, 15, 30, 75}, 200, "Goblins"},
+    { 10, 2, {NO, NO, NO, NO},  NO, "Bowmen"},
+    { 10, 3, { 5, 10, 25, 50}, 100, "Firstborn"},
+    { 10, 3, {NO, NO, NO, NO},  NO, "Spearmen"},
+    { 15, 3, { 4,  8, 15, 30}, 150, "Bedouins"},
+    { 20, 3, { 4, 10, 20, 50}, 100, "Minesfolk"},
+    { 10, 4, { 2,  4, 10, 20},  25, "Specters"},
+    { 35, 5, {NO, NO, NO, NO},  NO, "Noblemen"},
+    { 40, 4, { 2,  4,  8, 15}, 200, "Cannibals"},
+    { 40, 4, { 2,  4, 10, 20}, 100, "Huns"},
+    { 50, 4, { 2,  4,  8, 15},  25, "Kobolds"},
+    { 20, 4, {NO, NO, NO, NO},  NO, "Horsemen"},
+    { 25, 5, { 2,  3,  6, 10},  25, "Wizards"},
+    { 25, 5, { 2,  2,  4, 10},  25, "Illuminati"},
+    { 30, 5, { 2,  4, 10, 25},  50, "Batmen"},
+    { 60, 5, { 2,  2,  5, 10},  50, "Titans"},
+    { 50, 6, { 2,  2,  5, 10},  25, "Jinns"},
+    {200, 6, { 2,  2,  2,  5},  25, "Salamanders"},
 };
 #undef NO
 
@@ -181,6 +181,25 @@ Army Fort_Garrison(int continent, char lord) {
         default:
             return regular.at(lord); // copy out
     }
+}
+
+// INFERENCE (do your stats homework to verify):
+// The rule for the dwellings, as far as I can tell, is simpler.
+// On every continent, the most probable tier equals its 1-base
+// index and the next probable is less by 1. Outliers have been
+// historically encountered, but really only encourage cheating
+// (e.g. find a Huns or Kobolds wagon in Mediocria, and you are
+// effectively invincible at the earliest -- and supposedly the
+// most challenging -- phase of the game).
+// Therefore, no surprises, period. Use no LUT (except for the
+// starting tribe population) and a trivial fixed ratio of 2:1.
+
+Regiment Recruiting(int continent) {
+    unsigned bits = rnd::upto(12);
+    unsigned tier = continent + (bits >= 4); // 2/3 probability
+    unsigned folk = bits & 0x3;
+    Unit unit = tiers.at(tier).at(folk);
+    return {Stat(unit).tp, unit};
 }
 
 } // namespace mil

@@ -5,11 +5,11 @@
 
 namespace map{
 
-constexpr int kMapDim = 64u;
-constexpr int kMapMax = kMapDim - 1u;
+constexpr int kMapDim = 64;
+constexpr int kMapMax = kMapDim - 1;
 constexpr int kMapMem = kMapDim * kMapDim;
 
-constexpr int kMapExt = kMapDim + 1u;
+constexpr int kMapExt = kMapDim + 1;
 constexpr int kExtSqr = kMapExt * kMapExt;
 
 constexpr int kMargin = 1u;
@@ -21,9 +21,9 @@ constexpr char kMidSea = 0;
 constexpr char kOnLand = 1;
 constexpr char kMature = -1; // disable
 
-constexpr int kTribes = 11u; // fixed
+constexpr int kTribes = 11; // FIXME not really fixed, 11 is only a hard cap. Adjust in Legends!
 constexpr int kAddMes = 5;   // fixed
-constexpr int kIdiots = 35u; // fixed
+constexpr int kIdiots = 35; // fixed
 
 // fixed until here
 

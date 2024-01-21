@@ -12,6 +12,7 @@ int main(int argc, char** argv) {
     // TODO filter out command line switches, modifying args
     // oo.conts = {1, 1};
     oo.sections &= ~Aspects::Foes;
+    oo.sections &= ~Aspects::Fort;
     oo.sections &= ~Aspects::Stat;
 
     // actual output to stdout, human-readable to stderr

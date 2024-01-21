@@ -38,9 +38,10 @@ enum Unit {
 static_assert(25 == static_cast<int>(Unit::Total), "Exactly 5x5 troop types must be defined");
 
 struct UnitDef {
-    unsigned hp;
-    unsigned sl;
+    unsigned hp; // hit points
+    unsigned sl; // skill lvl
     std::array<unsigned, 4> occ;
+    unsigned tp; // tribe pop
     const char* name;
 };
 
@@ -59,6 +60,8 @@ Regiment Irregular(int continent);
 Army IrregularArmy(int continent, bool standing);
 Army Fort_Garrison(int continent, char lord);
 
+// recruitment stations
+Regiment Recruiting(int continent);
 
 } // namespace mil
 

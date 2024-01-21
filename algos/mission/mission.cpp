@@ -9,8 +9,8 @@ namespace dat {
 
 namespace {
 
-constexpr const char kCastles[kContinents] = {11, 6, 6, 3}; // total 26
-constexpr const char kEnemies[kContinents] =  {6, 4, 4, 3}; // total 17
+// constexpr const char kCastles[kContinents] = {11, 6, 6, 3}; // total 26
+// constexpr const char kEnemies[kContinents] =  {6, 4, 4, 3}; // total 17
 
 constexpr unsigned kRanks = 4;
 
@@ -96,6 +96,20 @@ Prototype::Prototype(Type t) {
         fprintf(stderr, "No such character class: %d\n", t);
         abort();
     }
+}
+
+Mission::Mission() {
+    allocTech();
+}
+
+void Mission::allocTech() {
+    for(unsigned tech = 0; tech < kTechnologies; ++tech) {
+        technologies.push_back(tech);
+    }
+    while(technologies.size() < kAlphabet) {
+        technologies.push_back((char) rnd::upto(kTechnologies));
+    }
+    rnd::shuffle(technologies);
 }
 
 } // namespace dat

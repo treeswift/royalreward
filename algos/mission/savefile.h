@@ -53,6 +53,7 @@ struct Aspects {
         Foes = 1 << 4,
         Gift = 1 << 5,
         Stat = 1 << 6,
+        Cell = 1 << 7,
         Everything = ~0
     };
     unsigned sections = Everything;
@@ -80,10 +81,10 @@ SaveFile();
 void setHeroName(const std::string& name);
 void setHeroType(Prototype::Type t);
 void setHeroLoc(const map::Point& p);
-void setUIOptions(UIOptions opt = {});
-void setLevel(); // also initializes 
-void setMap(unsigned idx, const map::Continent& cont);
-void setEnemies(); // also initializes offers/rewards
+void setUIOptions(UIOptions opt = {}); // TODO declare UI options
+void setLevel(); // also initializes timers
+void setMap(unsigned idx, const map::Continent& cont); // FIXME replace w/ setMission, invert control
+void setEnemies(); // from Legends? also initializes offers/rewards
 void setGoldenKey(const map::GoldenKey::Burial spot);
 
 char name[11];

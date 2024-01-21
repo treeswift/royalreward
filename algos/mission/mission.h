@@ -41,6 +41,11 @@ struct Mission {
     Mission(const Mission& other) = default;
     Mission& operator=(const Mission& other) = default;
 
+    // ROADMAP inject Legends -- either here,
+    // or later to keep the ctor lightweight.
+    // For now, let Modena care about it.
+    Mission();
+
     void chart(const map::Continent& cont, unsigned enemies);
     void chart(const map::Continent& cont); // default count
 
@@ -55,6 +60,8 @@ struct Mission {
     // dwelling troops
     // map::Point fort, port;
     // map::Point airp, bayp;
+private: // ctor-called
+    void allocTech();
 };
 
 struct Prototype {

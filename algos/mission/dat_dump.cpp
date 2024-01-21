@@ -130,6 +130,21 @@ void SaveFile::dump(IO& out, const Aspects& oo) const {
                 }
             }
         }
+        if(oo.sections & Aspects::Cell) {
+            HPRINTF("# Recruitment");
+            for(unsigned j = 0; j < map::kTribes; ++j) {
+                const SavedLoc& sl = tribes[i][j];
+                if(sl) { // tribes should never go away, but just in case...
+                    Mark mark(prefix);
+                    prefix << "t=" << j << delim;
+                    const std::string tpos = sl;
+                    char unit = trunits[i][j];
+                    const char* name = mil::Name(unit);
+                    unsigned size = trtroop[i][j];
+                    GPRINTF("u=%u sz=%u\t# %u %s", unit, size, size, name);
+                }
+            }
+        }
     }
 
     if(oo.sections & Aspects::Fort) {
