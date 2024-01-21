@@ -15,10 +15,30 @@ constexpr const char kEnemies[kContinents] =  {6, 4, 4, 3}; // total 17
 constexpr unsigned kRanks = 4;
 
 const char* kCastes[][kRanks] = {
-    {"Knight",    "General",    "Marshall", "Lord"},
-    {"Paladin",   "Crusader",   "Avenger",  "Champion"},
-    {"Sorceress", "Magician",   "Mage",     "Archmage"},
-    {"Barbarian", "Chieftain",  "Warlord",  "Overlord"},
+    {
+        "Cadet",
+        "Lieutenant",
+        "Major",
+        "Colonel"
+    },
+    {
+        "Volunteer",
+        "Activist",
+        "Ambassador",
+        "Champion"
+    },
+    {
+        "Student",
+        "Intern",
+        "Master",
+        "Doctor"
+    },
+    {
+        "Athlete",
+        "Participant",
+        "Contender",
+        "Medalist"
+    },
 };
 
 } // anonymous
