@@ -41,6 +41,7 @@ public:
     std::vector<Point> forts_locs, labels_locs, ports_locs, wonder_locs, enemy_locs;
     std::vector<Point> valued_locs, failed_locs; //transient
     std::vector<Point> addme_locs, tribe_locs; // refined wonder_locs
+    std::vector<Point> bay_points, air_fields;
 
     inline Continent(const Geology& geo = {}) : Geology(geo) {}
 
@@ -135,6 +136,7 @@ public:
     Real cityCost(unsigned i) const;
     Real cityCost() const;
     void citymize();
+    void cconnect();
 
     // display/overlay
 

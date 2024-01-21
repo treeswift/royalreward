@@ -230,12 +230,28 @@ void SaveFile::setLevel(unsigned lvl) {
     days_week = 5;
 }
 
+void Leftovers::inform(unsigned alphaid, unsigned c_index, const Point& fort, const Point& port, const Point& bay, const Point& air) {
+    conts[alphaid] = c_index;
+#define LEFTOVER_ITERATE(from, to, dim, comp) \
+        to[dim][alphaid] = from.comp;
+#define LEFTOVER_SCATTER(from, to) \
+        LEFTOVER_ITERATE(from, to, X, x) \
+        LEFTOVER_ITERATE(from, to, Y, y)
+    LEFTOVER_SCATTER(fort, forts);
+    LEFTOVER_SCATTER(port, ports);
+    LEFTOVER_SCATTER(bay, p_bay);
+    LEFTOVER_SCATTER(air, p_air);
+#undef LEFTOVER_SCATTER
+#undef LEFTOVER_ITERATE
+}
+
 void SaveFile::setMission(const Mission& mission, Leftovers& lovers) {
-    unsigned c_idx = 0;
+    unsigned c_index = 0;
     unsigned natid = 0;
     SavedLoc nowhere = {kNada, kNada};
     for(const auto & intel : mission.world) {
-        setMap(c_idx, intel.lookback); // ONLY manually adjust tribes AFTER THIS
+        const auto& cont = intel.lookback;
+        setMap(c_index, cont); // ONLY manually adjust tribes AFTER THIS
 
         // copy over armies, treasures etc.
         // standing armies are spread over by continents, we may want to change that
@@ -243,8 +259,11 @@ void SaveFile::setMission(const Mission& mission, Leftovers& lovers) {
             const Nation& nation = mission.geopolitics.at(natid);
             char alphaid = mission.toponymics.at(natid);
             lords[alphaid] = nation.enemy_idx;
-            // cgate[alphaid] = intel.lookback.forts_locs[nation.inner_idx]; // FIXME move to lovers
-            // tgate[alphaid] = intel.lookback.ports_locs[nation.inner_idx]; // FIXME move to lovers
+            // DAT file spillovers
+            unsigned inner = nation.inner_idx;
+            lovers.inform(alphaid, nation.continent,
+                cont.forts_locs[inner], cont.ports_locs[inner],
+                cont.bay_points[inner], cont.air_fields[inner]);
             // ... guards, gunits:
             unsigned slot_id = 0;
             for(const auto& reg : standing) {
@@ -261,48 +280,54 @@ void SaveFile::setMission(const Mission& mission, Leftovers& lovers) {
         // TODO extract the idiomatic pattern below
         unsigned idiot_id = 0;
         for(const auto& rambling : intel.rambling) {
-            idiots[c_idx][idiot_id] = intel.lookback.enemy_locs.at(idiot_id);
+            idiots[c_index][idiot_id] = cont.enemy_locs.at(idiot_id);
             unsigned slot_id = 0;
             for(const auto& reg : rambling) {
-                iunits[c_idx][idiot_id][slot_id] = reg.unit;
-                itroops[c_idx][idiot_id][slot_id] = reg.count;
+                iunits[c_index][idiot_id][slot_id] = reg.unit;
+                itroops[c_index][idiot_id][slot_id] = reg.count;
                 ++slot_id;
             }
             while(slot_id < kIdiotArmy) { // caution
-                iunits[c_idx][idiot_id][slot_id++] = kNada;
+                iunits[c_index][idiot_id][slot_id++] = kNada;
             }
             ++idiot_id;
         }
         while(idiot_id < map::kIdiots) {
-            idiots[c_idx][idiot_id] = nowhere;
+            idiots[c_index][idiot_id] = nowhere;
             ++idiot_id;
         }
 
         // TODO extract the idiomatic pattern below
         unsigned tribe_id = 0;
         for(const auto& tribe : intel.recruitment) {
-            const Point& p = intel.lookback.tribe_locs.at(tribe_id);
-            tribes[c_idx][tribe_id] = p;
-            trunits[c_idx][tribe_id] = tribe.unit;
-            trtroop[c_idx][tribe_id] = tribe.count;
-            maps[c_idx][p.y][p.x] = tconv.tribe(mil::Stat(tribe.unit).l);
+            const Point& p = cont.tribe_locs.at(tribe_id);
+            tribes[c_index][tribe_id] = p;
+            trunits[c_index][tribe_id] = tribe.unit;
+            trtroop[c_index][tribe_id] = tribe.count;
+            maps[c_index][p.y][p.x] = tconv.tribe(mil::Stat(tribe.unit).l);
             ++tribe_id;
         }
         while(tribe_id < map::kTribes) {
-            tribes[c_idx][tribe_id] = nowhere;
-            trunits[c_idx][tribe_id] = kNada;
-            trtroop[c_idx][tribe_id] = 0;
+            tribes[c_index][tribe_id] = nowhere;
+            trunits[c_index][tribe_id] = kNada;
+            trtroop[c_index][tribe_id] = 0;
             ++tribe_id;
         }
 
-        // special specials (xcpt trophies)
-        tunnels[c_idx][0] = intel.oo[0];
-        tunnels[c_idx][1] = intel.oo[1];
-        allmaps[c_idx] = intel.mm;
-        if(c_idx < kContinents - 1) {
-            newmaps[c_idx] = intel.nn;
+        // addmes
+        unsigned addme_id = 0;
+        for(const Point& p : cont.addme_locs) {
+            addme[c_index][addme_id++] = p;
         }
-        ++c_idx;
+
+        // special specials (xcpt trophies)
+        tunnels[c_index][0] = intel.oo[0];
+        tunnels[c_index][1] = intel.oo[1];
+        allmaps[c_index] = intel.mm;
+        if(c_index < kContinents - 1) {
+            newmaps[c_index] = intel.nn;
+        }
+        ++c_index;
     }
 
     // extract into setTechs()...

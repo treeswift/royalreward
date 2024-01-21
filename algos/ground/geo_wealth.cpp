@@ -1,5 +1,7 @@
 #include "geography.h"
 
+#include <cstdlib>
+
 namespace map {
 
 bool isbarr(char c){ return cWoods == c || cRocks == c; }
@@ -82,6 +84,7 @@ void Continent::specials() {
                 pc += c == cPlain;
                 ec |= c == cEntry;
             });
+            // TODO extract and reuse; see cconnect()
             for(const Shift& dir : dirs) {
                 char h = at(map, p + Shift{dir.dx, 0});
                 char v = at(map, p + Shift{0, dir.dy});
@@ -216,6 +219,51 @@ void Continent::citymize() {
         // re-label castles
         const Point& p = forts_locs[i];
         at(map, p + Shift{0, 1}) = cCRear + 1 + i;
+    }
+}
+
+void Continent::cconnect() {
+    std::vector<Shift> dirs = {{-1,-1}, {-1, 1}, { 1,-1}, { 1, 1}};
+    for(const Point& p : ports_locs) {
+        for(const Shift& dir : dirs) {
+            // point precalculation
+            Point adj_d = p + dir;
+            Point adj_h{adj_d.x, p.y};
+            Point adj_v{p.x, adj_d.y};
+            // plains must be adjacent
+            char h = at(map, adj_h);
+            char v = at(map, adj_v);
+            bool air_h;
+            char wadj;
+            if(cPlain == h) {
+                air_h = true;
+                air_fields.push_back(adj_h);
+                wadj = v; // choose water between v and d
+            } else if(cPlain == v) {
+                air_h = false;
+                air_fields.push_back(adj_v);
+                wadj = h; // choose water between h and d
+            } else {
+                continue;
+            }
+            char d = at(map, p + dir);
+            if(cWater == d) {
+                bay_points.push_back(adj_d);
+            } else if(cWater == wadj) {
+                bay_points.push_back(air_h ? adj_v : adj_h);
+            } else {
+                continue;
+            }
+            break; // success
+        }
+    }
+    if(bay_points.size() != ports_locs.size()) {
+        fprintf(stderr, "Not all harbors could be allocated.\n");
+        abort();
+    }
+    if(air_fields.size() != ports_locs.size()) {
+        fprintf(stderr, "Not all airports could be allocated.\n");
+        abort();
     }
 }
 

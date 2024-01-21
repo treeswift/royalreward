@@ -24,7 +24,7 @@ namespace dat {
 
 constexpr unsigned kWantedSlots = 5;
 constexpr unsigned kPackedMaps = (map::kMapMem * kContinents) >> 3;
-constexpr unsigned kkVolunteers = map::kAddMes;
+constexpr unsigned kVolunteers = map::kAddMes;
 
 struct UIOptions {
     unsigned delay = 4;
@@ -77,7 +77,16 @@ struct Aspects {
  * Mission data that cannot be saved to SaveFile.
  */
 struct Leftovers {
-    // TBD
+    enum Coordinate { X, Y, Dimensions};
+    using Point = map::Point;
+
+    char conts[kAlphabet];
+    char forts[Dimensions][kAlphabet];
+    char ports[Dimensions][kAlphabet];
+    char p_bay[Dimensions][kAlphabet];
+    char p_air[Dimensions][kAlphabet];
+
+    void inform(unsigned alphaid, unsigned c_index, const Point& fort, const Point& port, const Point& bay, const Point& air);
 };
 
 struct SaveFile {
@@ -147,7 +156,7 @@ SavedLoc keyl; // XOR
 byte visit[kPackedMaps]; // = 0, but prefill w/initial screen: 0x7c 5 times since 0xe4 every 0x8
 
 char gunits[kAlphabet][kArmySlots]; // = depends on enemy placement + randomized for squatters
-SavedLoc addme[kContinents][kkVolunteers]; // that's all we know about "addmes"
+SavedLoc addme[kContinents][kVolunteers]; // that's all we know about "addmes"
 SavedLoc newmaps[kContinents-1]; // no next map at the last continent, obviously
 SavedLoc allmaps[kContinents];
 SavedLoc tunnels[kContinents][2];
