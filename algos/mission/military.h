@@ -44,9 +44,9 @@ struct UnitDef {
     const char* name;
 };
 
-const UnitDef& Stat(Unit u);
+const UnitDef& Stat(unsigned u);
 
-inline const char* Name(Unit u) { return Stat(u).name; }
+inline const char* Name(unsigned u) { return Stat(u).name; }
 
 struct Regiment {
     Unit unit;
