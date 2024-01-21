@@ -112,11 +112,13 @@ effort recovery ETA? Choose the deadline that reflects your estimate best:
     s.seed = rnd::hwrandom();
 
     fprintf(stdout, R"SEED(
-We are getting closer. Now we are in the Woods-between-the-worlds, and have
-randomly obtained a certain Seed from which all our independent choices are
-about to be made. You can proceed with it (we advise then that you write it
-down) or enter a predictable and familiar one that you have already played.
-Here is our sugestion --  press Enter to keep it or enter a new one:
+We are getting closer. Now we are in the Woods-between-the-worlds, and I have
+randomly obtained a certain Seed from which all of my independent choices are
+about to be made. You can proceed with it (I would then advise that you write
+it down in a place more permanent than a console window) or, instead, enter a
+predictable and familiar one that you have already played with.
+
+Here is my sugestion --  press Enter to keep it or enter a new one:
 
 [%u] )SEED", s.seed);
 
