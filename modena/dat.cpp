@@ -7,12 +7,12 @@
 using namespace dat;
 
 int main(int argc, char** argv) {
-    OutOpt oo;
+    Aspects oo;
 
     // TODO filter out command line switches, modifying args
     // oo.conts = {1, 1};
-    oo.sections &= ~OutOpt::Foes;
-    oo.sections &= ~OutOpt::Stat;
+    oo.sections &= ~Aspects::Foes;
+    oo.sections &= ~Aspects::Stat;
 
     // actual output to stdout, human-readable to stderr
     if(argc <= 1) {
@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
         sf.dump(*stdout, oo);
     }
 
-    if(oo.sections & OutOpt::Stat) {
+    if(oo.sections & Aspects::Stat) {
         DumpStats(*stdout);
     }
 }

@@ -44,7 +44,7 @@ struct SavedLoc {
     operator bool() const;
 };
 
-struct OutOpt {
+struct Aspects {
     // query ranges are inclusive, for simplicity
     struct Rng { unsigned f, t; };
     enum Sec {
@@ -156,7 +156,7 @@ byte reserved[2]; // = 0
 uint32_t money; // == from mission
 byte maps[kContinents][map::kMapDim][map::kMapDim];
 
-void dump(IO& out, const OutOpt& oo = OutOpt()) const;
+void dump(IO& out, const Aspects& oo = Aspects()) const;
 
 };
 #pragma pack()
