@@ -54,8 +54,10 @@ struct OutOpt {
         View = 1 << 3,
         Foes = 1 << 4,
         Gift = 1 << 5,
+        Stat = 1 << 6,
         Everything = ~0
-    } sections = Everything;
+    };
+    unsigned sections = Everything;
 
     Rng conts = {0, kContinents-1};
     Rng forts = {0, kAlphabet - 1};
@@ -119,23 +121,23 @@ byte last_offer; // = 4
 byte best_offer; // = 5
 byte steps_day; // = 40 (to end, initial)
 byte days_week; // = 5  (to end, initial)
-byte lords[kAlphabet]; // randomize: 127 or enemy number
+char lords[kAlphabet]; // randomize: 127 or enemy number
 byte cgate[kAlphabet]; // = 0
 byte tgate[kAlphabet]; // = 0
 byte key_part; // XOR
 SavedLoc keyl; // XOR
 byte visit[kPackedMaps]; // = 0, but prefill w/initial screen: 0x7c 5 times since 0xe4 every 0x8
 
-byte gunits[kAlphabet][kArmySlots]; // = depends on enemy placement + randomized for squatters
+char gunits[kAlphabet][kArmySlots]; // = depends on enemy placement + randomized for squatters
 SavedLoc addme[kContinents][kkVolunteers]; // that's all we know about "addmes"
 SavedLoc newmaps[kContinents-1]; // no next map at the last continent, obviously
 SavedLoc allmaps[kContinents];
 SavedLoc tunnels[kContinents][2];
 SavedLoc tribes[kContinents][map::kTribes];
 SavedLoc idiots[kContinents][map::kIdiots];
-byte iunits[kContinents][map::kIdiots][kIdiotArmy];
+char iunits[kContinents][map::kIdiots][kIdiotArmy];
 byte itroops[kContinents][map::kIdiots][kIdiotArmy]; // byte!!! not uint16_t!!! (are rogue ghosts rounded up? verify!)
-byte trunits[kContinents][map::kTribes];
+char trunits[kContinents][map::kTribes];
 byte trtroop[kContinents][map::kTribes];
 
 byte key_ciph;

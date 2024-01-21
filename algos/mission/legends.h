@@ -14,10 +14,12 @@
 
 namespace loc {
 
+const char* ContName(unsigned index);
 const char* PortName(unsigned index);
 const char* FortName(unsigned index);
 const char* TechName(unsigned index);
 const char* TechName(unsigned index, bool combat);
+const char* LordName(char code);
 
 } // namespace loc
 

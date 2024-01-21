@@ -1,4 +1,5 @@
 #include "savefile.h"
+#include "legends.h"
 
 #include "cstring"
 #include <sstream>
@@ -94,6 +95,8 @@ struct Dist {
 
 Dist distrib[kContinents];
 
+char contoffort[kAlphabet] = {0, 1, 0, 1, 2, 0, 2, 2, 0, 2, 0, 2, 1, 0, 0, 0, 1, 0, 3, 2, 3, 0, 0, 2, 1, 3, }; 
+
 } // anonymous
 
 void DumpStats(IO& out) {
@@ -125,6 +128,7 @@ void SaveFile::dump(IO& out, const OutOpt& oo) const {
     // if(!(~OutOpt::Hero & oo.sections)) return; 
 
     HPRINTF("\n## Continents");
+    prefix = {};
     for(unsigned i = oo.conts.f; i <= oo.conts.t; ++i) { // ...kContinents
         Mark mark(prefix);
         prefix << "c=" << i << delim;
@@ -139,12 +143,37 @@ void SaveFile::dump(IO& out, const OutOpt& oo) const {
                     GPRINTF("x=%d y=%d\t# roaming army at %s", sl.x, sl.y, ipos.c_str());
                     for(unsigned k = 0; k < kIdiotArmy; ++k) {
                         byte size = itroops[i][j][k];
-                        byte unit = iunits[i][j][k];
-                        if((char)unit + 1) {
+                        char unit = iunits[i][j][k];
+                        if(unit + 1) {
                             distrib[i].onArmy(unit, size);
                             mil::UnitDef stat = mil::Stat(unit);
                             GPRINTF("u=%u sz=%u hp=%u sl=%u\t# %u %s HP=%u", unit, size, stat.hp, stat.sl, size, stat.name, stat.hp * size);
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    if(oo.sections & OutOpt::Fort) {
+        HPRINTF("\n## Fortresses");
+        prefix = {};
+        for(unsigned i = 0; i < kAlphabet; ++i) {
+            Mark mark(prefix);
+            char cont = contoffort[i];
+            char lord = lords[i];
+            prefix << "c=" << (int) cont << delim;
+            prefix << "f=" << (char)('A' + i) << delim;
+            prefix << "l=" << std::hex << (0xff & lord) << std::dec << delim;
+            GPRINTF("\t# %s (%s), under %s", loc::FortName(i), loc::ContName(cont), loc::LordName(lord));
+            for(unsigned j = 0; j < kArmySlots; ++j) {
+                unsigned size = guards[i][j];
+                char unit = gunits[i][j];
+                if(unit + 1) {
+                    mil::UnitDef stat = mil::Stat(unit);
+                    GPRINTF("u=%d sz=%u hp=%u sl=%u\t# %u %s HP=%u", unit, size, stat.hp, stat.sl, size, stat.name, stat.hp * size);
+                    if((lords[i] & 0x1f) == 0x1f) { // 0x7f or 0xff, or... what?
+                        distrib[cont].onArmy(unit, size);
                     }
                 }
             }

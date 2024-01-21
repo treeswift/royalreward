@@ -8,7 +8,38 @@ namespace {
 using namespace dat;
 } // anonymous
 
-constexpr const char* forts[] = {
+constexpr const char* conts[kContinents] = {
+    "Mediocria",
+    "Redwoodia",
+    "Caribbea",
+    "Desertia",
+};
+
+constexpr const char* lords[kEnemies] = {
+    // continent 1
+    "Peter the Petty",
+    "Ruddy the Hacker",
+    "Hillary Clinton",
+    "Jeffrey Epstein",
+    "Abduwali Moose",
+    "Alexander Dugin",
+    // continent 2
+    "Gen. William Sherman",
+    "Prince Nimrond",
+    "Polyphemus",
+    "Otto Ostborn",
+    // continent 3
+    "Merrylane Mansion",
+    "Kim Jong Hun",
+    "Eugene Wagner",
+    "Joseph Hide'em",
+    // continent 4
+    "John Maynard Keynes",
+    "Claus Swab",
+    "Chief Salamander",
+};
+
+constexpr const char* forts[kAlphabet] = {
     "Arkaim",
     "Brest",
     "Chenaux",
@@ -37,7 +68,7 @@ constexpr const char* forts[] = {
     "Zorge",
 };
 
-constexpr const char* ports[] = {
+constexpr const char* ports[kAlphabet] = {
     "Aleppo",
     "Brighton Beach",
     "Casa Blanca",
@@ -66,7 +97,7 @@ constexpr const char* ports[] = {
     "Zurbaghan",
 };
 
-constexpr const char* techs[] = {
+constexpr const char* techs[kTechnologies] = {
     // battle, a-g
     "Breed",
     "Relocate",
@@ -86,9 +117,9 @@ constexpr const char* techs[] = {
     "Rally",
 };
 
-static_assert(sizeof(forts) == sizeof(void*) * kAlphabet, "Need one fort name per letter");
-static_assert(sizeof(ports) == sizeof(void*) * kAlphabet, "Need one port name per letter");
-static_assert(sizeof(techs) == sizeof(void*) * kTechnologies, "Need one tech name per context and control");
+const char* ContName(unsigned index) {
+    return conts[index];
+}
 
 const char* FortName(unsigned index) {
     return forts[index];
@@ -104,6 +135,17 @@ const char* TechName(unsigned index) {
 
 const char* TechName(unsigned index, bool combat) {
     return TechName(index + dat::kTechControls * !combat);
+}
+
+const char* LordName(char code) {
+    switch(code) {
+        case -1:
+            return "your rule";
+        case 0x7f:
+            return "squatters";
+        default:
+           return lords[code & 0x1f];
+    }
 }
 
 } // namespace loc

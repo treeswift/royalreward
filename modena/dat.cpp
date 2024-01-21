@@ -11,6 +11,8 @@ int main(int argc, char** argv) {
 
     // TODO filter out command line switches, modifying args
     // oo.conts = {1, 1};
+    oo.sections &= ~OutOpt::Foes;
+    oo.sections &= ~OutOpt::Stat;
 
     // actual output to stdout, human-readable to stderr
     if(argc <= 1) {
@@ -38,9 +40,11 @@ int main(int argc, char** argv) {
             fprintf(stderr, "Incomplete read from %s: %lu bytes\n", filename.c_str(), pos);
             continue;
         }
-        fprintf(stdout, "@Path: %s\n", filename.c_str());
+        fprintf(stdout, "\n\n@Path: %s\n", filename.c_str());
         sf.dump(*stdout, oo);
     }
 
-    DumpStats(*stdout);
+    if(oo.sections & OutOpt::Stat) {
+        DumpStats(*stdout);
+    }
 }
