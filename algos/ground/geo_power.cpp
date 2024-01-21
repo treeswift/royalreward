@@ -29,9 +29,9 @@ void Continent::markHome() {
         case kMature:
             return;
         case kMidSea:
-            map[3][11] = cShaft;
-            map[4][11] = cShaft;
-            map[5][11] = cShaft;
+            map[3][11] = cRafts;
+            map[4][11] = cRafts;
+            map[5][11] = cRafts;
             map[7][11] = cCGate;
             break;
         default:

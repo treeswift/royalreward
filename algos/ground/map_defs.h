@@ -84,7 +84,7 @@ constexpr char cAddMe = '+';
 constexpr char cChest = '$';
 constexpr char cEnemy = '*';
 
-constexpr char cShaft = '#';
+constexpr char cRafts = '#';
 
 constexpr char cPrize = 'v'; // debugging display only
 
