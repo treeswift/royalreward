@@ -155,6 +155,9 @@ std::string& SaveFile::sanitize(std::string& name, char rpl) {
             c = rpl;
         }
     }
+    if(name.empty()) {
+        name = "Hank Morgan";
+    }
     return name;
 }
 

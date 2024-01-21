@@ -4,4 +4,5 @@ dat_files = files(
 
 mod_files = files(
     'mod.cpp',
+    'settings_stdin.cpp',
 )

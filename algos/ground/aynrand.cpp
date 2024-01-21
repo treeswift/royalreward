@@ -7,6 +7,12 @@ constexpr bool kTrivial = false;
 std::ranlux24_base engine;
 std::uniform_real_distribution<> distro{0., 1.};
 
+std::random_device fresh;
+
+unsigned hwrandom() {
+    return std::uniform_int_distribution<>(0, UINT32_MAX)(fresh);
+}
+
 void seed(unsigned seed) {
     std::srand(seed);
     engine.seed(seed);

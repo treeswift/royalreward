@@ -25,6 +25,8 @@ void shuffle(C& c) {
     }
 }
 
+unsigned hwrandom(); // use hardware random device to generate a single value
+
 }
 
 #endif
