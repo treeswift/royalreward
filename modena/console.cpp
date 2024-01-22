@@ -33,9 +33,8 @@ era of knights and crusades), its car industry and its world-renowned blend of
 balsamic vinegar.
 One can do a _lot_ of things with vinegar. It reveals and highlights the taste
 of dishes, and it's also good for preserving your favorites for decades. How's
-that related to computers? If the words "Royal Reward" or "Caliph's Honor", or
-possibly even "Lenin's Prize" ring a certain bell for you, then you are at the
-right place.
+that related to computers? If the words "Royal Reward" ring a certain bell for
+you, then you are at the right place.
 
 I am going to ask you a few questions first. If you'd like to speed things up,
 so that I cooked "your usual" without any hesitation, press Ctrl+C and type

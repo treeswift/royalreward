@@ -3,6 +3,7 @@ dat_files = files(
 )
 
 mod_files = files(
+    'vinegar.cpp',
     'console.cpp',
     'mod.cpp',
 )

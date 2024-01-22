@@ -5,18 +5,41 @@
 #include "mission.h"
 #include "savefile.h"
 #include "settings.h"
+#include "vinegar.h"
 
 using namespace mod;
 
+int help() {
+    fprintf(stderr, R"HELP(
+    Modena use: 
+        mod [-options] <path-to-installation>
+
+    Basic options include:
+        -n NAME         player name
+        -c A|B|C|D      player class
+        -d E|N|H|I      difficulty
+        -s NUMBER       random seed
+
+    Run "mod -h" to see a complete list of available tweaks and tricks.
+
+)HELP");
+    return 1;
+}
+
 int main(int argc, char** argv) {
-    (void) argc;
-    (void) argv;
-
     Settings s;
-    SetupInteractively(s);
+    if(argc <= 1) {
+        return help();
+    }
 
-    unsigned seed = 1u; // TODO ask for the seed
-                    // TODO ask for the game path
+    s.path = argv[1]; // FIXME replace with a complete option parser
+    Salad salad(s.path);
+    if(salad.progress < Salad::Marinated) {
+        fprintf(stderr, "No installation found at: %s\n", s.path.c_str());
+        return -1;
+    }
+    SetupInteractively(s);
+    rnd::seed(s.seed);
 
     const char* rank = dat::Prototype::Name(s.type);
     fprintf(stdout, R"QUOTE(

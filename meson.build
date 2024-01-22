@@ -31,7 +31,9 @@ executable('dat', dat_files,
     include_directories: ci,
     link_with: [gen, chr],
     install : true)
+
 executable('mod', mod_files,
     include_directories: ci,
     link_with: [gen, chr],
+    dependencies: dependency('boost', modules: ['system', 'filesystem']),
     install : true)
