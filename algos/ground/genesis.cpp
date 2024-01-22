@@ -33,6 +33,7 @@ void Continent::generate() {
     markGates();
     specials();
     citymize();
+    cconnect();
 }
 
 } // namespace map

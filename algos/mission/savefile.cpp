@@ -265,8 +265,8 @@ void SaveFile::setMission(const Mission& mission, Leftovers& lovers) {
             // DAT file spillovers
             unsigned inner = nation.inner_idx;
             lovers.inform(alphaid, nation.continent,
-                cont.forts_locs[inner], cont.ports_locs[inner],
-                cont.bay_points[inner], cont.air_fields[inner]);
+                cont.forts_locs.at(inner), cont.ports_locs.at(inner),
+                cont.bay_points.at(inner), cont.air_fields.at(inner));
             // ... guards, gunits:
             unsigned slot_id = 0;
             for(const auto& reg : standing) {

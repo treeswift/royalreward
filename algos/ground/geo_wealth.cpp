@@ -223,9 +223,13 @@ void Continent::citymize() {
 }
 
 void Continent::cconnect() {
-    std::vector<Shift> dirs = {{-1,-1}, {-1, 1}, { 1,-1}, { 1, 1}};
+    std::vector<Shift> dirs = {{-1,-1}, {-1, 1}, { 1,-1}, { 1, 1}, {0, 0}};
     for(const Point& p : ports_locs) {
         for(const Shift& dir : dirs) {
+            if(!dir.d2()) {
+                fprintf(stderr, "Could not connect city at point %d, %d\n", p.x, p.y);
+                abort();
+            }
             // point precalculation
             Point adj_d = p + dir;
             Point adj_h{adj_d.x, p.y};
@@ -235,11 +239,11 @@ void Continent::cconnect() {
             char v = at(map, adj_v);
             bool air_h;
             char wadj;
-            if(cPlain == h) {
+            if(cPlain == h || cRafts == h) { // only rafts are in case of cOcean start
                 air_h = true;
                 air_fields.push_back(adj_h);
                 wadj = v; // choose water between v and d
-            } else if(cPlain == v) {
+            } else if(cPlain == v || cRafts == v) { // ditto
                 air_h = false;
                 air_fields.push_back(adj_v);
                 wadj = h; // choose water between h and d
@@ -256,14 +260,6 @@ void Continent::cconnect() {
             }
             break; // success
         }
-    }
-    if(bay_points.size() != ports_locs.size()) {
-        fprintf(stderr, "Not all harbors could be allocated.\n");
-        abort();
-    }
-    if(air_fields.size() != ports_locs.size()) {
-        fprintf(stderr, "Not all airports could be allocated.\n");
-        abort();
     }
 }
 
