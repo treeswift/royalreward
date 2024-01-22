@@ -170,7 +170,7 @@ std::string& SaveFile::sanitize(std::string& name, char rpl) {
 void SaveFile::setHeroName(std::string& nm) {
     std::memset(name, ' ', kNameSize);
     sanitize(nm);
-    std::copy(nm.data(), nm.data() + nm.size(), static_cast<char*>(name));
+    std::copy(nm.data(), nm.data() + nm.size(), name);
 }
 
 void SaveFile::setHeroType(Prototype::Type t) {
@@ -261,7 +261,7 @@ void Leftovers::writeDirect(std::ostream& os) const {
     os.seekp(0x165cb); os.write(conts, kAlphabet);
     os.seekp(0x183f8); os.write(forts[0], kGuide);
     os.seekp(0x18481); os.write(ports[0], kGuide);
-    os.seekp(0x18547); os.write(p_bay[0], kGuide);
+    os.seekp(0x1852d); os.write(p_bay[0], kGuide);
     os.seekp(0x18649); os.write(p_air[0], kGuide);
     // keep port-to-fort (0x18697) intact for now
 }
@@ -354,7 +354,7 @@ void SaveFile::setMission(const Mission& mission, Leftovers& lovers) {
     // extract into setTechs()...
     std::string techs = mission.technologies;
     techs.resize(kAlphabet, kTechControls + 0); // pad w/Raft
-    std::strncpy(techno, techs.data(), kAlphabet);
+    std::copy(techs.data(), techs.data() + kAlphabet, techno);
 
     initWanted();
     setGoldenKey(mission.gk.selected());
