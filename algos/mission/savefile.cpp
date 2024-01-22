@@ -129,10 +129,11 @@ struct TileConv {
 
     char operator()(const ChrMap& map, const IntMap& seg, const Point& p) const {
         char c = at(map, p);
+        char t = onetoone(c);
         if(c == cWater || c == cWoods || c == cSands || c == cRocks) {
-            c += tileoff(c, map, seg, p); // always nonpositive
+            t += tileoff(c, map, seg, p); // always nonpositive
         }
-        return c;
+        return t;
     }
 
     std::string lut;
