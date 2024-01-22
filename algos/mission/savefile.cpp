@@ -21,6 +21,7 @@ constexpr char tCCWLB = 3;
 constexpr char tCCWRB = 7;
 constexpr char tCRear = 4;
 constexpr char tCGate = 5 | tInter;
+constexpr char tHRaft = 8; // bordered raft
 constexpr char tVRaft = 9; // no-border raft
 constexpr char tHaven = 10 | tInter;
 constexpr char tChest = 11 | tInter;
@@ -47,6 +48,16 @@ constexpr char tLapse = tRocks; // change to tWater in release
  * an open standard and therefore isn't really private. Extract
  * its class declaration into a header if you need it elsewhere.
  */
+
+constexpr int lb = 1, rb = 2, lt = 4, rt = 8;
+// 2   3
+//   * 
+// 0   1
+constexpr char sqr[] = "\1\3\2\5\0\12\4\14\10";
+// 6 7 8    4 c 8
+// 3 4 5 => 5 0 a
+// 0 1 2    1 3 2
+
 struct TileConv {
 
     TileConv() {
@@ -77,35 +88,24 @@ struct TileConv {
         lut[cSands] = tSands;
         lut[cRocks] = tRocks;
 
-        cor.resize(0x100, 0); // all 2^8 combinations, though only 13 are supported
-        // 5 6 7
-        // 3 * 4
-        // 0 1 2
-        constexpr int ll = 1 << 3, tt = 1 << 6, rr = 1 << 4, bb = 1 << 1;
-        constexpr int lt = 1 << 5, lb = 1 << 0, rt = 1 << 7, rb = 1 << 2;
-        cor[lt | tt | rt] =
-        cor[lt | tt | rt | ll] =
-        cor[lt | tt | rt | rr] =
-        cor[lt | tt | rt | ll | rr] = -1; // ▀
-        cor[lb | bb | rb] =
-        cor[lb | bb | rb | ll] =
-        cor[lb | bb | rb | rr] =
-        cor[lb | bb | rb | ll | rr] = -2; // ▄
-        cor[rt | rr | rb] = -3; // ▐
-        cor[lt | ll | lb] = -4; // ▌
-        cor[0xff ^ lt] = -5; // ▟
-        cor[0xff ^ lb] = -6; // ▜
-        cor[0xff ^ rb] = -7; // ▙
-        cor[0xff ^ rt] = -8; // ▛
-        cor[ll | lt | tt] = -9;  // ▘
-        cor[ll | lb | bb] = -10; // ▖
-        cor[rr | rt | tt] = -11; // ▝
-        cor[rr | rb | bb] = -12; // ▗
-        // tolerable corner cases (opposite corner allowed to be same seg):
-        cor[ll | lt | tt  | rb] = -9;  // ▘
-        cor[ll | lb | bb  | rt] = -10; // ▖
-        cor[rr | rt | tt  | lb] = -11; // ▝
-        cor[rr | rb | bb  | lt] = -12; // ▗
+        cor_sea.resize(0x10, 0); // all 2^8 combinations, though only 13 are supported
+        cor_sea[lt | rt] = -1; // ▀
+        cor_sea[lb | rb] = -2; // ▄
+        cor_sea[rt | rb] = -3; // ▐
+        cor_sea[lt | lb] = -4; // ▌
+        cor_sea[rt | rb | lb] = -5; // ▟
+        cor_sea[lt | rt | rb] = -6; // ▜
+        cor_sea[rb | lb | lt] = -7; // ▙
+        cor_sea[rt | lt | lb] = -8; // ▛
+        cor_sea[lt] = -9;  // ▘ // ok
+        cor_sea[lb] = -12; // ▖ // 10 -> ?
+        cor_sea[rt] = -10; // ▝ // 
+        cor_sea[rb] = -11; // ▗
+        cor_for = cor_sea;
+        cor_for[lb] = -10; // ▖ // 10 -> ?
+        cor_for[rt] = -11; // ▝ // 
+        cor_for[rb] = -12; // ▗
+        cor_snd = cor_mnt = cor_for;
     }
 
     char onetoone(char c) const {
@@ -113,16 +113,20 @@ struct TileConv {
     }
 
     int tileoff(char c, const ChrMap& map, const IntMap& seg, const Point& p) const {
-        int base_seg = at(seg, p);
-        int bit = 1;
-        int msk = 0;
+        int msk = 0xf;
+        int idx = 0;
         nearby(p).visit([&]WITH_XY { // y, then x; the sea is not segmented
-            if(at(map, {x, y}) == c && (cWater == c || at(seg, {x, y}) == base_seg)) {
-                msk |= bit;
+            if(at(map, {x, y}) != c) {
+                msk &= ~sqr[idx];
             }
-            bit <<= !(p.x == x && p.y == y);
+            ++idx;
         });
-        return cor.at(msk);
+        switch(c) {
+            case cSands: return cor_snd.at(msk);
+            case cRocks: return cor_mnt.at(msk);
+            case cWoods: return cor_for.at(msk);
+        }
+        return msk ? cor_sea.at(msk) : tHRaft;
     }
 
     int tileoff(const ChrMap& map, const IntMap& seg, const Point& p) const {
@@ -143,7 +147,7 @@ struct TileConv {
     }
 
     std::string lut;
-    std::string cor;
+    std::string cor_sea, cor_mnt, cor_for, cor_snd;
 
 } tconv;
 
@@ -270,7 +274,12 @@ void Leftovers::writeDirect(std::ostream& os) const {
     os.seekp(0x18481); os.write(ports[0], kGuide);
     os.seekp(0x1852d); os.write(p_bay[0], kGuide);
     os.seekp(0x18649); os.write(p_air[0], kGuide);
-    // keep port-to-fort (0x18697) intact for now
+    // keep port-to-fort (0x18697) intact for now?
+    os.seekp(0x18697); // erasing this does not make A->A!
+    for(unsigned c=0; c<kAlphabet;) {
+        os.put(c++);
+    }
+
 }
 
 void SaveFile::setMission(const Mission& mission, Leftovers& lovers) {
@@ -379,7 +388,7 @@ void SaveFile::setMap(unsigned idx, const map::Continent& cont) {
         // the Golden Trail
         cont.trail.visit([&]WITH_XY {
             byte& c = out[y][x];
-            if(!c) c = cRafts;// 0x80;
+            if(!c) c = 0x80;
         });
     }
 }
