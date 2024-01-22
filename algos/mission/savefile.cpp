@@ -368,6 +368,13 @@ void SaveFile::setMap(unsigned idx, const map::Continent& cont) {
     area.visit([&]WITH_XY {
         out[y][x] = tconv(cont.map, cont.seg, {x, y});
     });
+    if(map::kMature != cont.kGround) {
+        // the Golden Trail
+        cont.trail.visit([&]WITH_XY {
+            byte& c = out[y][x];
+            if(!c) c = cRafts;// 0x80;
+        });
+    }
 }
 
 void SaveFile::initWanted() {
