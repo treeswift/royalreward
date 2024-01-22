@@ -71,6 +71,12 @@ struct TileConv {
         lut[cGift2] = tGift2;
         lut[cTribe] = tHills; // the wizard's cell stays this way
 
+        // solid tiles
+        lut[cWater] = tWater;
+        lut[cWoods] = tWoods;
+        lut[cSands] = tSands;
+        lut[cRocks] = tRocks;
+
         cor.resize(0x100, 0); // all 2^8 combinations, though only 13 are supported
         // 0 1 2
         // 3 * 4
