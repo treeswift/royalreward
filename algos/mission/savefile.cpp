@@ -134,7 +134,7 @@ struct TileConv {
     }
 
     char tribe(mil::Landscape l) const {
-        return tPlain + l; // and castle unit dwellings become signposts
+        return tWagon + l; // and castle unit dwellings become signposts
     }
 
     char operator()(const ChrMap& map, const IntMap& seg, const Point& p) const {
