@@ -41,7 +41,9 @@ int main(int argc, char** argv) {
     SetupInteractively(s);
     rnd::seed(s.seed);
 
-    const char* rank = dat::Prototype::Name(s.type);
+    dat::Prototype::Type type = (dat::Prototype::Type) s.type; // TODO fix
+    dat::Prototype player(type);
+    const char* rank = player.Name();
     fprintf(stdout, R"QUOTE(
         %s the %s,
 
@@ -52,6 +54,58 @@ that of our Lord the Creator, Who brought every number, concept and algorithm
 into existence before we were born, as will destroy them at the end of times.
 
 )QUOTE", s.name.c_str(), rank);
+
+    map::Geology geo;
+    geo.setComposition(7);
+    geo.kGround = geo.kIsland;
+    geo.kWizard = player.is_a_bookworm ? map::kMature : geo.kIsland;
+    geo.kDecay = 0.f;
+    geo.kDPow1 = 0.1f;
+    geo.kDPow2 = 0.f;
+    geo.kCastles = 9;
+    map::Continent mediocria(geo);
+    mediocria.generate();
+
+    geo.kGround = map::kMature;
+    geo.kWizard = map::kMature;
+    geo.kDPow1 = 0.1f; // no-op
+    geo.kDPow2 = 0.2f;
+    geo.kCastles = 6;
+    map::Continent redwoodia(geo);
+    redwoodia.kSuomize = map::cWoods;
+    redwoodia.generate();
+
+    geo.kDPow1 = geo.kDPow2 = 0.f;
+    geo.kDecay = 0.5;
+    geo.kCastles = 6; // no-op
+    map::Continent caribbea(geo);
+    caribbea.kDoAcid += 2;
+    caribbea.generate();
+
+    geo.setComposition(1);
+    geo.kCastles = 3;
+    map::Continent desertia(geo);
+    desertia.kAridize = true;
+    desertia.kSuomize = map::cRocks;
+    desertia.generate();
+
+    dat::Mission mission;
+    mission.chart(mediocria, 6);
+    mission.chart(redwoodia, 4);
+    mission.chart(caribbea, 4);
+    mission.chart(desertia, 3);
+
+    dat::SaveFile sf;
+    sf.setHeroName(s.name);
+    sf.setHeroType(type);
+    sf.setHeroLoc({11, 5});
+    sf.setLevel(s.level);
+    sf.setUIOptions();
+    dat::Leftovers lovers;
+    sf.setMission(mission, lovers);
+
+    // TODO write sf
+    // TODO patch rr
 
     return 0;
 }
