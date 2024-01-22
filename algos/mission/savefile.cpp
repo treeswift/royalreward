@@ -40,7 +40,7 @@ constexpr char tWoods = tWater + tWidth;
 constexpr char tSands = tWoods + tWidth;
 constexpr char tRocks = tSands + tWidth;
 // conversion error indicator
-constexpr char tLapse = tSands; // change to tWater in release
+constexpr char tLapse = tRocks; // change to tWater in release
 
 /**
  * Tile converter. Tied to the save file format, but implements
@@ -78,13 +78,19 @@ struct TileConv {
         lut[cRocks] = tRocks;
 
         cor.resize(0x100, 0); // all 2^8 combinations, though only 13 are supported
-        // 0 1 2
-        // 3 * 4
         // 5 6 7
-        constexpr int ll = 3, tt = 1, rr = 4, bb = 6;
-        constexpr int lt = 0, lb = 5, rt = 2, rb = 7;
-        cor[lt | tt | rt] = -1; // ▀
-        cor[lb | bb | rb] = -2; // ▄
+        // 3 * 4
+        // 0 1 2
+        constexpr int ll = 1 << 3, tt = 1 << 6, rr = 1 << 4, bb = 1 << 1;
+        constexpr int lt = 1 << 5, lb = 1 << 0, rt = 1 << 7, rb = 1 << 2;
+        cor[lt | tt | rt] =
+        cor[lt | tt | rt | ll] =
+        cor[lt | tt | rt | rr] =
+        cor[lt | tt | rt | ll | rr] = -1; // ▀
+        cor[lb | bb | rb] =
+        cor[lb | bb | rb | ll] =
+        cor[lb | bb | rb | rr] =
+        cor[lb | bb | rb | ll | rr] = -2; // ▄
         cor[rt | rr | rb] = -3; // ▐
         cor[lt | ll | lb] = -4; // ▌
         cor[0xff ^ lt] = -5; // ▟
@@ -96,10 +102,10 @@ struct TileConv {
         cor[rr | rt | tt] = -11; // ▝
         cor[rr | rb | bb] = -12; // ▗
         // tolerable corner cases (opposite corner allowed to be same seg):
-        cor[ll | lt | tt | rb] = -9;  // ▘
-        cor[ll | lb | bb | rt] = -10; // ▖
-        cor[rr | rt | tt | lb] = -11; // ▝
-        cor[rr | rb | bb | lt] = -12; // ▗
+        cor[ll | lt | tt  | rb] = -9;  // ▘
+        cor[ll | lb | bb  | rt] = -10; // ▖
+        cor[rr | rt | tt  | lb] = -11; // ▝
+        cor[rr | rb | bb  | lt] = -12; // ▗
     }
 
     char onetoone(char c) const {
@@ -110,8 +116,8 @@ struct TileConv {
         int base_seg = at(seg, p);
         int bit = 1;
         int msk = 0;
-        nearby(p).visit([&]WITH_XY { // y, then x
-            if(at(seg, {x, y}) == base_seg && at(map, {x, y}) == c) {
+        nearby(p).visit([&]WITH_XY { // y, then x; the sea is not segmented
+            if(at(map, {x, y}) == c && (cWater == c || at(seg, {x, y}) == base_seg)) {
                 msk |= bit;
             }
             bit <<= !(p.x == x && p.y == y);
@@ -203,7 +209,7 @@ void SaveFile::setHeroLoc(const map::Point& p, unsigned continent) {
     avail[continent] = true;
     map::screen(p).visit([this]WITH_XY {
         constexpr unsigned kPoW = 0;
-        unsigned bit = (kPoW * map::kMapDim + y) * map::kMapDim + x;
+        unsigned bit = (kPoW * map::kMapDim + y) * map::kMapDim + x + 1; // NOTE +1 is ad hoc
         unsigned idx = bit >> 3;
         // stupid but foolproof
         visit[idx] |= 1 << (bit & 0x7);
