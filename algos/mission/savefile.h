@@ -9,6 +9,7 @@
 #include "goldenkey.h"
 
 #include <cstdint>
+#include <iostream>
 
 namespace dat {
 
@@ -77,7 +78,7 @@ struct Aspects {
  * Mission data that cannot be saved to SaveFile.
  */
 struct Leftovers {
-    enum Coordinate { X, Y, Dimensions};
+    enum Coordinate{X, Y, Dimensions};
     using Point = map::Point;
 
     char conts[kAlphabet];
@@ -87,6 +88,8 @@ struct Leftovers {
     char p_air[Dimensions][kAlphabet];
 
     void inform(unsigned alphaid, unsigned c_index, const Point& fort, const Point& port, const Point& bay, const Point& air);
+    void writeDirect(std::ostream& os) const;
+    void writeWisely(std::iostream& os) const { writeDirect(os); }; // only for now
 };
 
 struct SaveFile {

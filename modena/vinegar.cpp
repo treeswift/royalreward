@@ -40,31 +40,66 @@ void Salad::list_nutrient(const std::string& case_preserved) {
     }
 }
 
-bool soak(Salad& salad, const fs::path& base, const fs::path& out) {
+bool soak(Salad& salad, const fs::path& woods, const fs::path& out) {
     //
     return false;
 }
 
 Salad::Salad(const std::string& dir) : path(dir), nutrients{} {
-    fs::path base(path);
+    fs::path woods(path);
     bs::error_code errc;
-    if(fs::is_directory(base)) {
+    if(fs::is_directory(woods)) {
         progress = Dir_Found;
         // we are doing case-insensitive search on possibly case-sensitive FS:
-        for(const fs::directory_entry& entry : fs::directory_iterator(base)) {
+        for(const fs::directory_entry& entry : fs::directory_iterator(woods)) {
             if(fs::is_regular_file(entry)) {
                 list_nutrient(entry.path().filename().generic_string());
             }
         }
-        fs::path cache = base / kCacheDir;
+        fs::path cache = woods / kCacheDir;
         if(fs::create_directories(cache, errc), !errc) {
             progress = Has_Cache;
             fs::path marinated = cache / kU2;
-            if(fs::is_regular_file(marinated) || soak(*this, base, marinated)) {
+            if(fs::is_regular_file(marinated) || soak(*this, woods, marinated)) {
                 progress = Marinated;
             }
         }
     }
+}
+
+std::string  Salad::make(const dat::SaveFile& sf, const dat::Leftovers& lovers) {
+    // extract name correction and search
+    std::string fname{sf.name, sf.name+8};
+    while(' ' == fname.back()) fname.pop_back();
+    // TODO prevent world name collision with cache dir
+    
+    constexpr auto kWrite = std::ios_base::out | std::ios_base::binary;
+    constexpr auto kAmend = std::ios_base::in | kWrite;
+    fs::path woods = fs::path(path);
+    fs::path world = woods / fname;
+    fs::path towne = woods / kCacheDir;
+    bs::error_code errc;
+    fs::create_directories(world, errc);
+    fs::path quest = world / (fname + SAVEDFILE);
+    {
+        std::fstream qfs{quest.generic_string(), kWrite};
+        qfs.write(sf.name, sizeof(sf));
+        qfs.flush();
+    }
+    for(const auto& nut : nutrients) {
+        bool kproper = nut.first == kU0;
+        fs::path dst = world / nut.first;
+        fs::path src = woods / nut.second;
+        if(kproper) { src = towne / kU2; }
+        fs::copy_file(src, dst, errc);
+        // TODO ... &= !errc.value()
+        if(kproper) {
+            std::fstream fix{dst.generic_string(), kAmend};
+            lovers.writeDirect(fix);
+            fix.flush();
+        }
+    }
+    return fname;
 }
 
 } // namespace mod

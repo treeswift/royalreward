@@ -1,6 +1,8 @@
 #ifndef _MODENA_VINEGAR_H_
 #define _MODENA_VINEGAR_H_
 
+#include "savefile.h"
+
 #include <string>
 #include <map>
 
@@ -20,6 +22,7 @@ std::map<std::string, std::string> nutrients;
 
 Salad(const std::string& dir);
 void list_nutrient(const std::string& fname);
+std::string make(const dat::SaveFile& sf, const dat::Leftovers& lovers);
 };
 
 } // namespace mod

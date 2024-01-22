@@ -113,8 +113,10 @@ into existence before we were born, as will destroy them at the end of times.
     dat::Leftovers lovers;
     sf.setMission(mission, lovers);
 
-    // TODO write sf
-    // TODO patch rr
+    std::string outdir = salad.make(sf, lovers);
+    // TODO process success/failure
+    fprintf(stdout, "\n...done. Now step into your time machine, and, upon arrival, cast\n"
+                    "\n\tcd %s\n\n", outdir.c_str());
 
     return 0;
 }

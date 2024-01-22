@@ -163,7 +163,8 @@ std::string& SaveFile::sanitize(std::string& name, char rpl) {
 
 void SaveFile::setHeroName(std::string& nm) {
     std::memset(name, ' ', kNameSize);
-    std::strncpy(name, sanitize(nm).data(), kNameSize);
+    sanitize(nm);
+    std::copy(nm.data(), nm.data() + nm.size(), static_cast<char*>(name));
 }
 
 void SaveFile::setHeroType(Prototype::Type t) {
@@ -246,6 +247,17 @@ void Leftovers::inform(unsigned alphaid, unsigned c_index, const Point& fort, co
     LEFTOVER_SCATTER(air, p_air);
 #undef LEFTOVER_SCATTER
 #undef LEFTOVER_ITERATE
+}
+
+void Leftovers::writeDirect(std::ostream& os) const {
+    constexpr int kGuide = kAlphabet * Dimensions;
+    os.seekp(0x1867d); os.write(conts, kAlphabet);
+    os.seekp(0x165cb); os.write(conts, kAlphabet);
+    os.seekp(0x183f8); os.write(forts[0], kGuide);
+    os.seekp(0x18481); os.write(ports[0], kGuide);
+    os.seekp(0x18547); os.write(p_bay[0], kGuide);
+    os.seekp(0x18649); os.write(p_air[0], kGuide);
+    // keep port-to-fort (0x18697) intact for now
 }
 
 void SaveFile::setMission(const Mission& mission, Leftovers& lovers) {
