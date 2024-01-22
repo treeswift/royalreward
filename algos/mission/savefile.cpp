@@ -126,7 +126,7 @@ struct TileConv {
             case cRocks: return cor_mnt.at(msk);
             case cWoods: return cor_for.at(msk);
         }
-        return msk ? cor_sea.at(msk) : tHRaft;
+        return msk ? cor_sea.at(msk) : (tHRaft-tWater); // correction, not absolute
     }
 
     int tileoff(const ChrMap& map, const IntMap& seg, const Point& p) const {
