@@ -141,7 +141,7 @@ void SaveFile::dump(IO& out, const Aspects& oo) const {
                     char unit = trunits[i][j];
                     const char* name = mil::Name(unit);
                     unsigned size = trtroop[i][j];
-                    GPRINTF("u=%u sz=%u\t# %u %s", unit, size, size, name);
+                    GPRINTF("u=%u sz=%u\t# %u %s at %s", unit, size, size, name, tpos.c_str());
                 }
             }
         }

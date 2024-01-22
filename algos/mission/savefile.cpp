@@ -268,17 +268,22 @@ void Leftovers::inform(unsigned alphaid, unsigned c_index, const Point& fort, co
 
 void Leftovers::writeDirect(std::ostream& os) const {
     constexpr int kGuide = kAlphabet * Dimensions;
-    os.seekp(0x1867d); os.write(conts, kAlphabet);
-    os.seekp(0x165cb); os.write(conts, kAlphabet);
-    os.seekp(0x183f8); os.write(forts[0], kGuide);
+    // std::string zeroes; zeroes.resize(kAlphabet);
+    // os.seekp(0x1867d); os.write(zeroes.data(), kAlphabet); //!
+    os.seekp(0x1867d); os.write(conts, kAlphabet); //-
+    // os.seekp(0x165cb); os.write(zeroes.data(), kAlphabet); //!
+    os.seekp(0x165cb); os.write(conts, kAlphabet); //-
+    os.seekp(0x183f8); os.write(forts[0], kGuide); // if only kAlphabet is written, king is ok
+    //os.seekp(0x183f8+26+2); os.put(13, 5); // os.write(forts[1], 1);
+        // breaks forts, including king's
+        // breaks treasure messages
+
     os.seekp(0x18481); os.write(ports[0], kGuide);
     os.seekp(0x1852d); os.write(p_bay[0], kGuide);
     os.seekp(0x18649); os.write(p_air[0], kGuide);
     // keep port-to-fort (0x18697) intact for now?
-    os.seekp(0x18697); // erasing this does not make A->A!
-    for(unsigned c=0; c<kAlphabet;) {
-        os.put(c++);
-    }
+    //os.seekp(0x18697); // erasing this does not make A->A!
+    //for(unsigned c=0; c<kAlphabet;) {os.put(c++);}
 
 }
 
@@ -390,6 +395,7 @@ void SaveFile::setMap(unsigned idx, const map::Continent& cont) {
             byte& c = out[y][x];
             if(!c) c = 0x80;
         });
+        // out[5][13] = tCGate;
     }
 }
 

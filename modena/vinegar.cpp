@@ -90,7 +90,10 @@ std::string  Salad::make(const dat::SaveFile& sf, const dat::Leftovers& lovers) 
         bool kproper = nut.first == kU0;
         fs::path dst = world / nut.first;
         fs::path src = woods / nut.second;
-        if(kproper) { src = towne / kU2; }
+        if(kproper) {
+            src = towne / kU2;
+            fs::remove(dst, errc);
+        }
         fs::copy_file(src, dst, errc);
         // TODO ... &= !errc.value()
         if(kproper) {
