@@ -188,6 +188,9 @@ Intel::Intel(unsigned cidx, const map::Continent & cont) : lookback(cont) {
                 break;
             case cMetro: oo[tunnel++] = p;
                 break;
+            case cChest:
+            case cAddMe:
+                break;
             default:
                 fprintf(stderr, "Unexpected object encountered on the map: %c at %d, %d. "
                         "Human intervention required.\n", c, p.x, p.y);
@@ -202,7 +205,7 @@ Intel::Intel(unsigned cidx, const map::Continent & cont) : lookback(cont) {
 
 void Mission::chart(const map::Continent& cont, unsigned enemies) {
     unsigned fortresses = cont.forts_locs.size();
-    unsigned curr_lords = kAlphabet - free_lords;
+    unsigned curr_lords = kEnemies - free_lords;
     propose(fortresses, enemies);
 
     Nation nation = {continents(), curr_lords, 0};

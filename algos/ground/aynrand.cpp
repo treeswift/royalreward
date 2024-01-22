@@ -23,7 +23,7 @@ Real zto1() {
 }
 
 unsigned upto(unsigned upper) {
-    if(!upper) { fprintf(stderr, "upper=0t:\n"); abort(); } // TODO abstract abnormal termination
+    if(!upper) { fprintf(stderr, "rnd::upto(0)\n"); abort(); } // TODO abstract abnormal termination
     return kTrivial ? std::rand() % upper : std::uniform_int_distribution<>(0, upper - 1u)(engine);
 }
 

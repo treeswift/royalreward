@@ -218,7 +218,7 @@ void Continent::citymize() {
     for(unsigned i = 0; i < kCastles; ++i) {
         // re-label castles
         const Point& p = forts_locs[i];
-        at(map, p + Shift{0, 1}) = cCRear + 1 + i;
+        at(map, p + Shift{0, 1}) = cCRear + 1; // +i
     }
 }
 
@@ -269,6 +269,7 @@ void Continent::cconnect() {
 
 void Continent::maskCities(bool mask) {
     for(unsigned i = 0; i < kCastles; ++i) {
+        at(map, forts_locs[i] + Shift{0, 1}) = cCRear + 1 + i * !mask;
         at(map, ports_locs[i]) = mask ? cHaven : cCRear + 1 + i;
     }
 }

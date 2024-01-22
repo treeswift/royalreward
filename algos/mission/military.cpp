@@ -147,8 +147,8 @@ Regiment Irregular(int continent) {
             if(udef.occ.at(continent)) {
                 possibilities.push_back({size, (Unit)u});
             }
-            retval = possibilities.at(rnd::upto(possibilities.size()));
         }
+        retval = possibilities.at(rnd::upto(possibilities.size()));
     } else {
         const auto& census = censa.at(continent);
         unsigned folk = bits & 0x3;

@@ -7,6 +7,8 @@
 #include "settings.h"
 #include "vinegar.h"
 
+#include <cstring> // ugly option parsing
+
 using namespace mod;
 
 int help() {
@@ -38,7 +40,14 @@ int main(int argc, char** argv) {
         fprintf(stderr, "No installation found at: %s\n", s.path.c_str());
         return -1;
     }
-    SetupInteractively(s);
+    if(argc > 2 && !std::strcmp(argv[2], "-1")) {
+        s.name = "Nolan";
+        s.type = 3;
+        s.level = 3;
+        s.seed = 1;
+    } else {
+        SetupInteractively(s);
+    }
     rnd::seed(s.seed);
 
     dat::Prototype::Type type = (dat::Prototype::Type) s.type; // TODO fix
@@ -62,7 +71,7 @@ into existence before we were born, as will destroy them at the end of times.
     geo.kDecay = 0.f;
     geo.kDPow1 = 0.1f;
     geo.kDPow2 = 0.f;
-    geo.kCastles = 9;
+    geo.kCastles = 11;
     map::Continent mediocria(geo);
     mediocria.generate();
 

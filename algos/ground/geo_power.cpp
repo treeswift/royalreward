@@ -18,7 +18,7 @@ void Continent::putCastle(int x, int y, unsigned no) {
     map[y][x-1] = cCCWLB;
     map[y+1][x-1] = cCCWLT;
     map[y][x] = cCGate;
-    map[y+1][x] = cCRear + no;
+    map[y+1][x] = cCRear + !!no;
     map[y][x+1] = cCCWRB;
     map[y+1][x+1] = cCCWRT;
     map[y-1][x] = cPlain; // etc.etc.etc.

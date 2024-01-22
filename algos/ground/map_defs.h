@@ -38,7 +38,7 @@ constexpr char cPlain = ':';
 
 constexpr char cCGate = 'F';
 constexpr char cCRear = '0';
-constexpr char cCMaxF = '9';
+constexpr char cCMaxF = '9'; // hard limit on display
 constexpr char cCCWLB = '[';
 constexpr char cCCWLT = '{';
 constexpr char cCCWRB = ']';
