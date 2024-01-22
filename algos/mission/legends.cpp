@@ -104,7 +104,7 @@ constexpr const char* techs[kTechnologies] = {
     "Breed",
     "Relocate",
     "Brimstone",
-    "Wildfire",
+    "Fire",
     "Petrify",
     "Resuscitate",
     "Repentance",
