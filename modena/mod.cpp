@@ -16,8 +16,8 @@ int help() {
 
     Basic options include:
         -n NAME         player name
-        -c A|B|C|D      player class
-        -d E|N|H|I      difficulty
+        -c A/B/C/D      player class
+        -d E/N/H/I      difficulty
         -s NUMBER       random seed
 
     Run "mod -h" to see a complete list of available tweaks and tricks.
