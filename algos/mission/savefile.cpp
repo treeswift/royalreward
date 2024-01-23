@@ -396,9 +396,9 @@ void SaveFile::setMap(unsigned idx, const map::Continent& cont) {
         // the Golden Trail
         cont.trail.visit([&]WITH_XY {
             byte& c = out[y][x];
-            if(!c) c = 0x80;
+            if(!c) c = tVRaft;
         });
-        // out[5][13] = tCGate;
+        // out[5][13] = tCGate; // dbg
     }
 }
 
