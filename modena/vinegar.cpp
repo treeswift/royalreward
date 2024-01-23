@@ -10,8 +10,9 @@ namespace fs = boost::filesystem;
 constexpr const char* kCacheDir = "Modena";
 
 #define EXTENSION "\x2e\x45\x58\x45"
-#define TRANSIENT "\x2e\x55\x4e\x50"
+#define TRANSIENT "\x2e\x55\x50\x4b"
 #define SAVEDFILE "\x2e\x44\x41\x54"
+#define OLDERFILE "\x2e\x44\x41\x54"
 constexpr const char* kU0 = "\x4b\x42" EXTENSION;
 constexpr const char* kU1 = "\x55\x31" TRANSIENT;
 constexpr const char* kU2 = "\x55\x32" TRANSIENT;
@@ -81,7 +82,10 @@ std::string  Salad::make(const dat::SaveFile& sf, const dat::Leftovers& lovers) 
     bs::error_code errc;
     fs::create_directories(world, errc);
     fs::path quest = world / (fname + SAVEDFILE);
+    fs::path older = world / (fname + OLDERFILE);
     {
+        fs::remove(older, errc);
+        fs::rename(quest, older, errc);
         std::fstream qfs{quest.generic_string(), kWrite};
         qfs.write(sf.name, sizeof(sf));
         qfs.flush();
