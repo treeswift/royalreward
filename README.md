@@ -45,7 +45,7 @@ To build, run `meson build && cd build && ninja` on the command line.
 
 `build/mod <path-to-original-game-installation>` is the interactive tool that installs new maps.
 
-If you are unable to run the game, consult [Modena's help page](Modena.md) regarding the steps
+If you are unable to run the game, consult [Modena's help page](MODENA.md) regarding the steps
 needed to clear the cache directory.
 
 # Legal and administrative
