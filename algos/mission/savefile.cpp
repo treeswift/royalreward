@@ -115,7 +115,7 @@ struct TileConv {
     int tileoff(char c, const ChrMap& map, const IntMap& seg, const Point& p) const {
         int msk = 0xf;
         int idx = 0;
-        nearby(p).visit([&]WITH_XY { // y, then x; the sea is not segmented
+        (nearby(p) & bound(0, 64)).visit([&]WITH_XY {
             if(at(map, {x, y}) != c) {
                 msk &= ~sqr[idx];
             }
