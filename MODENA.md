@@ -10,7 +10,7 @@ but none (except the installation path) has been implemented so far.
 2. Public domain unpacking tools have been incorporated into the repository, but haven't yet been integrated.
 
 The plan for *Modena* is to create a cache subdirectory (e.g. `~Modena`) under the base installation directory
-and unpack the original binary into it, for further out-of-place patching. Currently, *Modena* simple expects
+and unpack the original binary into it, for further out-of-place patching. Currently, *Modena* simply expects
 `./Modena/U2.UPK` to be the unpacked representation (executable-as-stored).
 
 Also, *Modena* expects that look-up tables that need to be installed into the executable file have fixed locations,
