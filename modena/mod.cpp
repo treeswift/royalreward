@@ -73,6 +73,7 @@ into existence before we were born, as will destroy them at the end of times.
     geo.kDPow2 = 0.f;
     geo.kCastles = 11;
     geo.kRoamers = 35;
+    geo.kDwells = 11; // default
     map::Continent mediocria(geo);
     mediocria.generate();
 
@@ -82,6 +83,7 @@ into existence before we were born, as will destroy them at the end of times.
     geo.kDPow2 = 0.2f;
     geo.kCastles = 6;
     geo.kRoamers = 27;
+    geo.kDwells = 10;
     map::Continent redwoodia(geo);
     redwoodia.kSuomize = map::cWoods;
     redwoodia.generate();
@@ -90,6 +92,7 @@ into existence before we were born, as will destroy them at the end of times.
     geo.kDecay = 0.5;
     geo.kCastles = 6; // no-op
     geo.kRoamers = 10;
+    geo.kDwells = 8;
     map::Continent caribbea(geo);
     caribbea.kDoAcid += 2;
     caribbea.generate();
@@ -97,6 +100,7 @@ into existence before we were born, as will destroy them at the end of times.
     geo.setComposition(1);
     geo.kCastles = 3;
     geo.kRoamers = 15;
+    geo.kDwells = 7;
     map::Continent desertia(geo);
     desertia.kAridize = true;
     desertia.kSuomize = map::cRocks;
