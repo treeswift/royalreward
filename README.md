@@ -1,7 +1,6 @@
 # Royal Reward
 
-_"The High Command's maps never change... Never!"_
-    _Ilya Kormiltsev_
+_"The High Command's maps never change... Never!"_ (_Ilya Kormiltsev_)
 
 The Royal Reward project has been started to work around the aforementioned inconvenience.
 
