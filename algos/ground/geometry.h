@@ -41,6 +41,7 @@ struct Point {
     Point blend(const Point& other, Real f) const;
 
     bool operator==(const Point& other) const;
+    bool operator<(const Point& other) const;
 };
 
 Point operator+(const Point& base, const Shift& shift);

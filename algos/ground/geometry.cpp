@@ -96,6 +96,10 @@ bool Point::operator==(const Point& other) const {
     return x == other.x && y == other.y;
 }
 
+bool Point::operator<(const Point& other) const {
+    return y < other.y || y == other.y && x == other.x;
+}
+
 Point corner(int far) { return {far, far}; }
 
 Block block(const Point& base, const Shift& size) {
