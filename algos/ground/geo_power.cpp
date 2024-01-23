@@ -232,6 +232,7 @@ void Continent::paveRoads() {
         if(!is_castle_gate) {
             if(is_wizard_cell) {
                 probe = {11, 19};
+                maze.push_back({probe, {1, 0}, 1});
             }
             if(is_origin_gate) {
                 probe = {11, 6};
@@ -239,7 +240,7 @@ void Continent::paveRoads() {
                 inland = false;
             } else if(onplain(probe.x, probe.y)) {
                 inland = false; // equivalent to "continue"
-            } else {
+            } else if(!is_wizard_cell) {
                 maze.push_back({probe, {0, 0}, 1}); // allow oases
             }
         }
