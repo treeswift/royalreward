@@ -166,9 +166,13 @@ Regiment Irregular(int continent) {
 Army IrregularArmy(int continent, bool standing) {
     const unsigned size = (standing ? dat::kArmySlots : dat::kIdiotArmy);
     Army army;
+    std::vector<bool> oldtimers(udefs.size(), false);
     while(army.size() < size) {
         // NOTE we can have a more fair mix by stirring a pre-filled pool
-        army.push_back(Irregular(continent));
+        auto novice = Irregular(continent);
+        if(oldtimers.at(novice.unit)) continue;
+        army.push_back(novice);
+        oldtimers[novice.unit] = true;
     }
     return army;
 }
