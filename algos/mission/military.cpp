@@ -134,10 +134,11 @@ const UnitDef& Stat(unsigned u) {
 }
 
 Regiment Irregular(int continent) {
-    // Remember, the ratio is 8:4:2:1
-    unsigned bits = rnd::upto(0xfffff) >> 4;
-    unsigned tune = 1 + ((bits >> 2) & 0xf);
-    unsigned o_id = (tune & 0x8) ? 0 : (tune & 0x4) ? 1 : (tune & 0x2) ? 2 : 3;
+    // 8:4:2:1 is a nice ratio but in practice it's more like 27:9:3:1
+    unsigned dice = rnd::upto(40);
+    unsigned o_id = (dice < 27) ? Ord_Main :
+                    (dice < 36) ? Ord_Next : 
+                    (dice < 39) ? Ord_Rare : Ord_Anomalous;
     Regiment retval;
     if(o_id == Ord_Anomalous) {
         std::vector<Regiment> possibilities; // TODO extract and cache
@@ -151,7 +152,7 @@ Regiment Irregular(int continent) {
         retval = possibilities.at(rnd::upto(possibilities.size()));
     } else {
         const auto& census = censa.at(continent);
-        unsigned folk = bits & 0x3;
+        unsigned folk = rnd::upto(3);
         retval.unit = tiers.at(census.at(o_id)).at(folk);
         retval.count = udefs.at(retval.unit).occ.at(continent);
     }
