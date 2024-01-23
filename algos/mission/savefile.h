@@ -72,7 +72,7 @@ struct Leftovers {
     using Point = map::Point;
 
     char conts[kAlphabet];
-    char forts[Dimensions][kAlphabet];
+    char forts[Dimensions][kAlphabet + 1];
     char ports[Dimensions][kAlphabet];
     char p_bay[Dimensions][kAlphabet];
     char p_air[Dimensions][kAlphabet];

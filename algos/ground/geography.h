@@ -30,6 +30,7 @@ public:
     const Block shelf = visib.inset(kShoalz);
     const Point entry = {11, 3};
     const Point ruler = {11, 8};
+    const Point rgate = {11, 7};
     const Point magic = {11, 19};
     const Block trail = Block{entry, ruler + Shift{1, 1}};
     const Block major = trail.inset(-7) & visib;

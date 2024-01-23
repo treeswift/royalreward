@@ -280,16 +280,11 @@ void Leftovers::inform(unsigned alphaid, unsigned c_index, const Point& fort, co
 }
 
 void Leftovers::writeDirect(std::ostream& os) const {
-    constexpr int kGuide = kAlphabet * Dimensions;
-    // std::string zeroes; zeroes.resize(kAlphabet);
-    // os.seekp(0x1867d); os.write(zeroes.data(), kAlphabet); //!
-    os.seekp(0x1867d); os.write(conts, kAlphabet); //-
-    // os.seekp(0x165cb); os.write(zeroes.data(), kAlphabet); //!
-    os.seekp(0x165cb); os.write(conts, kAlphabet); //-
-    os.seekp(0x183f8); os.write(forts[0], kGuide); // if only kAlphabet is written, king is ok
-    //os.seekp(0x183f8+26+2); os.put(13, 5); // os.write(forts[1], 1);
-        // breaks forts, including king's
-        // breaks treasure messages
+    constexpr int kGuide = Dimensions * kAlphabet;
+    constexpr int kPolit = Dimensions * (kAlphabet + 1); // king
+    // os.seekp(0x1867d); os.write(conts, kAlphabet);
+    // os.seekp(0x165cb); os.write(conts, kAlphabet);
+    os.seekp(0x183f8); os.write(forts[0], kPolit);
 
     os.seekp(0x18481); os.write(ports[0], kGuide);
     os.seekp(0x1852d); os.write(p_bay[0], kGuide);
@@ -308,6 +303,13 @@ void SaveFile::setMission(const Mission& mission, Leftovers& lovers) {
     for(const auto & intel : mission.world) {
         const auto& cont = intel.lookback;
         setMap(c_index, cont); // ONLY manually adjust tribes AFTER THIS
+        if(map::kMature != cont.kGround) {
+            const Point& p = cont.rgate;
+            // assert cCGate == at(cont.map, cont.rgate)
+            // imply: lovers.conts[kAlphabet] = c_index;
+            lovers.forts[Leftovers::X][kAlphabet] = p.x;
+            lovers.forts[Leftovers::Y][kAlphabet] = p.y;
+        }
 
         // copy over armies, treasures etc.
         // standing armies are spread over by continents, we may want to change that
