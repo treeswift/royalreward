@@ -124,7 +124,7 @@ void SaveFile::dump(IO& out, const Aspects& oo) const {
                         if(unit + 1) {
                             distrib[i].onArmy(unit, size);
                             mil::UnitDef stat = mil::Stat(unit);
-                            GPRINTF("u=%u sz=%u hp=%u sl=%u\t# %u %s HP=%u", unit, size, stat.hp, stat.sl, size, stat.name, stat.hp * size);
+                            GPRINTF("u=%d sz=%u hp=%u sl=%u\t# %u %s HP=%u", unit, size, stat.hp, stat.sl, size, stat.name, stat.hp * size);
                         }
                     }
                 }
@@ -139,7 +139,7 @@ void SaveFile::dump(IO& out, const Aspects& oo) const {
                     prefix << "t=" << j << delim;
                     const std::string tpos = sl;
                     char unit = trunits[i][j];
-                    const char* name = mil::Name(unit);
+                    const char* name = (unit + 1) ? mil::Name(unit) : "-";
                     unsigned size = trtroop[i][j];
                     GPRINTF("u=%u sz=%u\t# %u %s at %s", unit, size, size, name, tpos.c_str());
                 }
