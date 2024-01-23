@@ -57,6 +57,7 @@ constexpr char sqr[] = "\1\3\2\5\0\12\4\14\10";
 // 6 7 8    4 c 8
 // 3 4 5 => 5 0 a
 // 0 1 2    1 3 2
+constexpr char sea[] = "\0\3\0\5\0\12\0\14\0"; // ignore corners
 
 struct TileConv {
 
@@ -124,6 +125,15 @@ struct TileConv {
             }
             ++idx;
         });
+        if(!msk && cWater == c) {
+           (nearby(p) & bound(0, 64)).visit([&]WITH_XY {
+            if(at(map, {x, y}) != c) {
+                if(msk != sea[idx])
+                    msk &= ~sea[idx]; // keep at least one corner
+            }
+            ++idx;
+        }); 
+        }
         switch(c) {
             case cSands: return cor_snd.at(msk);
             case cRocks: return cor_mnt.at(msk);
