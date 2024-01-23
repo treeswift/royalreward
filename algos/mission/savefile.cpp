@@ -119,20 +119,20 @@ struct TileConv {
     int tileoff(char c, const ChrMap& map, const IntMap& seg, const Point& p) const {
         int msk = 0xf;
         int idx = 0;
+        int chk = 0;
         (nearby(p) & bound(0, 64)).visit([&]WITH_XY {
             if(at(map, {x, y}) != c) {
                 msk &= ~sqr[idx];
+                chk |= 1 << idx;
             }
             ++idx;
         });
         if(!msk && cWater == c) {
-           (nearby(p) & bound(0, 64)).visit([&]WITH_XY {
-            if(at(map, {x, y}) != c) {
-                if(msk != sea[idx])
-                    msk &= ~sea[idx]; // keep at least one corner
+            bool odd = (p.y ^ p.x) & 1;
+            switch(chk) {
+                case 0x084: msk = odd ? lt : rb; break;
+                case 0x201: msk = odd ? lb : rt; break;
             }
-            ++idx;
-        }); 
         }
         switch(c) {
             case cSands: return cor_snd.at(msk);
