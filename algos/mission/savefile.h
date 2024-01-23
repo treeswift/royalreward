@@ -13,23 +13,13 @@
 
 namespace dat {
 
-/**
- * The binary layout of the following data structure is based on a verbal description from ModdingWiki:
- *  https://moddingwiki.shikadi.net/wiki/King%27s_Bounty_Saved_game_Format
- *  https://moddingwiki.shikadi.net/wiki/King%27s_Bounty_Map_Format
- *
- * No copyrighted code (from OpenKB or otherwise) has been used, directly or indirectly, in a manual or
- * automated fashion, to define, examine, create or recreate this structure or any of the data types it
- * depends upon. The reason is obvious, but feel free to ask me if you wonder why.
- */
-
 constexpr unsigned kWantedSlots = 5;
 constexpr unsigned kPackedMaps = (map::kMapMem * kContinents) >> 3;
 constexpr unsigned kVolunteers = map::kAddMes;
 
 struct UIOptions {
     unsigned delay = 4;
-    bool sound = false;
+    bool sound = true;
     bool wbeep = true;
     bool livid = true;
     bool sized = true;
@@ -92,6 +82,15 @@ struct Leftovers {
     void writeWisely(std::iostream& os) const { writeDirect(os); }; // only for now
 };
 
+/**
+ * The binary layout of the following data structure is based on a verbal description from ModdingWiki:
+ *  https://moddingwiki.shikadi.net/wiki/King%27s_Bounty_Saved_game_Format
+ *  https://moddingwiki.shikadi.net/wiki/King%27s_Bounty_Map_Format
+ *
+ * No copyrighted code (from OpenKB or otherwise) has been used, directly or indirectly, in a manual or
+ * automated fashion, to define, examine, create or recreate this structure or any of the data types it
+ * depends upon. The reason is obvious, but feel free to ask me if you wonder why.
+ */
 struct SaveFile {
 
 enum Mount {
