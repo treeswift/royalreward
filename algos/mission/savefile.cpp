@@ -282,7 +282,7 @@ void Leftovers::inform(unsigned alphaid, unsigned c_index, const Point& fort, co
 void Leftovers::writeDirect(std::ostream& os) const {
     constexpr int kGuide = Dimensions * kAlphabet;
     constexpr int kPolit = Dimensions * (kAlphabet + 1); // king
-    // os.seekp(0x1867d); os.write(conts, kAlphabet);
+    os.seekp(0x1867d); os.write(conts, kAlphabet);
     // os.seekp(0x165cb); os.write(conts, kAlphabet);
     os.seekp(0x183f8); os.write(forts[0], kPolit);
 
