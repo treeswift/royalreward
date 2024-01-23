@@ -54,7 +54,7 @@ needed to clear the cache directory.
 
 Everything contributed to this repository has been released into the public domain worldwide.
 (If your jurisdiction does not recognize public domain,
-[these four boxes](https://infogalactic.com/info/Four_boxes_of_liberty) can be of some use.)
+[these four boxes](https://infogalactic.com/info/Four_boxes_of_liberty) may be of some use.)
 
 ## Regarding other people's contributions
 
