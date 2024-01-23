@@ -186,7 +186,7 @@ void Continent::specials() {
         }
         return c;
     });
-    std::sort(enemy_locs.begin(), addme_locs.end()-1);
+    std::sort(enemy_locs.begin(), enemy_locs.end()-1);
     std::sort(addme_locs.begin(), addme_locs.end()-1);
     std::sort(tribe_locs.begin(), tribe_locs.end()-1);
 }
