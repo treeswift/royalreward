@@ -210,7 +210,7 @@ Regiment Recruiting(int continent) {
 }
 
 unsigned TribeCount(int continent) {
-    return map::kTribes; // - censa.at(continent).at(0);
+    return map::kTribes - censa.at(continent).at(0);
         // MOREINFO how didn't `dat` see the extra ones?
 }
 

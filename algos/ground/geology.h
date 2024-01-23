@@ -36,6 +36,7 @@ Real kRoughn = 1e-5f; // log10(rcp(roughness)) is how far from the edges the tea
 Real kSmooth = 0.7f;
 
 unsigned kCastles = cCMaxF-cCRear; // default = max
+unsigned kRoamers = kIdiots; // flexible, ad hoc
 unsigned kDwells = kTribes;
 unsigned kLabels = 22u; // resource-determined
 unsigned kChests = 70u; // flexible, but default=good

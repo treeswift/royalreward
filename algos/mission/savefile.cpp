@@ -304,6 +304,7 @@ void SaveFile::setMission(const Mission& mission, Leftovers& lovers) {
     unsigned c_index = 0;
     unsigned natid = 0;
     SavedLoc nowhere = {kNada, kNada};
+    SavedLoc gndzero = {0, 0};
     for(const auto & intel : mission.world) {
         const auto& cont = intel.lookback;
         setMap(c_index, cont); // ONLY manually adjust tribes AFTER THIS
@@ -348,7 +349,7 @@ void SaveFile::setMission(const Mission& mission, Leftovers& lovers) {
             ++idiot_id;
         }
         while(idiot_id < map::kIdiots) {
-            idiots[c_index][idiot_id] = nowhere;
+            idiots[c_index][idiot_id] = gndzero; // sic
             ++idiot_id;
         }
 
@@ -363,7 +364,7 @@ void SaveFile::setMission(const Mission& mission, Leftovers& lovers) {
             ++tribe_id;
         }
         while(tribe_id < map::kTribes) {
-            tribes[c_index][tribe_id] = nowhere;
+            tribes[c_index][tribe_id] = gndzero;
             trunits[c_index][tribe_id] = kNada;
             trtroop[c_index][tribe_id] = 0;
             ++tribe_id;

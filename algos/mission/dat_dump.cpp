@@ -113,7 +113,7 @@ void SaveFile::dump(IO& out, const Aspects& oo) const {
             HPRINTF("# Followers");
             for(unsigned j = 0; j < map::kIdiots; ++j) {
                 const SavedLoc& sl = idiots[i][j];
-                if(sl) {
+                if(sl || true) {
                     Mark mark(prefix);
                     prefix << "f=" << j << delim;
                     const std::string ipos = sl;
@@ -134,7 +134,7 @@ void SaveFile::dump(IO& out, const Aspects& oo) const {
             HPRINTF("# Recruitment");
             for(unsigned j = 0; j < map::kTribes; ++j) {
                 const SavedLoc& sl = tribes[i][j];
-                if(sl) { // tribes should never go away, but just in case...
+                if(sl || true) { // tribes should never go away, but just in case...
                     Mark mark(prefix);
                     prefix << "t=" << j << delim;
                     const std::string tpos = sl;

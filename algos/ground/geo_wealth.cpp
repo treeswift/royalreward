@@ -173,7 +173,7 @@ void Continent::specials() {
         bore[y][x] = (1.f / kUpperEstim) * rating;
         return (1.5f - dumb) * rating;
     });
-    placeSpots(kIdiots, enemyspots, [&](unsigned, const Point& p){
+    placeSpots(kRoamers, enemyspots, [&](unsigned, const Point& p){
         enemy_locs.push_back(p);
         return cEnemy;
     });
