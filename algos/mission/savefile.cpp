@@ -75,6 +75,9 @@ struct TileConv {
         lut[cRafts] = tVRaft;
         lut[cHaven] = tHaven;
         lut[cChest] = tChest;
+        lut[cPaper] = tChest;
+        lut[cGlass] = tChest;
+        lut[cMetro] = tHills;
         lut[cLabel] = tLabel;
         lut[cEnemy] = tEnemy;
         lut[cAddMe] = tEnemy; // too
