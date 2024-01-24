@@ -298,7 +298,6 @@ void SaveFile::setMission(const Mission& mission, Leftovers& lovers) {
     dat::old_tune(lovers);
     char ftops[kAlphabet];
     for(unsigned c=0; c<kAlphabet;++c) {
-        fprintf(stderr, "jumping to %c jumped to port of fort %c\n", 'A' + c, 'A' + lovers.ptofs[c]);
         ftops[lovers.ptofs[c]]=c; // invert permutation
     }
     unsigned c_index = 0;
