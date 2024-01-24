@@ -28,10 +28,11 @@ void Continent::generate() {
     markHome();
     polish();
     petrify(); // petrification is conservative/transactional => works on a polished surface
-    segment(); // second polish included inside
-    //
+    // aridization (within thicken) must be aware of all the fortress gates and special tiles
+    thicken(); // second polish included inside
     markGates();
     specials();
+    aridize();
     citymize();
     cconnect();
 }

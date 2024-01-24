@@ -122,11 +122,13 @@ public:
     bool is_freesq WITH_XY const;
     static bool is_friendly(int seg, int ours); // inline it...
     bool is_ourssq(int x, int y, int segment) const;
+    bool inlandsq(int x, int y) const; // needed by aridize
     void mark_sq(int x, int y, int seg_id);
 
-    void segment(char match, char subst);
-    void segment(char match); // default value for arg2 is arg1
-    void segment();
+    void thicken(char match, char subst);
+    void thicken(char match); // default value for arg2 is arg1
+    void thicken();
+    void aridize(); // last touch, usually applied to Desertia
 
     // stages: accumulation of wealth, in many ways
 

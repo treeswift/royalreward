@@ -259,6 +259,14 @@ bool Continent::is_locked WITH_XY const {
         && (map[y][x+2] != c || map[y+1][x+2] != c);
 }
 
+bool Continent::inlandsq WITH_XY const {
+    constexpr char c = cWater;
+    return (map[y-1][x] != c && map[y-1][x+1] != c)
+        && (map[y+2][x] != c && map[y+2][x+1] != c)
+        && (map[y][x-1] != c && map[y+1][x-1] != c)
+        && (map[y][x+2] != c && map[y+1][x+2] != c);
+}
+
 bool Continent::is_locked_square WITH_XY const {
     return is_square(x, y) && is_locked(x, y);
 }
@@ -302,10 +310,7 @@ void Continent::mark_sq(int x, int y, int seg_id) {
     seg[y][x] = seg[y][x+1] = seg[y+1][x] = seg[y+1][x+1] = seg_id;
 }
 
-void Continent::segment(char match, char subst) {
-    // TODO extract paintsq(cWoods|cRocks);
-    // TODO reuse for aridization (desert).
-
+void Continent::thicken(char match, char subst) {
     // first, detect immobile blocks
     shelf.visit([&]WITH_XY {
         if(map[y][x] == match && is_locked_square(x, y) && is_freesq(x, y)) {
@@ -316,7 +321,8 @@ void Continent::segment(char match, char subst) {
         if(is_square(x, y, match) && is_freesq(x, y)) {
             const unsigned seg_id = alloc_seg();
             paint4([&]WITH_XY {
-                return shelf.covers({x, y}) && is_square(x, y, match) && is_ourssq(x, y, seg_id);
+                return shelf.covers({x, y}) && is_square(x, y, match) && is_ourssq(x, y, seg_id)
+                    && (kSandboat || cSands != subst || inlandsq(x, y)); // TODO extract predicate
             }, [&]WITH_XY {
                 mark_sq(x, y, seg_id);
             })(x, y);
@@ -336,18 +342,15 @@ void Continent::segment(char match, char subst) {
     // fprintf(stderr, "Outliers [%c]: %u\n", match, outliers);
 }
 
-void Continent::segment(char match) {
-    segment(match, match); // no substitution
+void Continent::thicken(char match) {
+    thicken(match, match); // no substitution
 }
 
-void Continent::segment() {
-    segment(cWoods);
-    segment(cRocks);
-    segment(cSands);
-    // segment(cWater); // needs proper sea shelf bounds
-    if(kAridize) {
-        segment(cPlain, cSands);
-    }
+void Continent::thicken() {
+    thicken(cWoods);
+    thicken(cRocks);
+    thicken(cSands);
+    // thicken(cWater); // needs proper sea shelf bounds
     if(kSuomize) {
         unsigned woods = 0, rocks = 0;
         shelf.visit([&]WITH_XY {
@@ -365,6 +368,12 @@ void Continent::segment() {
                 }
             });
         }
+    }
+}
+
+void Continent::aridize() {
+    if(kAridize) {
+        thicken(cPlain, cSands);
     }
 }
 

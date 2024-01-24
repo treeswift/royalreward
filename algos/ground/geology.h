@@ -44,6 +44,7 @@ unsigned kChests = 70u; // flexible, but default=good
 // realy-really very last touches
 bool kAridize = false;
 char kSuomize = false; // other valid options are cWoods and cRocks
+bool kSandboat = false; // "true" allows desert to border the ocean
 
 // constructors and mutators
 Geology(const Geology&) = default;
