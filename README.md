@@ -62,10 +62,11 @@ _King's Bounty_ is a title released by (and has long been a registered trademark
 We **DO NOT** distribute the original game. It used to be available on [GOG](https://gog.com).
 
 We relied on the following information sources to learn more about the original game:
-* - letsplay
-* - moddingwiki
-* - ...
-* - ...
+* [Let's Play](https://lparchive.org/Kings-Bounty/)
+* [Modding Wiki](https://moddingwiki.shikadi.net/wiki/King%27s_Bounty)
+* [RPGC Shrines](https://shrines.rpgclassics.com/genesis/kingbounty/)
+* [GameFAQs](https://gamefaqs.gamespot.com/pc/577442-kings-bounty/faqs/7416)
+* …the original game manual (if all else fails, read the manual)
 
 ## Regarding your contributions
 
