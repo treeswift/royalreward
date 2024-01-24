@@ -151,7 +151,7 @@ into existence before we were born, as will destroy them at the end of times.
         ", and come back with your shield or on it!",
         " and, whatever happens, never forget to wipe your sword.",
         " and fight as if you are already dead.",
-        " and fight not because you hate what's in front of you, but\n because you love what's behind.",
+        " and fight not because you hate what is in front of you, but\n because you love what's behind.",
         " -- and either find your way, or make one.",
     };
     unsigned g_size = sizeof(kGodspeed)/sizeof(kGodspeed[0]);
