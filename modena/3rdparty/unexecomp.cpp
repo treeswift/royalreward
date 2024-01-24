@@ -20,9 +20,16 @@
 #include <stdlib.h>
 #include <memory.h>
 
+#ifdef DISABLE_PRINTF
+#define printf(...)
+#endif
+
+namespace ucomp {
+
 typedef unsigned short word;
 typedef unsigned int word24;
 
+#pragma pack(1)
 struct EXE {
   unsigned short signature; /* == 0x5a4D, "MZ" */
   unsigned short bytes_in_last_block;
@@ -39,6 +46,7 @@ struct EXE {
   unsigned short reloc_table_offset;
   unsigned short overlay_number;
 };
+
 /*
 	A compressed file looks like this :
 
@@ -488,3 +496,5 @@ void write_EXE(unsigned char *buffer, struct EXE *h) { /* This boring code is po
   	WRITE_WORD(buffer, 0x18, h->reloc_table_offset);
   	WRITE_WORD(buffer, 0x1A, h->overlay_number);
 }
+
+} // namespace ucomp

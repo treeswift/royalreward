@@ -32,8 +32,16 @@ executable('dat', dat_files,
     link_with: [gen, chr],
     install : true)
 
+incorporated = 'modena/3rdparty'
+subdir(incorporated)
+verbosity = get_option('debug') ? [] : [
+        '-DDISABLE_PRINTF=1' # stdout is silenced, stderr isn't
+]
+upack = static_library('unexepack', unexepack, cpp_args: verbosity)
+ucomp = static_library('unexecomp', unexecomp, cpp_args: verbosity)
+
 executable('mod', mod_files,
-    include_directories: ci,
-    link_with: [gen, chr],
+    include_directories: ci + [incorporated],
+    link_with: [gen, chr, upack, ucomp],
     dependencies: dependency('boost', modules: ['system', 'filesystem']),
     install : true)

@@ -29,6 +29,13 @@
 #include <stdlib.h>
 #include <memory.h>
 
+#ifdef DISABLE_PRINTF
+#define printf(...)
+#endif
+
+namespace upack {
+
+#pragma pack(1)
 struct EXE {
   unsigned short signature; /* == 0x5a4D, "MZ" */
   unsigned short bytes_in_last_block;
@@ -68,8 +75,8 @@ length of packed reloc table = exepack_size - dest_len (from exepack variables)
 const int mzSize = 0x1C; /* size of "struct EXE" */
 const int unpackerDataLen = 0x12; /* size of "struct EXEPACK" */
 const int unpackerLen = 0x105; /* size of unpacker code */
-const char errString[0x16] = "Packed file is corrupt";
-const int errLen = sizeof(errString);
+const char errString[0x17] = "Packed file is corrupt";
+const int errLen = sizeof(errString) - 1; // trailing 0
 
 struct EXEPACK {
 	unsigned short real_start_OFFSET;	/* real start address (offset) */
@@ -151,7 +158,7 @@ int exepack_unpack(unsigned char *dstPos, unsigned char *srcPos, int *res) {
         break;
       /* unknown command */
       default:
-        fprintf(stderr, "Unknown command %2x at position %d\n", commandByte, lastPos - srcPos);
+        fprintf(stderr, "Unknown command %2x at position %ld\n", commandByte, lastPos - srcPos);
         n = -1;
         break;
     }
@@ -310,7 +317,7 @@ int main(int argc, char **argv) {
 
 	int r;
 
-	n = exepack_unpack(&out[finalSize - 1], &buffer[exeLen - 1], &r);
+	n = exepack_unpack(reinterpret_cast<unsigned char*>(&out[finalSize - 1]), &buffer[exeLen - 1], &r);
 
 	if (n == -1) {
 		fprintf(stderr, "Unable to UNPACK data\n");
@@ -397,7 +404,7 @@ int main(int argc, char **argv) {
 	/* save new exe */
 	int j;
 
-	write_EXE(&mzOut[0], &newexe);
+	write_EXE(reinterpret_cast<unsigned char*>(&mzOut[0]), &newexe);
 
 	f = fopen(outputFile, "wb");
 	if (!f) {
@@ -484,3 +491,5 @@ void write_EXE(unsigned char *buffer, struct EXE *h) { /* This boring code is po
   	WRITE_WORD(buffer, 0x18, h->reloc_table_offset);
   	WRITE_WORD(buffer, 0x1A, h->overlay_number);
 }
+
+} // namespace upack

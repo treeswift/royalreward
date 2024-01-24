@@ -2,6 +2,14 @@
 
 #include <boost/filesystem.hpp>
 
+namespace upack {
+extern int main(int argc, char** argv);
+}
+
+namespace ucomp {
+extern int main(int argc, char** argv);
+}
+
 namespace mod {
 
 namespace bs = boost::system;
@@ -42,8 +50,28 @@ void Salad::list_nutrient(const std::string& case_preserved) {
 }
 
 bool soak(Salad& salad, const fs::path& woods, const fs::path& out) {
-    //
-    return false;
+    auto nut = salad.nutrients.find(kU0);
+    if(salad.nutrients.end() == nut) return false;
+
+    fs::path k0 = woods / kU0;
+    fs::path k1 = out.parent_path() / kU1;
+    std::string s0 = k0.generic_string();
+    std::string s1 = k1.generic_string();
+    char* args[3] = {nullptr, const_cast<char*>(s0.c_str()), const_cast<char*>(s1.c_str())};
+    if(ucomp::main(3, args)) { // already uncomp'ed
+        k1 = k0;
+        s1 = s0;
+    }
+
+    std::string s2 = out.generic_string();
+    args[1] = const_cast<char*>(s1.c_str());
+    args[2] = const_cast<char*>(s2.c_str());
+    if(upack::main(3, args)) { // already unpack'ed
+        bs::error_code errc;
+        fs::copy_file(k1, out, errc);
+        return !errc;
+    }
+    return true;
 }
 
 Salad::Salad(const std::string& dir) : path(dir), nutrients{} {
