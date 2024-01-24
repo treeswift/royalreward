@@ -127,8 +127,19 @@ into existence before we were born, as will destroy them at the end of times.
 
     std::string outdir = salad.make(sf, lovers);
     // TODO process success/failure
-    fprintf(stdout, "...done. Now step into your time machine, and, upon arrival, cast\n"
-                    "\n\tcd %s\n\n", outdir.c_str());
+    constexpr const char* kGodspeed[] = {
+        " -- and the rest will become history.",
+        ", do what you must, and come what may.",
+        ", and come back with your shield or on it!",
+        " and, whatever happens, never forget to wipe your sword.",
+        " and fight as if you are already dead.",
+        " and fight not because you hate what's in front of you, but\n because you love what's behind.",
+        " -- and either find your way, or make one.",
+    };
+    unsigned g_size = sizeof(kGodspeed)/sizeof(kGodspeed[0]);
+    unsigned g_pick = rnd::hwrandom() % g_size;
+    fprintf(stdout, "...done. Now step into your time machine, cast \n\n\tcd %s\n"
+                    "\n upon arrival%s\n", outdir.c_str(), kGodspeed[g_pick]);
 
     return 0;
 }
