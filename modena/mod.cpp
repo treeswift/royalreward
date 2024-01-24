@@ -127,7 +127,7 @@ into existence before we were born, as will destroy them at the end of times.
     sf.setUIOptions(uio);
 
     // cheats
-    constexpr bool kExploreWorldCheat = true;
+    constexpr bool kExploreWorldCheat = false; // dbg
     if(kExploreWorldCheat) {
         memset(sf.cgate, 1, dat::kAlphabet);
         memset(sf.tgate, 1, dat::kAlphabet);
