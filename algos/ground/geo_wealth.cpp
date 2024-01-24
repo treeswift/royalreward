@@ -223,7 +223,10 @@ void Continent::citymize() {
         // re-label castles
         const Point& p = forts_locs[i];
         at(map, p + Shift{0, 1}) = cCRear + 1; // +i
+        toponymics.push_back((char) i);
     }
+    // shuffle city names
+    rnd::shuffle(toponymics, kGround != kMature);
 }
 
 void Continent::cconnect() {

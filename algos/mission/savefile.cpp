@@ -304,14 +304,6 @@ void SaveFile::setMission(const Mission& mission, Leftovers& lovers) {
     unsigned natid = 0;
     SavedLoc nowhere = {0, 0};
     unsigned cursors[4] = {0, 0, 0, 0};
-    const char* letters[4] = {
-        // shuffling changes names of of specific<x,y> fort/port pair
-        // TODO move to Mission and eventually to Legends
-        "VACFIKNOPRW", // keep V first to make H the first port ever
-        "BDJMQY",
-        "EGHLTX",
-        "SUZ",
-    };
     for(const auto & intel : mission.world) {
         const auto& cont = intel.lookback;
         setMap(c_index, cont); // ONLY manually adjust tribes AFTER THIS
@@ -327,7 +319,7 @@ void SaveFile::setMission(const Mission& mission, Leftovers& lovers) {
         // standing armies are spread over by continents, we may want to change that
         for(const auto& standing : intel.standing) {
             const Nation& nation = mission.geopolitics.at(natid);
-            char alphaid = letters[c_index][cursors[c_index]++] - 'A'; // mission.toponymics.at(natid);
+            char alphaid =  fort_letters(c_index)[cont.toponymics.at(cursors[c_index]++)] - 'A';
             char portaid = ftops[alphaid];
             lords[alphaid] = nation.enemy_idx;
             // DAT file spillovers

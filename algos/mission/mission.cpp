@@ -104,17 +104,7 @@ Prototype::Prototype(Type t) {
 }
 
 Mission::Mission() {
-    allocNames();
     allocTech();
-}
-
-void Mission::allocNames() {
-    // Mapping from sequentially added nations (forts/ports) to random continents.
-    // NOTE: we can only preserve original placement if the breakdown is the same.
-    for(unsigned c = 0; c < kAlphabet; ++c) {
-        toponymics.push_back((char) c);
-    }
-    rnd::shuffle(toponymics);
 }
 
 void Mission::allocTech() {

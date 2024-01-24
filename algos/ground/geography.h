@@ -43,6 +43,7 @@ public:
     std::vector<Point> valued_locs, failed_locs; //transient
     std::vector<Point> addme_locs, tribe_locs; // refined wonder_locs
     std::vector<Point> bay_points, air_fields;
+    std::string toponymics;
 
     inline Continent(const Geology& geo = {}) : Geology(geo) {}
 

@@ -7,6 +7,8 @@
 
 namespace dat {
 
+const char* fort_letters(unsigned c_index);
+
 void old_tune(dat::Leftovers& lovers);
 
 } // namespace dat

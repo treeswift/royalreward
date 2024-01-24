@@ -67,12 +67,10 @@ struct Mission {
 
     std::vector<Intel> world; // up to kContinents
     std::vector<Nation> geopolitics; // up to kAlphabet
-    std::string toponymics;
     std::string technologies;
     map::GoldenKey gk;
 
 private: // ctor-called
-    void allocNames();
     void allocTech();
     void propose(unsigned fortresses, unsigned enemies);
 };

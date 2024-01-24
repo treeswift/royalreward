@@ -17,11 +17,24 @@ constexpr const char forty[dat::kAlphabet + 2] = "\x1b\6\x31\x12\x2e\x31\x24\x1b
 
 constexpr const char ptofs[dat::kAlphabet + 1] = "\x3\xe\x7\x10\xc\x16\x12\x15\x11\x13\xd\x5\x9\xf\xb\x2\x8\0\x6\x4\x1\x14\x18\xa\x17\x19";
 
+const char* letters[4] = {
+    // shuffling changes names of of specific<x,y> fort/port pair
+    "VACFIKNOPRW", // keep V first to make H the first port ever
+    "BDJMQY",
+    "EGHLTX",
+    "SUZ",
+};
+
+const char* fort_letters(unsigned c_index) {
+    return letters[c_index];
+}
+
 void old_tune(dat::Leftovers& lovers) {
     constexpr unsigned kA = dat::kAlphabet;
     std::memcpy(lovers.conts, conts, kA);
     std::memcpy(lovers.forts[0], fortx, kA + 1);
     std::memcpy(lovers.forts[1], forty, kA + 1);
+    // TODO havens, airfields, bays
     std::memcpy(lovers.ptofs, ptofs, kA);
 }
 

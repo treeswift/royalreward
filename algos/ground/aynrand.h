@@ -17,10 +17,10 @@ Real zto1();
 inline int inrg(int lower, int upper) { return upto(upper - lower) + lower; }
 
 template<typename C>
-void shuffle(C& c) {
+void shuffle(C& c, unsigned preserve = 0u) {
     unsigned size = c.size();
     for(unsigned s = 0; s < size; ++s) {
-        unsigned i = upto(size), j = upto(size);
+        unsigned i = inrg(preserve, size), j = inrg(preserve, size);
         auto tmp = c[i]; c[i] = c[j]; c[j] = tmp;
     }
 }
