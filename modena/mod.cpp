@@ -5,6 +5,7 @@
 #include "mission.h"
 #include "savefile.h"
 #include "settings.h"
+#include "technology.h"
 #include "vinegar.h"
 
 #include <cstring> // ugly option parsing
@@ -124,6 +125,23 @@ into existence before we were born, as will destroy them at the end of times.
     uio.sound = 0;
     uio.delay = 1;
     sf.setUIOptions(uio);
+
+    // cheats
+    constexpr bool kExploreWorldCheat = true;
+    if(kExploreWorldCheat) {
+        memset(sf.cgate, 1, dat::kAlphabet);
+        memset(sf.tgate, 1, dat::kAlphabet);
+        sf.stasis = 500;
+        sf.avail[0] = sf.avail[1] = sf.avail[2] = true;
+        sf.units[0] = mil::Salamanders;
+        sf.troops[0] = 20; // just in case
+        sf.base_command = sf.curr_command = 5000;
+        sf.known[dat::ToFort] = 50;
+        sf.known[dat::ToPort] = 50;
+        sf.known[dat::Sigint] = 50;
+        sf.smart = true;
+        sf.storm = true;
+    }
 
     std::string outdir = salad.make(sf, lovers);
     // TODO process success/failure

@@ -267,10 +267,7 @@ void SaveFile::setLevel(unsigned lvl) {
 
 void Leftovers::inform(unsigned alphaid, unsigned portaid, unsigned c_index, const Point& fort, const Point& port, const Point& bay, const Point& air) {
     conts[alphaid] = c_index;
-    // identity in ptofs: to-port(A) jumps to port of fort A
-    //    original ptofs: fort of port A
-    // 
-    ptofs[alphaid] = alphaid; // port of fort A; FIXME: to(p) jumps to p(f), works until E
+    ptofs[portaid] = alphaid;
 #define LEFTOVER_ITERATE(from, to, dim, comp) \
         to[dim][alphaid] = from.comp;
 #define LEFTOVER_SCATTER(from, to) \
@@ -288,8 +285,7 @@ void Leftovers::writeDirect(std::ostream& os) const {
     constexpr int kGuide = Dimensions * kAlphabet;
     constexpr int kPolit = Dimensions * (kAlphabet + 1); // king
     os.seekp(0x1867d); os.write(conts, kAlphabet); // "to fort"
-    // std::memset(const_cast<char*>(conts), 0, kAlphabet);
-    os.seekp(0x165cb); os.write(conts, kAlphabet); // affects ?
+    os.seekp(0x165cb); os.write(conts, kAlphabet); // second copy
     os.seekp(0x183f8); os.write(forts[0], kPolit);
 
     os.seekp(0x18481); os.write(ports[0], kGuide);
@@ -302,15 +298,17 @@ void SaveFile::setMission(const Mission& mission, Leftovers& lovers) {
     dat::old_tune(lovers);
     char ftops[kAlphabet];
     for(unsigned c=0; c<kAlphabet;++c) {
-        ftops[lovers.ptofs[c]]=c; // invert transformation
-        lovers.ptofs[c]=c;
+        fprintf(stderr, "jumping to %c jumped to port of fort %c\n", 'A' + c, 'A' + lovers.ptofs[c]);
+        ftops[lovers.ptofs[c]]=c; // invert permutation
     }
     unsigned c_index = 0;
     unsigned natid = 0;
     SavedLoc nowhere = {0, 0};
     unsigned cursors[4] = {0, 0, 0, 0};
     const char* letters[4] = {
-        "ACFIKNOPRVW", // shuffling changes names of of specific<x,y> fort/port pair
+        // shuffling changes names of of specific<x,y> fort/port pair
+        // TODO move to Mission and eventually to Legends
+        "VACFIKNOPRW", // keep V first to make H the first port ever
         "BDJMQY",
         "EGHLTX",
         "SUZ",
@@ -448,6 +446,5 @@ void SaveFile::setGoldenKey(const map::GoldenKey::Burial spot) {
     keyl.x = key_ciph ^ p.x;
     keyl.y = key_ciph ^ p.y;
 }
-
 
 } // namespace dat

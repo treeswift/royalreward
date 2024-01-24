@@ -238,6 +238,7 @@ void Continent::cconnect() {
             Point adj_d = p + dir;
             Point adj_h{adj_d.x, p.y};
             Point adj_v{p.x, adj_d.y};
+            Point air;
             // plains must be adjacent
             char h = at(map, adj_h);
             char v = at(map, adj_v);
@@ -245,19 +246,21 @@ void Continent::cconnect() {
             char wadj;
             if(cPlain == h || cRafts == h) { // only rafts are in case of cOcean start
                 air_h = true;
-                air_fields.push_back(adj_h);
+                air = adj_h;
                 wadj = v; // choose water between v and d
             } else if(cPlain == v || cRafts == v) { // ditto
                 air_h = false;
-                air_fields.push_back(adj_v);
+                air = adj_v;
                 wadj = h; // choose water between h and d
             } else {
                 continue;
             }
             char d = at(map, p + dir);
             if(cWater == d) {
+                air_fields.push_back(air);
                 bay_points.push_back(adj_d);
             } else if(cWater == wadj) {
+                air_fields.push_back(air);
                 bay_points.push_back(air_h ? adj_v : adj_h);
             } else {
                 continue;
