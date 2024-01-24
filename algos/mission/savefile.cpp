@@ -116,7 +116,7 @@ struct TileConv {
         return lut.at(c);
     }
 
-    int tileoff(char c, const ChrMap& map, const IntMap& seg, const Point& p) const {
+    int tileoff(char c, const ChrMap& map, const Point& p) const {
         int msk = 0xf;
         int idx = 0;
         int chk = 0;
@@ -142,19 +142,19 @@ struct TileConv {
         return msk ? cor_sea.at(msk) : (tHRaft-tWater); // correction, not absolute
     }
 
-    int tileoff(const ChrMap& map, const IntMap& seg, const Point& p) const {
-        return tileoff(at(map, p), map, seg, p);
+    int tileoff(const ChrMap& map, const Point& p) const {
+        return tileoff(at(map, p), map, p);
     }
 
     char tribe(mil::Landscape l) const {
         return tWagon + l; // and castle unit dwellings become signposts
     }
 
-    char operator()(const ChrMap& map, const IntMap& seg, const Point& p) const {
+    char operator()(const ChrMap& map, const Point& p) const {
         char c = at(map, p);
         char t = onetoone(c);
         if(c == cWater || c == cWoods || c == cSands || c == cRocks) {
-            t += tileoff(c, map, seg, p); // always nonpositive
+            t += tileoff(c, map, p); // always nonpositive
         }
         return t;
     }
@@ -298,8 +298,7 @@ void Leftovers::writeDirect(std::ostream& os) const {
 void SaveFile::setMission(const Mission& mission, Leftovers& lovers) {
     unsigned c_index = 0;
     unsigned natid = 0;
-    SavedLoc nowhere = {kNada, kNada};
-    SavedLoc gndzero = {0, 0};
+    SavedLoc nowhere = {0, 0};
     for(const auto & intel : mission.world) {
         const auto& cont = intel.lookback;
         setMap(c_index, cont); // ONLY manually adjust tribes AFTER THIS
@@ -351,7 +350,7 @@ void SaveFile::setMission(const Mission& mission, Leftovers& lovers) {
             ++idiot_id;
         }
         while(idiot_id < map::kIdiots) {
-            idiots[c_index][idiot_id] = gndzero; // sic
+            idiots[c_index][idiot_id] = nowhere; // sic
             ++idiot_id;
         }
 
@@ -366,7 +365,7 @@ void SaveFile::setMission(const Mission& mission, Leftovers& lovers) {
             ++tribe_id;
         }
         while(tribe_id < map::kTribes) {
-            tribes[c_index][tribe_id] = gndzero;
+            tribes[c_index][tribe_id] = nowhere;
             trunits[c_index][tribe_id] = kNada;
             trtroop[c_index][tribe_id] = 0;
             ++tribe_id;
@@ -403,7 +402,7 @@ void SaveFile::setMap(unsigned idx, const map::Continent& cont) {
     auto& out = maps[idx];
     map::Block area = map::bound(0, map::kMapDim);
     area.visit([&]WITH_XY {
-        out[y][x] = tconv(cont.map, cont.seg, {x, y});
+        out[y][x] = tconv(cont.map, {x, y});
     });
     if(map::kMature != cont.kGround) {
         // the Golden Trail
