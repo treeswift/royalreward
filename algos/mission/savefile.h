@@ -76,8 +76,9 @@ struct Leftovers {
     char ports[Dimensions][kAlphabet];
     char p_bay[Dimensions][kAlphabet];
     char p_air[Dimensions][kAlphabet];
+    char ptofs[kAlphabet];
 
-    void inform(unsigned alphaid, unsigned c_index, const Point& fort, const Point& port, const Point& bay, const Point& air);
+    void inform(unsigned alphaid, unsigned portaid, unsigned c_index, const Point& fort, const Point& port, const Point& bay, const Point& air);
     void writeDirect(std::ostream& os) const;
     void writeWisely(std::iostream& os) const { writeDirect(os); }; // only for now
 };

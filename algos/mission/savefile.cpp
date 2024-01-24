@@ -1,5 +1,6 @@
 #include "savefile.h"
 #include "mission.h"
+#include "lute_tune.h"
 
 #include <cstring>
 #include <cstdlib>
@@ -264,8 +265,12 @@ void SaveFile::setLevel(unsigned lvl) {
     days_week = 5;
 }
 
-void Leftovers::inform(unsigned alphaid, unsigned c_index, const Point& fort, const Point& port, const Point& bay, const Point& air) {
+void Leftovers::inform(unsigned alphaid, unsigned portaid, unsigned c_index, const Point& fort, const Point& port, const Point& bay, const Point& air) {
     conts[alphaid] = c_index;
+    // identity in ptofs: to-port(A) jumps to port of fort A
+    //    original ptofs: fort of port A
+    // 
+    ptofs[alphaid] = alphaid; // port of fort A; FIXME: to(p) jumps to p(f), works until E
 #define LEFTOVER_ITERATE(from, to, dim, comp) \
         to[dim][alphaid] = from.comp;
 #define LEFTOVER_SCATTER(from, to) \
@@ -282,23 +287,34 @@ void Leftovers::inform(unsigned alphaid, unsigned c_index, const Point& fort, co
 void Leftovers::writeDirect(std::ostream& os) const {
     constexpr int kGuide = Dimensions * kAlphabet;
     constexpr int kPolit = Dimensions * (kAlphabet + 1); // king
-    os.seekp(0x1867d); os.write(conts, kAlphabet);
-    // os.seekp(0x165cb); os.write(conts, kAlphabet);
+    os.seekp(0x1867d); os.write(conts, kAlphabet); // "to fort"
+    // std::memset(const_cast<char*>(conts), 0, kAlphabet);
+    os.seekp(0x165cb); os.write(conts, kAlphabet); // affects ?
     os.seekp(0x183f8); os.write(forts[0], kPolit);
 
     os.seekp(0x18481); os.write(ports[0], kGuide);
     os.seekp(0x1852d); os.write(p_bay[0], kGuide);
     os.seekp(0x18649); os.write(p_air[0], kGuide);
-    // keep port-to-fort (0x18697) intact for now?
-    //os.seekp(0x18697); // erasing this does not make A->A!
-    //for(unsigned c=0; c<kAlphabet;) {os.put(c++);}
-
+    os.seekp(0x18697); os.write(ptofs, kAlphabet);
 }
 
 void SaveFile::setMission(const Mission& mission, Leftovers& lovers) {
+    dat::old_tune(lovers);
+    char ftops[kAlphabet];
+    for(unsigned c=0; c<kAlphabet;++c) {
+        ftops[lovers.ptofs[c]]=c; // invert transformation
+        lovers.ptofs[c]=c;
+    }
     unsigned c_index = 0;
     unsigned natid = 0;
     SavedLoc nowhere = {0, 0};
+    unsigned cursors[4] = {0, 0, 0, 0};
+    const char* letters[4] = {
+        "ACFIKNOPRVW", // shuffling changes names of of specific<x,y> fort/port pair
+        "BDJMQY",
+        "EGHLTX",
+        "SUZ",
+    };
     for(const auto & intel : mission.world) {
         const auto& cont = intel.lookback;
         setMap(c_index, cont); // ONLY manually adjust tribes AFTER THIS
@@ -314,11 +330,12 @@ void SaveFile::setMission(const Mission& mission, Leftovers& lovers) {
         // standing armies are spread over by continents, we may want to change that
         for(const auto& standing : intel.standing) {
             const Nation& nation = mission.geopolitics.at(natid);
-            char alphaid = mission.toponymics.at(natid);
+            char alphaid = letters[c_index][cursors[c_index]++] - 'A'; // mission.toponymics.at(natid);
+            char portaid = ftops[alphaid];
             lords[alphaid] = nation.enemy_idx;
             // DAT file spillovers
             unsigned inner = nation.inner_idx;
-            lovers.inform(alphaid, nation.continent,
+            lovers.inform(alphaid, portaid, nation.continent,
                 cont.forts_locs.at(inner), cont.ports_locs.at(inner),
                 cont.bay_points.at(inner), cont.air_fields.at(inner));
             // ... guards, gunits:
