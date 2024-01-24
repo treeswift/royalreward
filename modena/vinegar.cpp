@@ -53,7 +53,7 @@ bool soak(Salad& salad, const fs::path& woods, const fs::path& out) {
     auto nut = salad.nutrients.find(kU0);
     if(salad.nutrients.end() == nut) return false;
 
-    fs::path k0 = woods / kU0;
+    fs::path k0 = woods / nut->second;
     fs::path k1 = out.parent_path() / kU1;
     std::string s0 = k0.generic_string();
     std::string s1 = k1.generic_string();
