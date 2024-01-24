@@ -145,7 +145,8 @@ into existence before we were born, as will destroy them at the end of times.
 
     std::string outdir = salad.make(sf, lovers);
     // TODO process success/failure
-    constexpr const char* kGodspeed[] = {
+    constexpr unsigned kQuotes = 7;
+    constexpr const char* kGodspeed[7] = {
         " -- and the rest will become history.",
         ", do what you must, and come what may.",
         ", and come back with your shield or on it!",
@@ -154,8 +155,7 @@ into existence before we were born, as will destroy them at the end of times.
         " and fight not because you hate what is in front of you, but\n because you love what's behind.",
         " -- and either find your way, or make one.",
     };
-    unsigned g_size = sizeof(kGodspeed)/sizeof(kGodspeed[0]);
-    unsigned g_pick = rnd::hwrandom() % g_size;
+    unsigned g_pick = (rnd::hwrandom() & 0xffff) % kQuotes;
     fprintf(stdout, "...done. Now step into your time machine, cast \n\n\tcd %s\n"
                     "\n upon arrival%s\n", outdir.c_str(), kGodspeed[g_pick]);
 
