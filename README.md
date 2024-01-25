@@ -48,7 +48,7 @@ To build, run `meson build && cd build && ninja` on the command line.
 If you are unable to run the game, consult [Modena's help page](MODENA.md) regarding the steps
 needed to clear the cache directory.
 
-### I am on Windows (10/11), shall I wait for a port?
+#### I am on Windows (10/11), shall I wait for a port?
 
 Let's assume you have the original game at `c:\Users\BelovedMe\Downloads\KB`
 and already have [DOSBox](https://www.dosbox.com/download.php?main=1) installed.
@@ -74,7 +74,7 @@ To re-generate a game, enter the Ubuntu terminal again and re-type (or re-paste)
 
 You can pin `Ubuntu` and `DOSBox` to the taskbar (right click -> "Pin") for convenience.
 
-### I am on a Mac
+#### I am on a Mac
 
 There should be `meson`, `git` and `boost` available in Macports.
 
