@@ -312,8 +312,11 @@ void Continent::mark_sq(int x, int y, int seg_id) {
 
 void Continent::thicken(char match, char subst) {
     // first, detect immobile blocks
+    auto nobeach = [&]WITH_XY {
+        return kSandboat || cSands != subst || inlandsq(x, y);
+    };
     shelf.visit([&]WITH_XY {
-        if(map[y][x] == match && is_locked_square(x, y) && is_freesq(x, y)) {
+        if(map[y][x] == match && is_locked_square(x, y) && is_freesq(x, y) && nobeach(x, y)) {
             mark_sq(x, y, alloc_seg());
         }
     });
@@ -321,8 +324,7 @@ void Continent::thicken(char match, char subst) {
         if(is_square(x, y, match) && is_freesq(x, y)) {
             const unsigned seg_id = alloc_seg();
             paint4([&]WITH_XY {
-                return shelf.covers({x, y}) && is_square(x, y, match) && is_ourssq(x, y, seg_id)
-                    && (kSandboat || cSands != subst || inlandsq(x, y)); // TODO extract predicate
+                return shelf.covers({x, y}) && is_square(x, y, match) && is_ourssq(x, y, seg_id) && nobeach(x, y);
             }, [&]WITH_XY {
                 mark_sq(x, y, seg_id);
             })(x, y);

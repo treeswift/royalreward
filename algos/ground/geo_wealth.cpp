@@ -139,7 +139,13 @@ void Continent::specials() {
     bag.append({cMetro, cMetro});
     bag.append(kDwells, cTribe);
     bag.append(kAddMes, cAddMe);
-    bag.resize(kChests, cChest);
+    const unsigned spots = sweetspots.size();
+    if(spots < bag.size()) {
+        *stderr << map;
+        fprintf(stderr, "Too tight conditions for treasures: %lu required, %u spots\n", bag.size(), spots);
+        abort();
+    }
+    bag.resize(std::min(kChests, spots), cChest);
     rnd::shuffle(bag);
 
     placeSpots(bag.size(), sweetspots, [&](unsigned, const Point& p) {
@@ -234,6 +240,8 @@ void Continent::cconnect() {
     for(const Point& p : ports_locs) {
         for(const Shift& dir : dirs) {
             if(!dir.d2()) {
+                at(map, p) = 'X';
+                *stderr << map;
                 fprintf(stderr, "Could not connect city at point %d, %d\n", p.x, p.y);
                 abort();
             }
@@ -247,11 +255,11 @@ void Continent::cconnect() {
             char v = at(map, adj_v);
             bool air_h;
             char wadj;
-            if(cPlain == h || cRafts == h) { // only rafts are in case of cOcean start
+            if(cPlain == h || cRafts == h || cEnemy == h) { // only rafts are in case of cOcean start
                 air_h = true;
                 air = adj_h;
                 wadj = v; // choose water between v and d
-            } else if(cPlain == v || cRafts == v) { // ditto
+            } else if(cPlain == v || cRafts == v || cEnemy == v) { // ditto
                 air_h = false;
                 air = adj_v;
                 wadj = h; // choose water between h and d
