@@ -50,7 +50,8 @@ needed to clear the cache directory.
 
 ### I am on Windows (10/11), shall I wait for a port?
 
-Let's assume you have the original game installed at `c:\Users\BelovedMe\Downloads\KB`.
+Let's assume you have the original game at `c:\Users\BelovedMe\Downloads\KB`
+and already have [DOSBox](https://www.dosbox.com/download.php?main=1) installed.
 
 Install WSL (old way: `cmd.exe` -> "Run as administrator", `wsl --install`; new way: find WSL in the Windows Store).
 It comes with Ubuntu, complete with Git and a C++ compiler. In the Ubuntu terminal, run:
@@ -70,6 +71,8 @@ To re-generate a game, enter the Ubuntu terminal again and re-type (or re-paste)
 ```
 ~/royalreward/build/mod /mnt/c/Users/BelovedMe/Downloads/KB
 ```
+
+You can pin `Ubuntu` and `DOSBox` to the taskbar (right click -> "Pin") for convenience.
 
 ### I am on a Mac
 
