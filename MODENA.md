@@ -22,8 +22,6 @@ neede, but coordinate edits (fortress and port locations) are written at fixed o
 3. There is currently no way to run the same map with newly randomized treasures and roaming armies, as one random number
 generator seed controls both. Also, the nearest rebel lord is always the weakest one; you may consider it a bug or a feature.
 
-4. Narrow straits can look prettier, and will.
-
 ## Attributions
 
 The godspeed quotes belong to Mark Twain and Winston Churchill, as all famous quotes do.
