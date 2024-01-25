@@ -47,7 +47,7 @@ Typically, you'd want to place the capital (king's castle) on the first continen
 the character is going to play without human units (which is fine) and without promotions (which is so-so).
 `map::Geology::kGround` controls how that last patch of yet civilized land will be formed. Assign `1/kOnLand` to
 it to make it a (likely) part of a dominant continent, `0/kOcean` to start on a bridge mid-sea, `kIsland` to produce
-a separate island or kMature to skip its generation completely (usually applies to higher continents). Also,
+a separate island or `kMature` to skip its generation completely (usually applies to higher continents). Also,
 if the character is in need of learning magic, set `kWizard` to something different from `kMature`; in addition to
 the above options, e.g. `kIsland` (same island as the king's castle), you can use `kHermit` to generate a completely
 separate island for the magic school.
