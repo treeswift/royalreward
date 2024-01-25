@@ -65,7 +65,7 @@ build/mod /mnt/c/Users/BelovedMe/Downloads/KB
 
 You only need to do it once. Lines beginning with `sudo` will ask for your just-chosen password.
 
-To re-generate a game, enter the Ubuntu terminal again and to re-type (or re-paste):
+To re-generate a game, enter the Ubuntu terminal again and re-type (or re-paste):
 
 ```
 ~/royalreward/build/mod /mnt/c/Users/BelovedMe/Downloads/KB
