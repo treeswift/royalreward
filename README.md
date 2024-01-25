@@ -58,7 +58,7 @@ It comes with Ubuntu, complete with Git and a C++ compiler. In the Ubuntu termin
 
 ```
 sudo apt-get install meson libboost-filesystem-dev
-git clone https://treeswift/royalreward
+git clone https://github.com/treeswift/royalreward
 cd royalreward
 meson build && cd build && ninja
 build/mod /mnt/c/Users/BelovedMe/Downloads/KB
