@@ -133,7 +133,6 @@ Here is my sugestion --  press Enter to keep it or enter a new one:
     s.name = name;
     s.type = type;
     s.level = level;
-    s.seed = 1u;
 }
 
 } // namespace mod
