@@ -128,19 +128,23 @@ struct TileConv {
             }
             ++idx;
         });
-        if(!msk && cWater == c) {
-            bool odd = (p.y ^ p.x) & 1;
-            switch(chk) {
-                case 0x084: msk = odd ? lt : rb; break;
-                case 0x201: msk = odd ? lb : rt; break;
-            }
-        }
         switch(c) {
             case cSands: return cor_snd.at(msk);
             case cRocks: return cor_mnt.at(msk);
             case cWoods: return cor_for.at(msk);
         }
-        return msk ? cor_sea.at(msk) : (tHRaft-tWater); // correction, not absolute
+        // cWater from here on
+        if(msk) {
+            if(!cor_sea.at(msk)) { // unsupported diagonal tile
+                bool odd = p.x & 1;
+                switch(chk) {
+                    case 0x044: msk = 0xf ^ (odd ? lt : rb); break;
+                    case 0x101: msk = 0xf ^ (odd ? lb : rt); break;
+                }
+            }
+            return cor_sea.at(msk);
+        }
+        return tHRaft - tWater; // correction and therefore subtraction
     }
 
     int tileoff(const ChrMap& map, const Point& p) const {
