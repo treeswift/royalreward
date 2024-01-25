@@ -48,6 +48,33 @@ To build, run `meson build && cd build && ninja` on the command line.
 If you are unable to run the game, consult [Modena's help page](MODENA.md) regarding the steps
 needed to clear the cache directory.
 
+### I am on Windows (10/11), shall I wait for a port?
+
+Let's assume you have the original game installed at `c:\Users\BelovedMe\Downloads\KB`.
+
+Install WSL (old way: `cmd.exe` -> "Run as administrator", `wsl --install`; new way: find WSL in the Windows Store).
+It comes with Ubuntu, complete with Git and a C++ compiler. In the Ubuntu terminal, run:
+
+```
+sudo apt-get install meson libboost-filesystem-dev
+git clone https://treeswift/royalreward
+cd royalreward
+meson build && cd build && ninja
+build/mod /mnt/c/Users/BelovedMe/Downloads/KB
+```
+
+You only need to do it once. Lines beginning with `sudo` will ask for your just-chosen password.
+
+To re-generate a game, enter the Ubuntu terminal again and to re-type (or re-paste):
+
+```
+~/royalreward/build/mod /mnt/c/Users/BelovedMe/Downloads/KB
+```
+
+### I am on a Mac
+
+There should be `meson`, `git` and `boost` available in Macports.
+
 # Legal and administrative
 
 ## Regarding our contributions
