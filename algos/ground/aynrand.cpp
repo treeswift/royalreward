@@ -9,29 +9,51 @@ namespace rnd {
 
 constexpr bool kTrivial = false;
 
-std::ranlux24_base engine;
-std::uniform_real_distribution<> distro{0., 1.};
+class Rand {
+    std::ranlux24_base engine;
+    std::uniform_real_distribution<> distro{0., 1.};
+
+public:
+    void seed(unsigned seed) {
+        std::srand(seed);
+        engine.seed(seed);
+    }
+
+    int upto(int upper) {
+        if(upper <= 0) {
+            mum::bummer<std::underflow_error>("rnd::upto(%d)", upper);
+        }
+        return kTrivial ? std::rand() % upper : std::uniform_int_distribution<>(0, upper - 1u)(engine);
+    }
+
+    Real zto1() {
+        return distro(engine);
+    }
+};
 
 std::random_device fresh;
+
+Ayn::Ayn() : rand(std::make_shared<Rand>()) {}
+
+Ayn& Ayn::ein() {
+    static Ayn ayn;
+    return ayn;
+}
 
 unsigned hwrandom() {
     return std::uniform_int_distribution<>(0, UINT32_MAX)(fresh);
 }
 
-void seed(unsigned seed) {
-    std::srand(seed);
-    engine.seed(seed);
+void Ayn::seed(unsigned seed) {
+    rand->seed(seed);
 }
 
-Real zto1() {
-    return distro(engine);
+Real Ayn::zto1() {
+    return rand->zto1();
 }
 
-unsigned upto(int upper) {
-    if(upper <= 0) {
-        mum::bummer<std::underflow_error>("rnd::upto(%d)", upper);
-    }
-    return kTrivial ? std::rand() % upper : std::uniform_int_distribution<>(0, upper - 1u)(engine);
+int Ayn::upto(int upper) {
+    return rand->upto(upper);
 }
 
 }
