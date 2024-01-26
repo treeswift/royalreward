@@ -1,5 +1,8 @@
 #include "aynrand.h"
 
+#include <cstdlib> // legacy std::rand
+#include <random>  // advanced engines
+
 namespace rnd {
 
 constexpr bool kTrivial = false;

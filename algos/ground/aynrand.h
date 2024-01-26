@@ -1,9 +1,6 @@
 #ifndef _ALGOS_GROUND_AYNRAND_H_
 #define _ALGOS_GROUND_AYNRAND_H_
 
-#include <cstdlib> // legacy std::rand
-#include <random>  // advanced engines
-
 #include "precise.h"
 
 namespace rnd {
