@@ -1,6 +1,8 @@
 #ifndef _ALGOS_MISSION_MILITARY_H_
 #define _ALGOS_MISSION_MILITARY_H_
 
+#include "aynrand.h"
+
 #include <vector>
 #include <array>
 
@@ -65,13 +67,19 @@ struct Regiment {
 
 using Army = std::vector<Regiment>;
 
-Regiment Irregular(int continent);
-Army IrregularArmy(int continent, bool standing);
-Army Fort_Garrison(int continent, char lord);
-
 // recruitment stations
 unsigned TribeCount(int continent);
-Regiment Recruiting(int continent);
+
+struct Wild{
+    Wild(rnd::Ayn ayn);
+
+    Regiment Irregular(int continent);
+    Army IrregularArmy(int continent, bool standing);
+    Army Fort_Garrison(int continent, char lord);
+    Regiment Recruiting(int continent);
+
+    rnd::Ayn rnd;
+};
 
 } // namespace mil
 

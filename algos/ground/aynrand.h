@@ -7,17 +7,23 @@
 
 namespace rnd {
 
+unsigned hwrandom(); // use hardware random device to generate a single value
+
 class Rand;
 
-class Ayn {
-public:
-    static Ayn& ein();
+struct Ayn {
+    // shallow copies
+    Ayn(const Ayn& dup) = default;
+    Ayn& operator=(const Ayn& dup) = default;
 
-    Ayn();
-
+    Ayn(unsigned seed = hwrandom());
+    unsigned seed() const;
     void seed(unsigned seed);
+
     int upto(int upper);
     Real zto1();
+
+    inline int inrg(int lower, int upper) { return upto(upper - lower) + lower; }
 
     template<typename C>
     void shuffle(C& c, unsigned preserve = 0u) {
@@ -28,27 +34,25 @@ public:
         }
     }
 
-    inline int inrg(int lower, int upper) { return upto(upper - lower) + lower; }
-
 private:
     std::shared_ptr<Rand> rand;
 };
 
-inline void seed(unsigned seed) { Ayn::ein().seed(seed); }
+Ayn& ein(); // eingleton
 
-inline int upto(int upper) { return Ayn::ein().upto(upper); }
+inline void seed(unsigned seed) { ein().seed(seed); }
 
-inline int inrg(int lower, int upper) { return Ayn::ein().inrg(lower, upper); }
+inline int upto(int upper) { return ein().upto(upper); }
 
-inline Real zto1() { return Ayn::ein().zto1(); }
+inline int inrg(int lower, int upper) { return ein().inrg(lower, upper); }
+
+inline Real zto1() { return ein().zto1(); }
 
 template<typename C>
 void shuffle(C& c, unsigned preserve = 0u) {
-    return Ayn::ein().shuffle<C>(c, preserve);
+    return ein().shuffle<C>(c, preserve);
 }
 
-unsigned hwrandom(); // use hardware random device to generate a single value
-
-}
+} // namespace rnd
 
 #endif

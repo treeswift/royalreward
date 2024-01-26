@@ -19,21 +19,22 @@ bool ispass(char c){ return cSands == c || cPlain == c; }
 
 bool ishard(char c){ return isbarr( c ) || cWater == c; }
 
+bool Continent::placeSpots(unsigned count, const rnk::SweetP& sweetspots, rnk::PlaceP onc, rnk::PrediP canc) {
+    auto itr = sweetspots.crbegin();
+    for(unsigned i = 0; i < count; ) {
+        if(itr == sweetspots.crend()) return false;
+        if(canc(itr->second)) {
+            at(map, itr->second) = onc(i, itr->second);
+            ++i;
+        }
+        ++itr;
+    }
+    return true;
+}
+
 void Continent::specials() {
     using namespace rnk;
     auto sweepSpots = [&](RankFN rating) { return sweetSpots(shelf, rating); };
-    auto placeSpots = [&](unsigned count, const SweetP& sweetspots, PlaceP onc, PrediP canc = [](const Point&){ return true; }) {
-        auto itr = sweetspots.crbegin();
-        for(unsigned i = 0; i < count; ) {
-            if(itr == sweetspots.crend()) return false;
-            if(canc(itr->second)) {
-                at(map, itr->second) = onc(i, itr->second);
-                ++i;
-            }
-            ++itr;
-        }
-        return true;
-    };
 
     auto island = [&]WITH_XY {
         bool l = cWater == map[y][x-1];
@@ -122,7 +123,7 @@ void Continent::specials() {
         return at(nat, p);
     });
 
-    SweetP sweetspots = sweepSpots([&]WITH_XY {
+    sweetspots = sweepSpots([&]WITH_XY {
         if(map[y][x] != cPlain) return 0.f;
         if(kGround != kMature && trail.covers({x, y})) return -1.f;
         char l = map[y][x-1], r = map[y][x+1];
@@ -135,7 +136,7 @@ void Continent::specials() {
         return hidden * nocity * (4.f - echo[y][x] + aridity - access); // weights break ties
     });
 
-    std::string bag;
+    bag.clear();
     bag.append({cGift1, cGift2});
     bag.append({cPaper, cGlass});
     bag.append({cMetro, cMetro});
@@ -143,17 +144,16 @@ void Continent::specials() {
     bag.append(kAddMes, cAddMe);
     const unsigned spots = sweetspots.size();
     if(spots < bag.size()) {
-        *stderr << map;
+        *stderr << map; // FIXME write to injected journal
         mum::bummer<std::underflow_error>("Too tight conditions for treasures: %lu required, %u spots\n", bag.size(), spots);
     }
     bag.resize(std::min(kChests, spots), cChest);
-    rnd::shuffle(bag);
 
     placeSpots(bag.size(), sweetspots, [&](unsigned, const Point& p) {
         wonder_locs.push_back(p);
         return cChest;
     });
-    // now enemies, now do-over
+    // now enemies, then do-over
 
     MapHolder<Real> boredom{0.f};
     EleMap& bore = boredom.map();
@@ -184,7 +184,17 @@ void Continent::specials() {
         enemy_locs.push_back(p);
         return cEnemy;
     });
+    std::sort(enemy_locs.begin(), enemy_locs.end()-1);
+}
 
+void Continent::redistribute(rnd::Ayn rnd)
+{
+    std::string bag = this->bag;
+    rnd.shuffle(bag);
+    // ROADMAP remove both fields from struct Continent
+    // and make Continent::redistribute() return them.
+    addme_locs.clear();
+    tribe_locs.clear();
     placeSpots(bag.size(), sweetspots, [&](unsigned i, const Point& p) {
         char c = bag[i];
         switch(c) {
@@ -193,9 +203,11 @@ void Continent::specials() {
         }
         return c;
     });
-    std::sort(enemy_locs.begin(), enemy_locs.end()-1);
     std::sort(addme_locs.begin(), addme_locs.end()-1);
     std::sort(tribe_locs.begin(), tribe_locs.end()-1);
+
+    // shuffle city names
+    rnd.shuffle(toponymics, kGround != kMature); // MOREINFO keep or drop pinning Hero's Haven?
 }
 
 Real Continent::cityCost(unsigned i) const {
@@ -230,8 +242,6 @@ void Continent::citymize() {
         at(map, p + Shift{0, 1}) = cCRear + 1; // +i
         toponymics.push_back((char) i);
     }
-    // shuffle city names
-    rnd::shuffle(toponymics, kGround != kMature);
 }
 
 void Continent::cconnect() {

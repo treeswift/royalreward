@@ -133,9 +133,11 @@ const UnitDef& Stat(unsigned u) {
     return udefs.at(u);
 }
 
-Regiment Irregular(int continent) {
+Wild::Wild(rnd::Ayn ayn) : rnd(ayn) {}
+
+Regiment Wild::Irregular(int continent) {
     // 8:4:2:1 is a nice ratio but in practice it's more like 27:9:3:1
-    unsigned dice = rnd::upto(40);
+    unsigned dice = rnd.upto(40);
     unsigned o_id = (dice < 27) ? Ord_Main :
                     (dice < 36) ? Ord_Next : 
                     (dice < 39) ? Ord_Rare : Ord_Anomalous;
@@ -149,22 +151,22 @@ Regiment Irregular(int continent) {
                 possibilities.push_back({size, (Unit)u});
             }
         }
-        retval = possibilities.at(rnd::upto(possibilities.size()));
+        retval = possibilities.at(rnd.upto(possibilities.size()));
     } else {
         const auto& census = censa.at(continent);
-        unsigned folk = rnd::upto(3);
+        unsigned folk = rnd.upto(3);
         retval.unit = tiers.at(census.at(o_id)).at(folk);
         retval.count = udefs.at(retval.unit).occ.at(continent);
     }
     // 50% bonus on senior continents (see estimates/inferences above)
     if(continent >= 2) {
-        int dice = rnd::inrg(-1, 5);
+        int dice = rnd.inrg(-1, 5);
         retval.count += std::trunc(0.2f * dice * retval.count);
     }
     return retval;
 }
 
-Army IrregularArmy(int continent, bool standing) {
+Army Wild::IrregularArmy(int continent, bool standing) {
     const unsigned size = (standing ? dat::kArmySlots : dat::kIdiotArmy);
     Army army;
     std::vector<bool> oldtimers;
@@ -179,7 +181,7 @@ Army IrregularArmy(int continent, bool standing) {
     return army;
 }
 
-Army Fort_Garrison(int continent, char lord) {
+Army Wild::Fort_Garrison(int continent, char lord) {
     switch(lord) {
         case dat::kCleansed:
             return {};
@@ -201,8 +203,8 @@ Army Fort_Garrison(int continent, char lord) {
 // Therefore, no surprises, period. Use no LUT (except for the
 // starting tribe population) and a trivial fixed ratio of 2:1.
 
-Regiment Recruiting(int continent) {
-    unsigned bits = rnd::upto(12);
+Regiment Wild::Recruiting(int continent) {
+    unsigned bits = rnd.upto(12);
     unsigned tier = continent + (bits >= 4); // 2/3 probability
     unsigned folk = bits & 0x3;
     Unit unit = tiers.at(tier).at(folk);
@@ -211,7 +213,6 @@ Regiment Recruiting(int continent) {
 
 unsigned TribeCount(int continent) {
     return map::kTribes - censa.at(continent).at(0);
-        // MOREINFO how didn't `dat` see the extra ones?
 }
 
 } // namespace mil

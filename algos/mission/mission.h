@@ -45,7 +45,7 @@ struct Intel {
 
     Intel(const Intel&) = default;
     Intel& operator=(const Intel&) = default;
-    Intel(unsigned cidx, const map::Continent & cont);
+    Intel(unsigned cidx, const map::Continent& cont, mil::Wild& fortune);
 };
 
 struct Mission {
@@ -58,20 +58,24 @@ struct Mission {
     // ROADMAP inject Legends -- either here,
     // or later to keep the ctor lightweight.
     // For now, let Modena care about it.
-    Mission();
+    Mission(rnd::Ayn ayn = {});
 
+    inline unsigned seed() const { return rnd.seed(); }
     inline unsigned continents() const { return world.size(); }
 
-    void chart(const map::Continent& cont, unsigned enemies);
-    void chart(const map::Continent& cont); // default count
+    // the continent map is updated by these calls
+    void chart(map::Continent& cont, unsigned enemies);
+    void chart(map::Continent& cont); // default count
 
+    rnd::Ayn rnd;
     std::vector<Intel> world; // up to kContinents
     std::vector<Nation> geopolitics; // up to kAlphabet
     std::string technologies;
+    mil::Wild fortune;
     map::GoldenKey gk;
 
 private: // ctor-called
-    void allocTech();
+    void allocTech(rnd::Ayn rnd);
     void propose(unsigned fortresses, unsigned enemies);
 };
 

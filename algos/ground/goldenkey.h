@@ -1,6 +1,7 @@
 #ifndef _ALGOS_GROUND_GOLDENKEY_H_
 #define _ALGOS_GROUND_GOLDENKEY_H_
 
+#include "aynrand.h"
 #include "geometry.h"
 #include "geography.h"
 #include "maps.h"
@@ -22,7 +23,7 @@ struct GoldenKey {
     void consider(const Continent& cont);
 
     // selection
-    Burial select() const;
+    Burial select(rnd::Ayn& rnd = rnd::ein()) const;
 
     const Burial& selected() const {
         return spot;

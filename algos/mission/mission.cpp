@@ -104,21 +104,21 @@ Prototype::Prototype(Type t) {
     }
 }
 
-Mission::Mission() {
-    allocTech();
+Mission::Mission(rnd::Ayn ayn) : rnd(ayn), fortune(rnd) {
+    allocTech(rnd);
 }
 
-void Mission::allocTech() {
+void Mission::allocTech(rnd::Ayn rnd) {
     for(unsigned tech = 0; tech < kTechnologies; ++tech) {
         technologies.push_back(tech);
     }
     while(technologies.size() < kAlphabet) {
-        technologies.push_back((char) rnd::upto(kTechnologies));
+        technologies.push_back((char) rnd.upto(kTechnologies));
     }
-    rnd::shuffle(technologies);
+    rnd.shuffle(technologies);
 }
 
-void Mission::chart(const map::Continent& cont) {
+void Mission::chart(map::Continent& cont) {
     chart(cont, loc::LordCount(continents()));
 }
 
@@ -152,7 +152,7 @@ void Mission::propose(unsigned fortresses, unsigned enemies) {
 
 // WISDOM: we extract SaveFile-independent metadata here
 // to prevent lazy or read-time inferences/randomizations.
-Intel::Intel(unsigned cidx, const map::Continent & cont) : lookback(cont) {
+Intel::Intel(unsigned cidx, const map::Continent & cont, mil::Wild& fortune) : lookback(cont) {
     using namespace map;
     // Indices within `valued_locs` are shuffled
     // by `specials()` in geo_wealth.cpp anyway.
@@ -161,7 +161,7 @@ Intel::Intel(unsigned cidx, const map::Continent & cont) : lookback(cont) {
     for(const Point& p : cont.wonder_locs) { // FIXME can be optimized by moving intel collection to `specials()`
         char c = at(cont.map, p);
         switch(c) {
-            case cTribe: recruitment.push_back(mil::Recruiting(cidx));
+            case cTribe: recruitment.push_back(fortune.Recruiting(cidx));
                 break;
             case cGift1: g1 = p;
                 break;
@@ -183,37 +183,40 @@ Intel::Intel(unsigned cidx, const map::Continent & cont) : lookback(cont) {
     }
     for(const Point& p : cont.enemy_locs) {
         (void) p; // can be accessed via lookback.enemy_locs
-        rambling.push_back(mil::IrregularArmy(cidx, false));
+        rambling.push_back(fortune.IrregularArmy(cidx, false));
     }
 }
 
-void Mission::chart(const map::Continent& cont, unsigned enemies) {
+void Mission::chart(map::Continent& cont, unsigned enemies) {
     unsigned fortresses = cont.forts_locs.size();
     unsigned curr_lords = kEnemies - free_lords;
     propose(fortresses, enemies);
 
+    // shuffle treasures
+    cont.redistribute(rnd);
+
     Nation nation = {continents(), curr_lords, 0};
-    world.emplace_back(nation.continent, cont); // item constructor collects intel
+    world.emplace_back(nation.continent, cont, fortune); // item constructor collects intel
         // on roaming armies. We may want refine the division of
         // responsibilities, here, but forts are special anyway,
         // and let's first make it work.
     while(nation.inner_idx < enemies) {
         geopolitics.push_back(nation);
-        world.back().standing.push_back(mil::Fort_Garrison(nation.continent, nation.enemy_idx));
+        world.back().standing.push_back(fortune.Fort_Garrison(nation.continent, nation.enemy_idx));
         ++nation.inner_idx;
         ++nation.enemy_idx;
     }
     nation.enemy_idx = kSquatter;
     while(nation.inner_idx < fortresses) {
         geopolitics.push_back(nation);
-        world.back().standing.push_back(mil::IrregularArmy(nation.continent, true));
+        world.back().standing.push_back(fortune.IrregularArmy(nation.continent, true));
         ++nation.inner_idx;
     }
     gk.consider(cont);
 
     // seal the puzzle
     if(continents() == kContinents) {
-        gk.select();
+        gk.select(rnd);
     }
 }
 

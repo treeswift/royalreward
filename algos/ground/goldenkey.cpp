@@ -57,14 +57,14 @@ void GoldenKey::consider(const Continent& cont) {
     spot.cindex++;
 }
 
-GoldenKey::Burial GoldenKey::select() const {
+GoldenKey::Burial GoldenKey::select(rnd::Ayn& rnd) const {
     if(stats_puts <= stats_rejc) {
         mum::bummer<std::underflow_error>("No unique map locations! %lu=%u?=%u+%u\n",
                                 papermaps.size(), stats_locs, stats_puts, stats_rejc);
     }
     unsigned attemptcount = 32; // more than enough, but given the fallback is brute force iteration, err on the safe side
     while(attemptcount > 0) {
-        unsigned cindex = rnd::upto(spot.cindex);
+        unsigned cindex = rnd.upto(spot.cindex);
         const ChrMap& map = *(maps.at(cindex));
         Point p = shelf.rand();
         std::string hash = look(map, p);
@@ -75,7 +75,7 @@ GoldenKey::Burial GoldenKey::select() const {
         --attemptcount;
     }
     // brewt force
-    unsigned pick = rnd::upto(stats_puts - stats_rejc);
+    unsigned pick = rnd.upto(stats_puts - stats_rejc);
     unsigned item = 0;
     for(auto itr = papermaps.cbegin(); itr != papermaps.cend(); ++itr) {
         if(item == pick) {

@@ -44,6 +44,8 @@ public:
     std::vector<Point> addme_locs, tribe_locs; // refined wonder_locs
     std::vector<Point> bay_points, air_fields;
     std::string toponymics;
+    rnk::SweetP sweetspots;
+    std::string bag;
 
     inline Continent(const Geology& geo = {}) : Geology(geo) {}
 
@@ -133,7 +135,11 @@ public:
 
     // stages: accumulation of wealth, in many ways
 
+    bool placeSpots(unsigned count, const rnk::SweetP& sweetspots, rnk::PlaceP onc,
+                    rnk::PrediP canc = [](const Point&){ return true; });
+
     void specials();
+    void redistribute(rnd::Ayn rnd);
 
     // stages: migration and population exchange, for convenience
 

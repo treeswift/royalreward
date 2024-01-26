@@ -14,7 +14,14 @@ class Rand {
     std::uniform_real_distribution<> distro{0., 1.};
 
 public:
+    unsigned init_seed;
+
+    Rand(unsigned s) {
+        seed(s);
+    }
+
     void seed(unsigned seed) {
+        init_seed = seed;
         std::srand(seed);
         engine.seed(seed);
     }
@@ -33,9 +40,9 @@ public:
 
 std::random_device fresh;
 
-Ayn::Ayn() : rand(std::make_shared<Rand>()) {}
+Ayn::Ayn(unsigned seed) : rand(std::make_shared<Rand>(seed)) {}
 
-Ayn& Ayn::ein() {
+Ayn& ein() {
     static Ayn ayn;
     return ayn;
 }
@@ -43,6 +50,8 @@ Ayn& Ayn::ein() {
 unsigned hwrandom() {
     return std::uniform_int_distribution<>(0, UINT32_MAX)(fresh);
 }
+
+unsigned Ayn::seed() const { return rand->init_seed; }
 
 void Ayn::seed(unsigned seed) {
     rand->seed(seed);
