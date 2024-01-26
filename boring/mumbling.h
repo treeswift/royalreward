@@ -8,7 +8,7 @@
 // I would REALLY like to use formatted output with e.g. stringstream;
 // sadly, https://en.cppreference.com/w/cpp/header/print is C++23 only
 
-namespace hlp {
+namespace mum {
 
 struct scroll {
     int fprintf(const char* fmt, ...);
@@ -20,6 +20,6 @@ struct scroll {
 int format(scroll& log, const char* fmt, ...);
 int vformat(scroll& log, const char* fmt, std::va_list va_list);
 
-} // namespace hlp
+} // namespace mum
 
 #endif

@@ -2,7 +2,7 @@
 
 #include <cstdio>
 
-namespace hlp {
+namespace mum {
 
 // when I told you it would be boring, I meant that
 
@@ -34,4 +34,4 @@ int scroll::vfprintf(const char* fmt, std::va_list args) {
     return std::vsnprintf(&back[0], reserve, fmt, args);
 }
 
-} // namespace hlp
+} // namespace mum
