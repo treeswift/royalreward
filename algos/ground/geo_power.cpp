@@ -110,7 +110,7 @@ void Continent::castleize() {
                 --x;
             }
             if(goodPlaceForCastle(x, y)) {
-                unsigned resistance = 15; // TODO softcode
+                int resistance = 15; // TODO softcode
                 // possibly promote the castle north(view coordinates) [=south(map coordinates)]
                 while(rnd::upto(100) > resistance && goodPointForCastle(map[y+2][x-1]) &&
                     goodPointForCastle(map[y+2][x]) && goodPointForCastle(map[y+2][x+1])) {
