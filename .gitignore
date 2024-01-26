@@ -1,3 +1,6 @@
 algos/ground/gen
 .vscode/
-Nolan.txt
+*.txt
+.vscode/*
+*.bak
+

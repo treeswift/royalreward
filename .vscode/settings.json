@@ -6,5 +6,11 @@
         "atomic": "cpp",
         "chrono": "cpp"
     },
-    "C_Cpp.default.compileCommands": "/home/lxe/Weekend/royalreward/builddir/compile_commands.json"
+    "C_Cpp.default.compileCommands": "/home/lxe/Weekend/royalreward/builddir/compile_commands.json",
+    "[cpp]": {
+        "editor.suggest.insertMode": "insert"
+    },
+    "[c]": {
+        "editor.suggest.insertMode": "insert"
+    }
 }
