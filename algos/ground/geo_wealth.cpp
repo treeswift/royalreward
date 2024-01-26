@@ -1,5 +1,7 @@
 #include "geography.h"
 
+#include "mumbling.h"
+
 #include <algorithm>
 #include <cstdlib>
 
@@ -142,8 +144,7 @@ void Continent::specials() {
     const unsigned spots = sweetspots.size();
     if(spots < bag.size()) {
         *stderr << map;
-        fprintf(stderr, "Too tight conditions for treasures: %lu required, %u spots\n", bag.size(), spots);
-        abort();
+        mum::bummer<std::underflow_error>("Too tight conditions for treasures: %lu required, %u spots\n", bag.size(), spots);
     }
     bag.resize(std::min(kChests, spots), cChest);
     rnd::shuffle(bag);
@@ -210,7 +211,6 @@ Real Continent::cityCost() const {
 }
 
 void Continent::citymize() {
-    // fprintf(stderr, "E Sum(d2)=%f\n", cityCost());
     const unsigned kAtt = kCastles * kCastles;
     for(unsigned a = 0; a < kAtt; ++a) {
         unsigned i = rnd::upto(kCastles);
@@ -224,7 +224,6 @@ void Continent::citymize() {
             }
         }
     }
-    // fprintf(stderr, "X Sum(d2)=%f\n", cityCost());
     for(unsigned i = 0; i < kCastles; ++i) {
         // re-label castles
         const Point& p = forts_locs[i];
@@ -242,8 +241,7 @@ void Continent::cconnect() {
             if(!dir.d2()) {
                 at(map, p) = 'X';
                 *stderr << map;
-                fprintf(stderr, "Could not connect city at point %d, %d\n", p.x, p.y);
-                abort();
+                mum::bummer<std::underflow_error>("Could not connect city at point %d, %d\n", p.x, p.y);
             }
             // point precalculation
             Point adj_d = p + dir;

@@ -1,5 +1,7 @@
 #include "aynrand.h"
 
+#include "mumbling.h"
+
 #include <cstdlib> // legacy std::rand
 #include <random>  // advanced engines
 
@@ -25,8 +27,10 @@ Real zto1() {
     return distro(engine);
 }
 
-unsigned upto(unsigned upper) {
-    if(!upper) { fprintf(stderr, "rnd::upto(0)\n"); abort(); } // TODO abstract abnormal termination
+unsigned upto(int upper) {
+    if(upper <= 0) {
+        mum::bummer<std::underflow_error>("rnd::upto(%d)", upper);
+    }
     return kTrivial ? std::rand() % upper : std::uniform_int_distribution<>(0, upper - 1u)(engine);
 }
 

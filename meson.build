@@ -13,11 +13,11 @@ hlp = static_library('hlp', boring_files,
 subdir('algos/ground')
 gen = static_library('gen', gen_files,
     link_with: [hlp],
-    include_directories: 'algos/ground',
+    include_directories: ['boring', 'algos/ground'],
 )
 
 executable('gen', files('backyard/gen.cpp'),
-    include_directories: 'algos/ground',
+    include_directories: ['boring', 'algos/ground'],
     link_with: [gen],
     install : false)
 
@@ -28,7 +28,7 @@ ci = [
 
 subdir('algos/mission')
 war = static_library('war', war_files,
-    include_directories: ci,
+    include_directories: ['boring'] + ci,
 )
 
 lib = [gen, war]

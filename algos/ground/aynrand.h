@@ -7,7 +7,7 @@ namespace rnd {
 
 void seed(unsigned seed);
 
-unsigned upto(unsigned upper);
+unsigned upto(int upper);
 
 Real zto1();
 

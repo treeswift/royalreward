@@ -1,6 +1,7 @@
 #include "savefile.h"
 #include "mission.h"
 #include "lute_tune.h"
+#include "mumbling.h"
 
 #include <cstring>
 #include <cstdlib>
@@ -261,8 +262,7 @@ void SaveFile::setLevel(unsigned lvl) {
             break;
     // sadly, no way to harden it; we can set d_left to lower but the score multiplier is capped at 4
          default:
-            fprintf(stderr, "Only levels supported are 0 to 3, passed: %u\n", level);
-            abort();
+            mum::bummer<std::out_of_range>("Only levels supported are 0 to 3, passed: %u\n", level);
     }
     level = lvl;
     steps_day = 40;

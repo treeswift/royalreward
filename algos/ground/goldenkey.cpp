@@ -1,5 +1,7 @@
 #include "goldenkey.h"
 
+#include "mumbling.h"
+
 namespace map {
 
 char GoldenKey::convert(char c) {
@@ -57,12 +59,8 @@ void GoldenKey::consider(const Continent& cont) {
 
 GoldenKey::Burial GoldenKey::select() const {
     if(stats_puts <= stats_rejc) {
-        for(const auto& k : papermaps) {
-            fprintf(stderr, "%s [%u]\n", k.first.c_str(), k.second.ucount);
-        }
-        fprintf(stderr, "No unique map locations! %lu=%u?=%u+%u\n", papermaps.size(), stats_locs, stats_puts, stats_rejc);
-        // std::abort();
-        return spot;
+        mum::bummer<std::underflow_error>("No unique map locations! %lu=%u?=%u+%u\n",
+                                papermaps.size(), stats_locs, stats_puts, stats_rejc);
     }
     unsigned attemptcount = 32; // more than enough, but given the fallback is brute force iteration, err on the safe side
     while(attemptcount > 0) {
@@ -85,9 +83,8 @@ GoldenKey::Burial GoldenKey::select() const {
         }
         item += itr->second.unique;
     }
-    fprintf(stderr, "No unique location found! %lu=%u?=%u+%u\n", papermaps.size(), stats_locs, stats_puts, stats_rejc);
-    // std::abort();
-    return spot;
+    mum::bummer<std::underflow_error>("No unique location found! %lu=%u?=%u+%u\n",
+                            papermaps.size(), stats_locs, stats_puts, stats_rejc);
 }
 
 } // namespace map

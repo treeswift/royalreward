@@ -3,6 +3,8 @@
 #include "dat_defs.h"
 #include "legends.h"
 
+#include "mumbling.h"
+
 #include <cstdlib>
 #include <cstdio>
 
@@ -98,8 +100,7 @@ Prototype::Prototype(Type t) {
         break;
 
     default:
-        fprintf(stderr, "No such character class: %d\n", t);
-        abort();
+        mum::bummer<std::out_of_range>("No such character class: %d\n", t);
     }
 }
 
@@ -123,34 +124,28 @@ void Mission::chart(const map::Continent& cont) {
 
 void Mission::propose(unsigned fortresses, unsigned enemies) {
     if(enemies > fortresses) {
-        fprintf(stderr, "Not enough fortresses (%u) to host the enemies (%u).\n",
+        mum::bummer<std::logic_error>("Not enough fortresses (%u) to host the enemies (%u).\n",
             fortresses, enemies);
-        abort();
     }
     if(continents() >= kContinents) {
-        fprintf(stderr, "Four continents already defined.\n");
-        abort();
+        mum::bummer<std::logic_error>("Four continents already defined.\n");
     }
     if(fortresses > free_forts) {
-        fprintf(stderr, "Defining too many forts/ports: %u out of %u.\n",
+        mum::bummer<std::logic_error>("Defining too many forts/ports: %u out of %u.\n",
             fortresses, free_forts);
-        abort();
     }
     if(enemies > free_lords) {
-        fprintf(stderr, "Defining too many enemies: %u out of %u.\n",
+        mum::bummer<std::logic_error>("Defining too many enemies: %u out of %u.\n",
             enemies, free_lords);
-        abort();
     }
     free_forts -= fortresses;
     free_lords -= enemies;
     if(continents() == kContinents - 1) {
         if(free_forts) {
-            fprintf(stderr, "Not all fortresses defined: %u left.\n", free_forts);
-            abort();
+            mum::bummer<std::logic_error>("Not all fortresses defined: %u left.\n", free_forts);
         }
         if(free_lords) {
-            fprintf(stderr, "Not all enemies defined: %u left.\n", free_lords);
-            abort();
+            mum::bummer<std::logic_error>("Not all enemies defined: %u left.\n", free_lords);
         }
     }
 }
@@ -182,9 +177,8 @@ Intel::Intel(unsigned cidx, const map::Continent & cont) : lookback(cont) {
             case cAddMe:
                 break;
             default:
-                fprintf(stderr, "Unexpected object encountered on the map: %c at %d, %d. "
-                        "Human intervention required.\n", c, p.x, p.y);
-                abort();
+                mum::bummer<std::out_of_range>("Unexpected object encountered on the map: %c at %d, %d. "
+                                                "Human intervention required.\n", c, p.x, p.y);
         }
     }
     for(const Point& p : cont.enemy_locs) {
