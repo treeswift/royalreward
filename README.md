@@ -78,6 +78,34 @@ You can pin `Ubuntu` and `DOSBox` to the taskbar (right click -> "Pin") for conv
 
 There should be `meson`, `git` and `boost` available in Macports.
 
+## Status
+
+### 2024-01-26 — update from @treeswift
+
+It's gotten to the point at which it's more rewarding to play it than to tinker with it, and it's
+going to be like that for a while. Also, I have promises to keep and lines to code before I sleep.
+I like the ascetic counterintuitiveness of the new labyrinths; I absolutely love the new Desertia,
+now more of an impact crater than a caldera.
+
+![woodlands](/treeswift/royalreward/mapshots/amazonas.png)![islands](/treeswift/royalreward/mapshots/caribbean.png)![crater](/treeswift/royalreward/mapshots/crater.png)
+
+My next steps towards the long-term goal will most likely involve writing a GUI generator-analyzer
+tool, at the same time trying out a sufficiently permissive-licensed GUI library (I have promising
+candidates) in the process. Following the urban theme introduced by _Modena_ (as well as the Swiss
+theme introduced by "Lenin's Prize"), I am going to call this next tool _Geneva_.
+
+For now,
+* let me know if you have any issues building or using Modena;
+* let me know if you have any issues _playing_ on "modenized" maps;
+* if you get me a 1995 DOS version or a port for another OS (other than Mac OS 9; I have that one),
+odds are Modena will eventually support it, too.
+
+Other than that… Pray for Ukraine and Russia. Pray for Israel and the Middle East. Pray for the United States.
+
+Antony Bulatovich is a saint, and the world is a book.
+
+Dina Talaat is beautiful.
+
 # Legal and administrative
 
 ## Regarding our contributions
