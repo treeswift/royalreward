@@ -83,11 +83,12 @@ There should be `meson`, `git` and `boost` available in Macports.
 ### 2024-01-26 — update from @treeswift
 
 It's gotten to the point at which it's more rewarding to play it than to tinker with it, and it's
-going to be like that for a while. Also, I have promises to keep and lines to code before I sleep.
-I like the ascetic counterintuitiveness of the new labyrinths; I absolutely love the new Desertia,
-now more of an impact crater than a caldera.
+going to be like that for a while. I like the ascetic counterintuitiveness of the new labyrinths;
+I absolutely love the new Desertia, now more of an impact crater than a caldera.
 
 ![woodlands](https://raw.githubusercontent.com/treeswift/royalreward/master/mapshots/amazonas.png)![crater](https://raw.githubusercontent.com/treeswift/royalreward/master/mapshots/crater.png)
+
+Also, I have promises to keep and lines to code before I sleep.
 
 My next steps towards the long-term goal will most likely involve writing a GUI generator-analyzer
 tool, at the same time trying out a sufficiently permissive-licensed GUI library (I have promising
