@@ -87,7 +87,7 @@ going to be like that for a while. Also, I have promises to keep and lines to co
 I like the ascetic counterintuitiveness of the new labyrinths; I absolutely love the new Desertia,
 now more of an impact crater than a caldera.
 
-![woodlands](https://raw.githubusercontent.com/treeswift/royalreward/master/mapshots/amazonas.png)![islands](https://raw.githubusercontent.com/treeswift/royalreward/master/mapshots/caribbean.png)![crater](https://raw.githubusercontent.com/treeswift/royalreward/master/mapshots/crater.png)
+![woodlands](https://raw.githubusercontent.com/treeswift/royalreward/master/mapshots/amazonas.png)![crater](https://raw.githubusercontent.com/treeswift/royalreward/master/mapshots/crater.png)
 
 My next steps towards the long-term goal will most likely involve writing a GUI generator-analyzer
 tool, at the same time trying out a sufficiently permissive-licensed GUI library (I have promising
