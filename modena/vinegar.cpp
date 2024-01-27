@@ -15,7 +15,7 @@ namespace mod {
 namespace bs = boost::system;
 namespace fs = boost::filesystem;
 
-constexpr const char* kCacheDir = "Modena";
+constexpr const char* kCacheDir = "Modena.mod";
 
 #define EXTENSION "\x2e\x45\x58\x45"
 #define TRANSIENT "\x2e\x55\x50\x4b"
