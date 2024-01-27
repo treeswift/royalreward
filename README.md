@@ -80,6 +80,8 @@ There should be `meson`, `git` and `boost` available in Macports.
 
 ## Status
 
+### 2024-01-27 — compatibility update from @treeswift
+
 The following builds of the original title have been confirmed to work unharmed with _Modena_:
 
 |Format|Size|SHA256 (`sha256sum`)|Comment|
@@ -88,8 +90,8 @@ The following builds of the original title have been confirmed to work unharmed 
 |`KB.EXE`|113184|0fbf467782619bb85334d45e5b1cbd5ab01172da1cfb53737ad5b8ee5e4814e8|1990, uncompressed|
 
 Support of other builds depends on [this issue](https://github.com/treeswift/royalreward/issues/18).
-The logic to be implemented there is fairly trivial, so we've been kicking the can down the road for a while,
-but finally we have a few old floppies to test it against, so let the ~~war~~ work begin. Stay tuned.
+The logic to be implemented there is fairly trivial, so I've been kicking the can down the road for a while,
+but finally I have a few old floppies to test it against. Thus, let the ~~war~~ work begin. Stay tuned.
 
 ### 2024-01-26 — update from @treeswift
 
