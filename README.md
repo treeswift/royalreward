@@ -86,6 +86,8 @@ It's gotten to the point at which it's more rewarding to play it than to tinker 
 going to be like that for a while. I like the ascetic counterintuitiveness of the new labyrinths;
 I absolutely love the new Desertia, now more of an impact crater than a caldera.
 
+Pictures taken at `seed=3` (zoomed in to avoid copyrighted imagery):
+
 ![woodlands, seed=3](https://raw.githubusercontent.com/treeswift/royalreward/master/mapshots/amazonas.png)![impact crater, seed=3](https://raw.githubusercontent.com/treeswift/royalreward/master/mapshots/crater.png)
 
 Also, I have promises to keep and lines to code before I sleep.
