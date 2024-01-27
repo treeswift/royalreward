@@ -144,8 +144,16 @@ struct TileConv {
                 }
             }
             return cor_sea.at(msk);
+        } else {
+            // even narrower straits. consider immediate neighbors.
+            switch(chk & 0xaa) {
+                case 0x22: return cor_sea.at(lt);
+                case 0xa0: return cor_sea.at(rt);
+                case 0x0a: return cor_sea.at(lb);
+                case 0x88: return cor_sea.at(rb);
+            }
+            return tHRaft - tWater; // correction and therefore subtraction
         }
-        return tHRaft - tWater; // correction and therefore subtraction
     }
 
     int tileoff(const ChrMap& map, const Point& p) const {
@@ -420,7 +428,6 @@ void SaveFile::setMap(unsigned idx, const map::Continent& cont) {
             byte& c = out[y][x];
             if(!c) c = tVRaft;
         });
-        // out[5][13] = tCGate; // dbg
     }
 }
 
