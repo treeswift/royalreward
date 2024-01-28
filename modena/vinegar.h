@@ -2,6 +2,7 @@
 #define _MODENA_VINEGAR_H_
 
 #include "savefile.h"
+#include "lute_tune.h"
 
 #include <string>
 #include <map>
@@ -22,7 +23,7 @@ std::map<std::string, std::string> nutrients;
 
 Salad(const std::string& dir);
 void list_nutrient(const std::string& fname);
-std::string make(const dat::SaveFile& sf, const dat::Leftovers& lovers);
+std::string make(const dat::SaveFile& sf, const mod::Leftovers& lovers);
 };
 
 std::string unpack(const std::string& packed);

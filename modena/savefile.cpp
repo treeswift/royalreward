@@ -269,37 +269,8 @@ void SaveFile::setLevel(unsigned lvl) {
     days_week = 5;
 }
 
-void Leftovers::inform(unsigned alphaid, unsigned portaid, unsigned c_index, const Point& fort, const Point& port, const Point& bay, const Point& air) {
-    conts[alphaid] = c_index;
-    ptofs[portaid] = alphaid;
-#define LEFTOVER_ITERATE(from, to, dim, comp) \
-        to[dim][alphaid] = from.comp;
-#define LEFTOVER_SCATTER(from, to) \
-        LEFTOVER_ITERATE(from, to, X, x) \
-        LEFTOVER_ITERATE(from, to, Y, y)
-    LEFTOVER_SCATTER(fort, forts);
-    LEFTOVER_SCATTER(port, ports);
-    LEFTOVER_SCATTER(bay, p_bay);
-    LEFTOVER_SCATTER(air, p_air);
-#undef LEFTOVER_SCATTER
-#undef LEFTOVER_ITERATE
-}
-
-void Leftovers::writeDirect(std::ostream& os) const {
-    constexpr int kGuide = Dimensions * kAlphabet;
-    constexpr int kPolit = Dimensions * (kAlphabet + 1); // king
-    os.seekp(0x1867d); os.write(conts, kAlphabet); // "to fort"
-    os.seekp(0x165cb); os.write(conts, kAlphabet); // second copy
-    os.seekp(0x183f8); os.write(forts[0], kPolit);
-
-    os.seekp(0x18481); os.write(ports[0], kGuide);
-    os.seekp(0x1852d); os.write(p_bay[0], kGuide);
-    os.seekp(0x18649); os.write(p_air[0], kGuide);
-    os.seekp(0x18697); os.write(ptofs, kAlphabet);
-}
-
-void SaveFile::setMission(const Mission& mission, Leftovers& lovers) {
-    loc::old_tune(lovers);
+void SaveFile::setMission(const Mission& mission, mod::Leftovers& lovers) {
+    mod::old_tune(lovers);
     char ftops[kAlphabet];
     for(unsigned c=0; c<kAlphabet;++c) {
         ftops[lovers.ptofs[c]]=c; // invert permutation
@@ -315,8 +286,8 @@ void SaveFile::setMission(const Mission& mission, Leftovers& lovers) {
             const Point& p = cont.rgate;
             // assert cCGate == at(cont.map, cont.rgate)
             // imply: lovers.conts[kAlphabet] = c_index;
-            lovers.forts[Leftovers::X][kAlphabet] = p.x;
-            lovers.forts[Leftovers::Y][kAlphabet] = p.y;
+            lovers.forts[mod::Leftovers::X][kAlphabet] = p.x;
+            lovers.forts[mod::Leftovers::Y][kAlphabet] = p.y;
         }
 
         // copy over armies, treasures etc.

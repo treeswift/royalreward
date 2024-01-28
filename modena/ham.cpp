@@ -5,7 +5,7 @@
 
 #include <fstream>
 
-dat::Leftovers lovers;
+mod::Leftovers lovers;
 mod::Slicer slicer;
 
 std::map<std::ptrdiff_t, std::string> legend;
@@ -33,9 +33,9 @@ int main(int argc, char** argv) {
     const char* fname = argv[1];
     std::string output = mod::unpack(fname);
 
-    loc::old_tune(lovers);
-    constexpr unsigned X = dat::Leftovers::X;
-    constexpr unsigned Y = dat::Leftovers::Y;
+    mod::old_tune(lovers);
+    constexpr unsigned X = mod::Leftovers::X;
+    constexpr unsigned Y = mod::Leftovers::Y;
 
     SEARCH(lovers.conts);
     SEARCH(lovers.forts[X]);

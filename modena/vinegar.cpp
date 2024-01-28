@@ -110,7 +110,7 @@ Salad::Salad(const std::string& dir) : path(dir), nutrients{} {
     }
 }
 
-std::string  Salad::make(const dat::SaveFile& sf, const dat::Leftovers& lovers) {
+std::string  Salad::make(const dat::SaveFile& sf, const mod::Leftovers& lovers) {
     // extract name correction and search
     std::string fname{sf.name, sf.name+8};
     while(' ' == fname.back()) fname.pop_back();

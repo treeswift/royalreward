@@ -118,7 +118,7 @@ into existence before we were born, as will destroy them at the end of times.
     sf.setHeroType(type);
     sf.setHeroLoc({11, 5});
     sf.setLevel(s.level);
-    dat::Leftovers lovers;
+    mod::Leftovers lovers;
     sf.setMission(mission, lovers);
 
     dat::UIOptions uio;

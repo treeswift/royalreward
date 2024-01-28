@@ -7,6 +7,7 @@
 #include "mission.h"
 #include "geography.h"
 #include "goldenkey.h"
+#include "lute_tune.h"
 
 #include <cstdint>
 #include <iostream>
@@ -65,25 +66,6 @@ struct Aspects {
 };
 
 /**
- * Mission data that cannot be saved to SaveFile.
- */
-struct Leftovers {
-    enum Coordinate{X, Y, Dimensions};
-    using Point = map::Point;
-
-    char conts[kAlphabet];
-    char forts[Dimensions][kAlphabet + 1];
-    char ports[Dimensions][kAlphabet];
-    char p_bay[Dimensions][kAlphabet];
-    char p_air[Dimensions][kAlphabet];
-    char ptofs[kAlphabet];
-
-    void inform(unsigned alphaid, unsigned portaid, unsigned c_index, const Point& fort, const Point& port, const Point& bay, const Point& air);
-    void writeDirect(std::ostream& os) const;
-    void writeWisely(std::iostream& os) const { writeDirect(os); }; // only for now
-};
-
-/**
  * The binary layout of the following data structure is based on a verbal description from ModdingWiki:
  *  https://moddingwiki.shikadi.net/wiki/King%27s_Bounty_Saved_game_Format
  *  https://moddingwiki.shikadi.net/wiki/King%27s_Bounty_Map_Format
@@ -111,7 +93,7 @@ void setHeroType(Prototype::Type t);
 void setHeroLoc(const map::Point& p, unsigned continent = 0); // default/historical:=11,5
 void setUIOptions(const UIOptions& opt = UIOptions());
 void setLevel(unsigned level); // also initializes timers
-void setMission(const Mission& mission, Leftovers& lovers);
+void setMission(const Mission& mission, mod::Leftovers& lovers);
 
 // service methods called by setMission
 void setMap(unsigned idx, const map::Continent& cont);

@@ -7,6 +7,7 @@
 
 namespace {
     using namespace map;
+    using namespace loc;
 }
 
 // Lute tunes, or LUT tuning.
@@ -100,7 +101,27 @@ const char* fort_letters(unsigned c_index) {
     return land.ctofs.at(c_index).c_str();
 }
 
-void old_tune(dat::Leftovers& lovers) {
+} // namespace loc
+
+namespace mod {
+
+void Leftovers::inform(unsigned alphaid, unsigned portaid, unsigned c_index, const Point& fort, const Point& port, const Point& bay, const Point& air) {
+    conts[alphaid] = c_index;
+    ptofs[portaid] = alphaid;
+#define LEFTOVER_ITERATE(from, to, dim, comp) \
+        to[dim][alphaid] = from.comp;
+#define LEFTOVER_SCATTER(from, to) \
+        LEFTOVER_ITERATE(from, to, X, x) \
+        LEFTOVER_ITERATE(from, to, Y, y)
+    LEFTOVER_SCATTER(fort, forts);
+    LEFTOVER_SCATTER(port, ports);
+    LEFTOVER_SCATTER(bay, p_bay);
+    LEFTOVER_SCATTER(air, p_air);
+#undef LEFTOVER_SCATTER
+#undef LEFTOVER_ITERATE
+}
+
+void old_tune(mod::Leftovers& lovers) {
     constexpr unsigned kA = dat::kAlphabet;
     for(unsigned fid = 0; fid <= kA; ++fid) { // sic; we want to include the D.C.
         // fort proper
@@ -123,4 +144,17 @@ void old_tune(dat::Leftovers& lovers) {
     }
 }
 
-} // namespace loc
+void Leftovers::writeDirect(std::ostream& os) const {
+    constexpr int kGuide = Dimensions * dat::kAlphabet;
+    constexpr int kPolit = Dimensions * (dat::kAlphabet + 1); // king
+    os.seekp(0x1867d); os.write(conts, dat::kAlphabet); // "to fort"
+    os.seekp(0x165cb); os.write(conts, dat::kAlphabet); // second copy
+    os.seekp(0x183f8); os.write(forts[0], kPolit);
+
+    os.seekp(0x18481); os.write(ports[0], kGuide);
+    os.seekp(0x1852d); os.write(p_bay[0], kGuide);
+    os.seekp(0x18649); os.write(p_air[0], kGuide);
+    os.seekp(0x18697); os.write(ptofs, dat::kAlphabet);
+}
+
+} // namespace mod
