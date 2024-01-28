@@ -3,12 +3,21 @@
 
 #include "geometry.h"
 #include "dat_defs.h"
+#include "hamming.h"
 
 #include <iostream>
 
 // Lute tunes, or LUT tuning.
 
+namespace loc {
+
+const char* fort_letters(unsigned c_index);
+
+} // namespace loc
+
 namespace mod {
+
+using Margins = std::map<std::ptrdiff_t, std::string>;
 
 /**
  * Mission data that cannot be saved to SaveFile.
@@ -24,6 +33,7 @@ struct Leftovers {
     char p_air[Dimensions][dat::kAlphabet];
     char ptofs[dat::kAlphabet];
 
+    void analyze(std::istream& is, Slicer& slicer, Margins& margins) const;
     void inform(unsigned alphaid, unsigned portaid, unsigned c_index, const Point& fort, const Point& port, const Point& bay, const Point& air);
     void writeDirect(std::iostream& os) const;
 };
@@ -31,12 +41,6 @@ struct Leftovers {
 void old_tune(Leftovers& lovers); // FIXME invert control and move to Leftovers
 
 } // namespace mod
-
-namespace loc {
-
-const char* fort_letters(unsigned c_index);
-
-} // namespace loc
 
 #endif
 

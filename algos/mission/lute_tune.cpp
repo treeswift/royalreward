@@ -144,6 +144,44 @@ void old_tune(mod::Leftovers& lovers) {
     }
 }
 
+namespace {
+template<std::size_t kSz>
+ptrdiff_t search(mod::Slicer& slicer, const mod::Leftovers& lovers, const char (&ref)[kSz]) {
+    std::ptrdiff_t fieldoff = reinterpret_cast<const char*>(&ref)
+                            - reinterpret_cast<const char*>(&lovers);
+    mod::Hamming::Cfg cfg((mod::Token) fieldoff, std::string{ref, ref + kSz});
+    slicer.search(cfg);
+    return fieldoff;
+}
+} // anonymous
+
+void Leftovers::analyze(std::istream& is, mod::Slicer& slicer, Margins& legend) const {
+#define SEARCH(field) \
+    { \
+        legend[search(slicer, *this, this->field)] = #field; \
+    }
+
+    constexpr unsigned X = mod::Leftovers::X;
+    constexpr unsigned Y = mod::Leftovers::Y;
+
+    SEARCH(conts);
+    SEARCH(forts[X]);
+    SEARCH(forts[Y]);
+    SEARCH(ports[X]);
+    SEARCH(ports[Y]);
+    SEARCH(p_bay[X]);
+    SEARCH(p_bay[Y]);
+    SEARCH(p_air[X]);
+    SEARCH(p_air[Y]);
+    SEARCH(ptofs);
+
+    while(!is.eof()) {
+        auto p = is.tellg();
+        char c = is.get();
+        slicer.suggest(p, c);
+    }
+}
+
 void Leftovers::writeDirect(std::iostream& os) const {
     constexpr int kGuide = Dimensions * dat::kAlphabet;
     constexpr int kPolit = Dimensions * (dat::kAlphabet + 1); // king
