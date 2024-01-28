@@ -3,10 +3,15 @@
 #include "dat_defs.h"
 
 #include <cstring>
+#include <vector>
+
+namespace {
+    using namespace map;
+}
 
 // Lute tunes, or LUT tuning.
 
-namespace dat {
+namespace loc {
 
 constexpr const char conts[dat::kAlphabet] = {0, 1, 0, 1, 2, 0, 2, 2, 0, 2, 0, 2, 1,
                                               0, 0, 0, 1, 0, 3, 2, 3, 0, 0, 2, 1, 3};
@@ -25,10 +30,68 @@ const char* letters[4] = {
     "SUZ",
 };
 
-                                       //"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-const char mapping[dat::kAlphabet + 1] = "DOHQMWSVRTNFJPLCIAGEBUYKXZ";
+                                                // "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+constexpr const char mapping[dat::kAlphabet + 1] = "DOHQMWSVRTNFJPLCIAGEBUYKXZ";
 
-Land::Land() : forts{} {
+struct Port {
+    Port(const Point& base, const Shift& to_bay, const Shift& to_air)
+        : loc(base), bay(base + to_bay), air(base + to_air) {} 
+
+    Point loc;
+    Point bay;
+    Point air;
+};
+
+struct Fort {
+    Fort(const Point& f, const Port& p, char c = -1)
+        : loc(f), port(p), cont(c) {}
+
+    char cont;
+    Point loc;
+    Port port;
+};
+
+struct Land {
+    Land();
+
+    std::vector<Fort> forts;
+};
+
+const Shift nn = { 0, 1}, ss = { 0,-1};
+const Shift ww = {-1, 0}, ee = { 1, 0};
+const Shift nw = nn + ww, ne = nn + ee;
+const Shift sw = ss + ww, se = ss + ee;
+
+Land::Land() : forts
+    {
+        {{30,	27},	{{29,	12},	{ 1,	-1},	{ 0,	-1}}},
+        {{47,	6}, 	{{58,	4},		{ 1,	 1},	{-1,	 0}}},
+        {{36,	49},	{{38,	50},	{ 1,	 0},	{ 0,	-1}}},
+        {{30,	18},	{{34,	23},	{ 0,	-1},	{ 1,	 0}}},
+        {{11,	46},	{{5,	50},	{-1,	-1},	{ 0,	-1}}},
+        {{22,	49},	{{17,	44},	{ 1,	 0},	{-1,	 0}}},
+        {{41,	36},	{{13,	60},	{ 1,	 0},	{-1,	 0}}},
+        {{43,	27},	{{9,	39},	{ 1,	-1},	{ 0,	-1}}},
+        {{11,	30},	{{14,	27},	{ 0,	-1},	{-1,	 0}}},
+        {{41,	34},	{{58,	33},	{ 0,	-1},	{-1,	 0}}},
+        {{57,	58},	{{51,	28},	{ 0,	-1},	{ 0,	 1}}},
+        {{52,	57},	{{57,	57},	{ 1,	-1},	{ 0,	-1}}},
+        {{25,	39},	{{3,	37},	{-1,	-1},	{ 0,	-1}}},
+        {{22,	24},	{{17,	21},	{ 1,	 0},	{-1,	 0}}},
+        {{6, 	57},	{{41,	58},	{ 0,	-1},	{-1,	 0}}},
+        {{58,	23},	{{50,	13},	{-1,	-1},	{ 0,	 1}}},
+        {{42,	56},	{{58,	60},	{ 1,	 0},	{ 0,	-1}}},
+        {{54,	6}, 	{{57,	5},		{-1,	-1},	{-1,	 0}}},
+        {{17,	39},	{{9,	60},	{ 1,	 0},	{ 0,	-1}}},
+        {{9, 	18},	{{13,	7},		{-1,	 0},	{ 0,	 1}}},
+        {{41,	12},	{{7,	3},		{ 1,	 0},	{-1,	 0}}},
+        {{40,	5}, 	{{12,	3},		{-1,	 0},	{ 0,	 1}}},
+        {{40,	41},	{{46,	35},	{ 1,	 1},	{ 1,	 0}}},
+        {{45,	6}, 	{{49,	8},		{ 1,	 1},	{ 1,	 0}}},
+        {{19,	19},	{{3,	8},		{-1,	 1},	{ 0,	 1}}},
+        {{46,	43},	{{58,	48},	{ 1,	 0},	{ 0,	-1}}},
+    }
+{
     ;
 };
 
@@ -45,4 +108,4 @@ void old_tune(dat::Leftovers& lovers) {
     std::memcpy(lovers.ptofs, ptofs, kA);
 }
 
-} // namespace dat
+} // namespace loc

@@ -299,7 +299,7 @@ void Leftovers::writeDirect(std::ostream& os) const {
 }
 
 void SaveFile::setMission(const Mission& mission, Leftovers& lovers) {
-    dat::old_tune(lovers);
+    loc::old_tune(lovers);
     char ftops[kAlphabet];
     for(unsigned c=0; c<kAlphabet;++c) {
         ftops[lovers.ptofs[c]]=c; // invert permutation
@@ -323,7 +323,7 @@ void SaveFile::setMission(const Mission& mission, Leftovers& lovers) {
         // standing armies are spread over by continents, we may want to change that
         for(const auto& standing : intel.standing) {
             const Nation& nation = mission.geopolitics.at(natid);
-            char alphaid =  fort_letters(c_index)[cont.toponymics.at(cursors[c_index]++)] - 'A';
+            char alphaid = loc::fort_letters(c_index)[cont.toponymics.at(cursors[c_index]++)] - 'A';
             char portaid = ftops[alphaid];
             lords[alphaid] = nation.enemy_idx;
             // DAT file spillovers
