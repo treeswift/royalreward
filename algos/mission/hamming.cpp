@@ -57,6 +57,14 @@ void Slicer::suggest(char c) {
     ++next_pos;
 }
 
+void Slicer::analyze(std::istream& is) {
+    while(!is.eof()) {
+        auto p = is.tellg();
+        char c = is.get();
+        suggest(p, c);
+    }
+}
+
 void Slicer::post(const Hamming& hamming) {
     unsigned size = hamming.config.needle.size();
     float confidence = 1.f * (size - hamming.difference) / size;

@@ -33,7 +33,7 @@ struct Leftovers {
     char p_air[Dimensions][dat::kAlphabet];
     char ptofs[dat::kAlphabet];
 
-    void analyze(std::istream& is, Slicer& slicer, Margins& margins) const;
+    void sharpen(Slicer& slicer, Margins& margins) const;
     void inform(unsigned alphaid, unsigned portaid, unsigned c_index, const Point& fort, const Point& port, const Point& bay, const Point& air);
     void writeDirect(std::iostream& os) const;
 };

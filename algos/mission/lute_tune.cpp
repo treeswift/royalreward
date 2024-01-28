@@ -155,7 +155,7 @@ ptrdiff_t search(mod::Slicer& slicer, const mod::Leftovers& lovers, const char (
 }
 } // anonymous
 
-void Leftovers::analyze(std::istream& is, mod::Slicer& slicer, Margins& legend) const {
+void Leftovers::sharpen(mod::Slicer& slicer, Margins& legend) const {
 #define SEARCH(field) \
     { \
         legend[search(slicer, *this, this->field)] = #field; \
@@ -174,12 +174,6 @@ void Leftovers::analyze(std::istream& is, mod::Slicer& slicer, Margins& legend) 
     SEARCH(p_air[X]);
     SEARCH(p_air[Y]);
     SEARCH(ptofs);
-
-    while(!is.eof()) {
-        auto p = is.tellg();
-        char c = is.get();
-        slicer.suggest(p, c);
-    }
 }
 
 void Leftovers::writeDirect(std::iostream& os) const {

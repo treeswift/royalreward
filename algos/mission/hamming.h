@@ -2,12 +2,13 @@
 #define _MODENA_HAMMING_H_
 
 #include <string>
+#include <istream>
 #include <list>
 #include <map>
 
 namespace mod {
 
-using Token = unsigned;
+using Token = std::uintptr_t;
 
 struct Hamming {
     struct Cfg {
@@ -46,6 +47,8 @@ struct Slicer {
 
     void suggest(std::streamoff pos, char c); // handtracking
     void suggest(char c);
+
+    void analyze(std::istream& is);
 
     std::list<Hamming::Cfg> watch;
     std::streamoff next_pos;

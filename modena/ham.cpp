@@ -5,7 +5,7 @@
 
 #include <fstream>
 
-std::map<std::ptrdiff_t, std::string> legend;
+mod::Margins legend;
 
 int main(int argc, char** argv) {
     if(argc < 2) {
@@ -23,7 +23,8 @@ int main(int argc, char** argv) {
     mod::old_tune(lovers);
 
     mod::Slicer slicer;
-    lovers.analyze(hog, slicer, legend);
+    lovers.sharpen(slicer, legend);
+    slicer.analyze(hog);
 
     for(const auto& result : slicer.found_log) {
         std::string label = legend.at(result.first); // token -> label
