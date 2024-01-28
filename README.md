@@ -80,18 +80,27 @@ There should be `meson`, `git` and `boost` available in Macports.
 
 ## Status
 
-### 2024-01-27 — compatibility update from @treeswift
-
-The following builds of the original title have been confirmed to work unharmed with _Modena_:
+The following builds of the original title have been confirmed to work with _Modena_ unharmed by _Modena_:
 
 |Format|Size|SHA256 (`sha256sum`)|Comment|
 |---|---|---|---|
-|`KB.EXE`|79839|c9fcc7e9bc61fc73703e0b3f26b618db7e648b820485af9e4b9f2696dd6a40c0|1990, compressed|
-|`KB.EXE`|113184|0fbf467782619bb85334d45e5b1cbd5ab01172da1cfb53737ad5b8ee5e4814e8|1990, uncompressed|
+|`KB.EXE`|79839|c9fcc7e9bc61fc73703e0b3f26b618db7e648b820485af9e4b9f2696dd6a40c0|compressed|
+|`KB.EXE`|113184|0fbf467782619bb85334d45e5b1cbd5ab01172da1cfb53737ad5b8ee5e4814e8|uncompressed|
+|`KB.EXE`|79863|0b63149cf14d6f7e352f2c2ad538d8210d470b1a36d612287419e22f142a6f12|compressed|
+|`KB.EXE`|113216|c75f54062e450d2212fd56fd555666421d2e83177690881092854ec7db8955e2|uncompressed|
+|`KB.EXE`|113718|5e72b627c1e3645fd68e87a74882b3ee4630fc9b01e1d8f598abcc7c60a35d1e|uncompressed|
 
-Support of other builds depends on [this issue](https://github.com/treeswift/royalreward/issues/18).
-The logic to be implemented there is fairly trivial, so I've been kicking the can down the road for a while,
-but finally I have a few old floppies to test it against. Thus, let the ~~war~~ work begin. Stay tuned.
+Since the geography of the game is known to be pretty stable, this list is very unlikely to be exhaustive.
+
+### 2024-01-28 — update from @treeswift
+
+Fortress and port lookup tables are now searched for (with a 12.5% permutation tolerance)
+rather than replaced at fixed offsets. This should satisfy most of the builds in the wild,
+unless they are packed by archivers not yet known to us.
+
+`build/ham <path-to-binary>` is a new tool for finding lookup table offsets in an executable file.
+
+P.S. If you obtained your copy of the game on a floppy image, mounting one on Linux is `mount -o loop <disk.img> <empty-folder>`.
 
 ### 2024-01-26 — update from @treeswift
 
