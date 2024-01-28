@@ -259,7 +259,7 @@ int main(int argc, char **argv) {
 	read_EXEPACK(&packed, &packData[0]);	/* move bytes to struct */
 
 	if (packed.signature != 0x4252) {
-		fprintf(stderr, "Not an EXEPACK file / corrupt EXEPACK header. %08x", packed.signature);
+		fprintf(stderr, "Not an EXEPACK file / corrupt EXEPACK header. %08x\n", packed.signature);
 		fclose(f);
 		return -1;	
 	}

@@ -65,6 +65,7 @@ bool soak(const fs::path& k0, const fs::path& woods, const fs::path& out) {
     args[2] = const_cast<char*>(s2.c_str());
     if(upack::main(3, args)) { // already unpack'ed
         bs::error_code errc;
+        fs::remove(out);
         fs::copy_file(k1, out, errc);
         return !errc;
     }
@@ -84,12 +85,7 @@ std::string unpack(const std::string& packed) {
     fs::path k0{packed};
     fs::path k2 = woods / kU2;
     std::string output = k2.generic_string();
-    if(!soak(k0, woods, k2)) {
-        mum::bummer<std::runtime_error>("Cannot unpack %s as %s",
-            packed.c_str(),
-            output.c_str());
-    }
-    return output;
+    return soak(k0, woods, k2) ? output : packed;
 }
 
 Salad::Salad(const std::string& dir) : path(dir), nutrients{} {
