@@ -25,6 +25,13 @@ const char* letters[4] = {
     "SUZ",
 };
 
+                                       //"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+const char mapping[dat::kAlphabet + 1] = "DOHQMWSVRTNFJPLCIAGEBUYKXZ";
+
+Land::Land() : forts{} {
+    ;
+};
+
 const char* fort_letters(unsigned c_index) {
     return letters[c_index];
 }
