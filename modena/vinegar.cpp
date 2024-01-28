@@ -159,7 +159,6 @@ std::string  Salad::make(const dat::SaveFile& sf, const mod::Leftovers& lovers) 
                         return reinterpret_cast<const char*>(patch.selector);
                 }
             });
-            lovers.writeDirect(fix);
             fix.flush();
         }
     }

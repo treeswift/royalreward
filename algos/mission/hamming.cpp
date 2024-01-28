@@ -71,6 +71,8 @@ void Slicer::analyze(std::istream& is) {
         char c = is.get();
         suggest(p, c);
     }
+    is.seekg(0u);
+    is.clear(); // zero the eof() bit
 }
 
 void Slicer::post(const Hamming& hamming) {
@@ -87,7 +89,6 @@ void Slicer::stuff(std::ostream& os, std::function<const char*(const Patch&)> rp
         const Result& r = occ.second;
         os.seekp(r.pos);
         os.write(rpl(p), p.size);
-        fprintf(stdout, "Patching %ld bytes at 0x%lx\n", p.size, r.pos);
     }
     // that's really it.
 }
