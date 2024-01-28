@@ -149,7 +149,7 @@ template<std::size_t kSz>
 ptrdiff_t search(mod::Slicer& slicer, const mod::Leftovers& lovers, const char (&ref)[kSz]) {
     std::ptrdiff_t fieldoff = reinterpret_cast<const char*>(&ref)
                             - reinterpret_cast<const char*>(&lovers);
-    mod::Hamming::Cfg cfg((mod::Token) fieldoff, std::string{ref, ref + kSz});
+    mod::Hamming::Cfg cfg({Origin::LUT, fieldoff, kSz}, std::string{ref, ref + kSz});
     slicer.search(cfg);
     return fieldoff;
 }

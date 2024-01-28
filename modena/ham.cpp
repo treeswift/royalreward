@@ -27,7 +27,7 @@ int main(int argc, char** argv) {
     slicer.analyze(hog);
 
     for(const auto& result : slicer.found_log) {
-        std::string label = legend.at(result.first); // token -> label
+        std::string label = legend.at(result.first.selector); // token.fieldoff -> label
         label = label.substr(label.find(".") + 1); // remove "struct name."
         fprintf(stdout, "%s: 0x%lx # (hamming=%u confidence=%.2f%%)\n",
             label.c_str(), result.second.pos,

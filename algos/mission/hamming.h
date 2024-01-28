@@ -1,8 +1,9 @@
 #ifndef _MODENA_HAMMING_H_
 #define _MODENA_HAMMING_H_
 
-#include <string>
+#include <functional>
 #include <istream>
+#include <string>
 #include <list>
 #include <map>
 
@@ -10,12 +11,26 @@ namespace mod {
 
 using Token = std::uintptr_t;
 
+enum class Origin {
+    STR,
+    LUT,
+};
+
+struct Patch {
+    Origin origin;
+    Token selector;
+    std::size_t size;
+
+    bool operator==(const Patch& other) const;
+    bool operator<(const Patch& other) const;
+};
+
 struct Hamming {
     struct Cfg {
-        Cfg(Token origin, const std::string& search, unsigned maxdiff);
-        Cfg(Token origin, const std::string& search, float maxd_ratio = 0.125f);
+        Cfg(Patch origin, const std::string& search, unsigned maxdiff);
+        Cfg(Patch origin, const std::string& search, float maxd_ratio = 0.125f);
 
-        Token token; // backreference to needle origin
+        Patch token; // backreference to needle origin
         std::string needle;
         unsigned threshold;
     };
@@ -49,11 +64,12 @@ struct Slicer {
     void suggest(char c);
 
     void analyze(std::istream& is);
+    void stuff(std::ostream& os, std::function<const char*(const Patch&)> rpl) const;
 
     std::list<Hamming::Cfg> watch;
     std::streamoff next_pos;
     std::list<Hamming> knives;
-    std::multimap<Token, Result> found_log;
+    std::multimap<Patch, Result> found_log;
     std::multimap<std::string, Result> found_lit;
 
 private:

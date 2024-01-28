@@ -144,6 +144,21 @@ std::string  Salad::make(const dat::SaveFile& sf, const mod::Leftovers& lovers) 
         // TODO ... &= !errc.value()
         if(kproper) {
             std::fstream fix{dst.generic_string(), kAmend};
+            Leftovers ref;
+            old_tune(ref);
+            Slicer slicer;
+            Margins legend; // TOOD make optional
+            ref.sharpen(slicer, legend);
+            slicer.analyze(fix);
+            slicer.stuff(fix, [&](const Patch& patch) {
+                switch(patch.origin) {
+                    case Origin::LUT:
+                        return reinterpret_cast<const char*>(&lovers) + patch.selector;
+                    case Origin::STR:
+                    default:
+                        return reinterpret_cast<const char*>(patch.selector);
+                }
+            });
             lovers.writeDirect(fix);
             fix.flush();
         }
