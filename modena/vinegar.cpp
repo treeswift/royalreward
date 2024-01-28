@@ -1,4 +1,5 @@
 #include "vinegar.h"
+#include "mumbling.h"
 
 #include <boost/filesystem.hpp>
 
@@ -49,12 +50,8 @@ void Salad::list_nutrient(const std::string& case_preserved) {
     }
 }
 
-bool soak(Salad& salad, const fs::path& woods, const fs::path& out) {
-    auto nut = salad.nutrients.find(kU0);
-    if(salad.nutrients.end() == nut) return false;
-
-    fs::path k0 = woods / nut->second;
-    fs::path k1 = out.parent_path() / kU1;
+bool soak(const fs::path& k0, const fs::path& woods, const fs::path& out) {
+    fs::path k1 = woods / kU1;
     std::string s0 = k0.generic_string();
     std::string s1 = k1.generic_string();
     char* args[3] = {nullptr, const_cast<char*>(s0.c_str()), const_cast<char*>(s1.c_str())};
@@ -72,6 +69,27 @@ bool soak(Salad& salad, const fs::path& woods, const fs::path& out) {
         return !errc;
     }
     return true;
+}
+
+bool soak(Salad& salad, const fs::path& woods, const fs::path& out) {
+    auto nut = salad.nutrients.find(kU0);
+    if(salad.nutrients.end() == nut) return false;
+
+    fs::path k0 = woods / nut->second;
+    return soak(k0, woods, out);
+}
+
+std::string unpack(const std::string& packed) {
+    fs::path woods = fs::temp_directory_path();
+    fs::path k0{packed};
+    fs::path k2 = woods / kU2;
+    std::string output = k2.generic_string();
+    if(!soak(k0, woods, k2)) {
+        mum::bummer<std::runtime_error>("Cannot unpack %s as %s",
+            packed.c_str(),
+            output.c_str());
+    }
+    return output;
 }
 
 Salad::Salad(const std::string& dir) : path(dir), nutrients{} {

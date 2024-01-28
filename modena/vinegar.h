@@ -25,6 +25,8 @@ void list_nutrient(const std::string& fname);
 std::string make(const dat::SaveFile& sf, const dat::Leftovers& lovers);
 };
 
+std::string unpack(const std::string& packed);
+
 } // namespace mod
 
 #endif

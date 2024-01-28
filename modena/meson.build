@@ -1,9 +1,18 @@
+old_files = files(
+    'vinegar.cpp',
+    'hamming.cpp',
+)
+
 dat_files = files(
     'dat.cpp',
 )
 
 mod_files = files(
-    'vinegar.cpp',
     'console.cpp',
     'mod.cpp',
 )
+
+ham_files = files(
+    'ham.cpp',
+)
+

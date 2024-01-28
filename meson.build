@@ -31,13 +31,13 @@ war = static_library('war', war_files,
     include_directories: ['boring'] + ci,
 )
 
-lib = [gen, war]
+dep = dependency('boost', modules: ['system', 'filesystem'])
 
 subdir('modena')
-executable('dat', dat_files,
-    include_directories: ci,
-    link_with: lib,
-    install : true)
+
+old = static_library('old', old_files,
+    include_directories: ['boring'] + ci,
+)
 
 incorporated = 'modena/3rdparty'
 subdir(incorporated)
@@ -50,8 +50,21 @@ upk = [
     static_library('unexecomp', unexecomp, cpp_args: verbosity),
 ]
 
+lib = [gen, war, old]
+
+executable('dat', dat_files,
+    include_directories: ci,
+    link_with: lib,
+    install : true)
+
+executable('ham', ham_files,
+    include_directories: ci,
+    link_with: lib + upk,
+    dependencies: dep,
+    install : true)
+
 executable('mod', mod_files,
     include_directories: ci + [incorporated],
     link_with: lib + upk,
-    dependencies: dependency('boost', modules: ['system', 'filesystem']),
+    dependencies: dep,
     install : true)
