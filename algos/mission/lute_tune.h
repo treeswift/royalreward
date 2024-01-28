@@ -25,8 +25,7 @@ struct Leftovers {
     char ptofs[dat::kAlphabet];
 
     void inform(unsigned alphaid, unsigned portaid, unsigned c_index, const Point& fort, const Point& port, const Point& bay, const Point& air);
-    void writeDirect(std::ostream& os) const;
-    void writeWisely(std::iostream& os) const { writeDirect(os); }; // only for now
+    void writeDirect(std::iostream& os) const;
 };
 
 void old_tune(Leftovers& lovers); // FIXME invert control and move to Leftovers

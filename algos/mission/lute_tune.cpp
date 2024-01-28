@@ -144,7 +144,7 @@ void old_tune(mod::Leftovers& lovers) {
     }
 }
 
-void Leftovers::writeDirect(std::ostream& os) const {
+void Leftovers::writeDirect(std::iostream& os) const {
     constexpr int kGuide = Dimensions * dat::kAlphabet;
     constexpr int kPolit = Dimensions * (dat::kAlphabet + 1); // king
     os.seekp(0x1867d); os.write(conts, dat::kAlphabet); // "to fort"
