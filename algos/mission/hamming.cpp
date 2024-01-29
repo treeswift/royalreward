@@ -89,6 +89,7 @@ void Slicer::stuff(std::ostream& os, std::function<const char*(const Patch&)> rp
         const Result& r = occ.second;
         os.seekp(r.pos);
         os.write(rpl(p), p.size);
+        os.clear(); // ditto
     }
     // that's really it.
 }
