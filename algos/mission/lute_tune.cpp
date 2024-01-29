@@ -19,7 +19,7 @@ constexpr const char ptofs[dat::kAlphabet + 1] = "DOHQMWSVRTNFJPLCIAGEBUYKXZ";
 
 struct Port {
     Port(const Point& base, const Shift& to_bay, const Shift& to_air)
-        : loc(base), bay(base + to_bay), air(base + to_air) {} 
+        : loc(base), bay(base + to_bay), air(base + to_air) {}
 
     Port() = default; // no-port
 
@@ -46,8 +46,8 @@ const struct Land {
 
 const Shift nn = { 0, 1}, ss = { 0,-1};
 const Shift ww = {-1, 0}, ee = { 1, 0};
-const Shift nw = nn + ww, ne = nn + ee;
-const Shift sw = ss + ww, se = ss + ee;
+const Shift nw = {-1, 1}, ne = { 1, 1};
+const Shift sw = {-1,-1}, se = { 1,-1};
 
 Land::Land() : forts
     {
