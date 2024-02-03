@@ -294,7 +294,7 @@ void SaveFile::setMission(const Mission& mission, mod::Leftovers& lovers) {
         // standing armies are spread over by continents, we may want to change that
         for(const auto& standing : intel.standing) {
             const Nation& nation = mission.geopolitics.at(natid);
-            char alphaid = loc::fort_letters(c_index)[cont.toponymics.at(cursors[c_index]++)] - 'A';
+            char alphaid = mission.fort_letter(c_index, cursors[c_index]++) - 'A';
             char portaid = ftops[alphaid];
             lords[alphaid] = nation.enemy_idx;
             // DAT file spillovers

@@ -97,7 +97,7 @@ Land::Land() : forts
     }
 }
 
-const char* fort_letters(unsigned c_index) {
+const char* orig_fort_letters(unsigned c_index) {
     return land.ctofs.at(c_index).c_str();
 }
 

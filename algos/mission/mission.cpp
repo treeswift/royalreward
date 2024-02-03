@@ -2,6 +2,7 @@
 
 #include "dat_defs.h"
 #include "legends.h"
+#include "lute_tune.h"
 
 #include "mumbling.h"
 
@@ -216,8 +217,30 @@ void Mission::chart(map::Continent& cont, unsigned enemies) {
 
     // seal the puzzle
     if(continents() == kContinents) {
+        allocLetters();
         gk.select(rnd);
     }
+}
+
+void Mission::allocLetters() {
+    std::string soup;
+    for(unsigned c_index = 0; c_index < kContinents; ++c_index) {
+        soup.append(loc::orig_fort_letters(c_index));
+    }
+    unsigned alloc_d = 0;
+    for(unsigned c_index = 0; c_index < kContinents; ++c_index) {
+        unsigned forts = world.at(c_index).lookback.kCastles;
+        letters.at(c_index) = soup.substr(alloc_d, forts);
+        alloc_d += forts;
+    }
+}
+
+const char* Mission::fort_letters(unsigned c_index) const {
+    return letters.at(c_index).c_str();
+}
+
+char Mission::fort_letter(unsigned c_index, unsigned f_index) const {
+    return fort_letters(c_index)[world.at(c_index).lookback.toponymics.at(f_index)];
 }
 
 } // namespace dat

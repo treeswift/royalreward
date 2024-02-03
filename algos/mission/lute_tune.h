@@ -11,7 +11,7 @@
 
 namespace loc {
 
-const char* fort_letters(unsigned c_index);
+const char* orig_fort_letters(unsigned c_index);
 
 } // namespace loc
 
@@ -35,6 +35,8 @@ struct Leftovers {
 
     void sharpen(Slicer& slicer, Margins& margins) const;
     void inform(unsigned alphaid, unsigned portaid, unsigned c_index, const Point& fort, const Point& port, const Point& bay, const Point& air);
+
+private: // historical importance
     void writeDirect(std::iostream& os) const;
 };
 

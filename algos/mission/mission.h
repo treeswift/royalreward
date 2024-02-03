@@ -7,6 +7,7 @@
 #include "military.h"
 
 #include <vector>
+#include <string>
 
 namespace dat {
 
@@ -67,16 +68,21 @@ struct Mission {
     void chart(map::Continent& cont, unsigned enemies);
     void chart(map::Continent& cont); // default count
 
+    const char* fort_letters(unsigned c_index) const;
+    char fort_letter(unsigned c_index, unsigned f_index) const;
+
     rnd::Ayn rnd;
     std::vector<Intel> world; // up to kContinents
     std::vector<Nation> geopolitics; // up to kAlphabet
     std::string technologies;
     mil::Wild fortune;
+    std::array<std::string, kContinents> letters;
     map::GoldenKey gk;
 
-private: // ctor-called
+private:
     void allocTech(rnd::Ayn rnd);
     void propose(unsigned fortresses, unsigned enemies);
+    void allocLetters();
 };
 
 struct Prototype {
