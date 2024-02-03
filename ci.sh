@@ -5,7 +5,8 @@ if meson build && cd build && ninja
 then
 	# time ./gen > "$AG"
 	# time ./mod
+	time ./ham ~/Downloads/KB/kb_mod/kb.exe
 	time ./mod ~/Downloads/KB/kb_mod -1
-	./dat ~/Downloads/KB/kb_mod/Nolan/Nolan.DAT > ../Nolan.txt
+	# ./dat ~/Downloads/KB/kb_mod/Nolan/Nolan.DAT > ../Nolan.txt
 	cp ~/Downloads/KB/kb_mod/Nolan/Nolan.DAT ~/Downloads/KB/kb_mod/
 fi
