@@ -110,7 +110,7 @@ Salad::Salad(const std::string& dir) : path(dir), nutrients{} {
     }
 }
 
-std::string  Salad::make(const dat::SaveFile& sf, const mod::Leftovers& lovers) {
+std::string  Salad::make(const dat::SaveFile& sf, const mod::Leftovers& lovers, bool mkbat) {
     // extract name correction and search
     std::string fname{sf.name, sf.name+8};
     while(' ' == fname.back()) fname.pop_back();
@@ -162,6 +162,16 @@ std::string  Salad::make(const dat::SaveFile& sf, const mod::Leftovers& lovers) 
             fix.flush();
         }
     }
+
+    if(mkbat) {
+        fs::path bat_name = woods / "mb.bat";
+        std::fstream bat_file(bat_name.generic_string(), kWrite);
+        bat_file << "cd " << fname << std::endl;
+        bat_file << "kb";
+        bat_file.flush();
+        bat_file.close();
+    }
+
     return fname;
 }
 

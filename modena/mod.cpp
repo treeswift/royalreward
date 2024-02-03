@@ -144,7 +144,7 @@ into existence before we were born, as will destroy them at the end of times.
         sf.storm = true;
     }
 
-    std::string outdir = salad.make(sf, lovers);
+    std::string outdir = salad.make(sf, lovers, true);
     // TODO process success/failure
     constexpr unsigned kQuotes = 7;
     constexpr const char* kGodspeed[7] = {

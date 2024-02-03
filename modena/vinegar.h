@@ -23,7 +23,7 @@ std::map<std::string, std::string> nutrients;
 
 Salad(const std::string& dir);
 void list_nutrient(const std::string& fname);
-std::string make(const dat::SaveFile& sf, const mod::Leftovers& lovers);
+std::string make(const dat::SaveFile& sf, const mod::Leftovers& lovers, bool mkbat = false);
 };
 
 std::string unpack(const std::string& packed);
