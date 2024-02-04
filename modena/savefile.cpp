@@ -153,6 +153,9 @@ struct TileConv {
     }
 
     char tribe(mil::Landscape l) const {
+        (void) tHills;
+        (void) tTreeH;
+        (void) tGrave;
         return tWagon + l; // and castle unit dwellings become signposts
     }
 
