@@ -92,6 +92,14 @@ The following builds of the original title have been confirmed to work with _Mod
 
 Since the geography of the game is known to be pretty stable, this list is very unlikely to be exhaustive.
 
+### 2024-02-04 — update from @treeswift
+
+The third occurrence of the fortress-to-continent LUT (that our manual search had initially overlooked)
+seems to govern the fugitive-to-continent correspondence ("Last Seen") on the contract screen.
+We can now, therefore, relocate fortresses between continents without breaking it.
+
+What next? Probably an INI file to rule the map/mission generator.
+
 ### 2024-01-28 — update from @treeswift
 
 Fortress and port lookup tables are now searched for (with a 12.5% permutation tolerance)
@@ -100,7 +108,9 @@ unless they are packed by archivers not yet known to us.
 
 `build/ham <path-to-binary>` is a new tool for finding lookup table offsets in an executable file.
 
-P.S. If you obtained your copy of the game on a floppy image, mounting one on Linux is `mount -o loop <disk.img> <empty-folder>`.
+P.S. If you obtained your copy of the game on a floppy image, mounting one on Linux is
+
+```mount -o loop <disk.img> <empty-folder>```
 
 ### 2024-01-26 — update from @treeswift
 
