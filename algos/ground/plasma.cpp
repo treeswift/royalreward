@@ -1,6 +1,8 @@
-#include <vector>
-#include <random>
 #include "map_defs.h"
+
+#include <algorithm>
+#include <random>
+#include <vector>
 
 void genPlasma() {
     // DoD: a 64x64 map output file + text output

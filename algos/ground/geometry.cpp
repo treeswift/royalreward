@@ -1,6 +1,7 @@
 #include "geometry.h"
 #include "aynrand.h"
 
+#include <algorithm>
 #include <cmath>
 
 namespace map {

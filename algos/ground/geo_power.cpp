@@ -1,5 +1,7 @@
 #include "geography.h"
 
+#include <algorithm>
+
 namespace map {
 
 bool goodPointForCastle(char c) {
