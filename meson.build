@@ -24,6 +24,7 @@ executable('gen', files('backyard/gen.cpp'),
 ci = [
     'algos/ground',
     'algos/mission',
+    get_option('prefix') + '/include',
 ]
 
 subdir('algos/mission')

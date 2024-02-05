@@ -76,7 +76,17 @@ You can pin `Ubuntu` and `DOSBox` to the taskbar (right click -> "Pin") for conv
 
 #### I am on a Mac
 
-There should be `meson`, `git` and `boost` available in Macports.
+`meson`, `git` and `boost` are available from Macports. Particularly, `port install boost` (may need `sudo`).
+
+Since Macports use `/opt/local` as system prefix (as opposed to `/usr/local`, the Meson default on POSIX systems),
+set `prefix` to `/opt/local` in `meson build`:
+
+```
+meson build -Dprefix=/opt/local
+```
+
+The rest is exactly as above. (Note that Modena for Mac only supports the DOS\[Box\] version of the game so far,
+NOT the SheepShaver Mac OS 9 version that comes on floppy disk images.)
 
 ## Status
 
