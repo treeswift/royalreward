@@ -132,7 +132,8 @@ into existence before we were born, as will destroy them at the end of times.
         memset(sf.cgate, 1, dat::kAlphabet);
         memset(sf.tgate, 1, dat::kAlphabet);
         sf.stasis = 500;
-        sf.avail[0] = sf.avail[1] = sf.avail[2] = true;
+        sf.money = 255000;
+        sf.avail[0] = sf.avail[1] = sf.avail[2] = sf.avail[3] = true;
         sf.visib[0] = sf.visib[1] = sf.visib[2] = sf.visib[3] = true;
         sf.units[0] = mil::Salamanders;
         sf.troops[0] = 20; // just in case
