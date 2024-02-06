@@ -24,7 +24,7 @@ void Continent::delugify(unsigned eat_shores) {
 
 void Continent::irrigate(int x, int y) {
     bool_xy issand = [&]WITH_XY {
-        return x < kMapDim && y < kMapDim && (cSands == map[y][x]);
+        return visib.covers({x, y}) && (cSands == map[y][x]);
     };
     with_xy flipxy = [&]WITH_XY {
         map[y][x] = cWater;
@@ -264,7 +264,9 @@ bool Continent::inlandsq WITH_XY const {
     return (map[y-1][x] != c && map[y-1][x+1] != c)
         && (map[y+2][x] != c && map[y+2][x+1] != c)
         && (map[y][x-1] != c && map[y+1][x-1] != c)
-        && (map[y][x+2] != c && map[y+1][x+2] != c);
+        && (map[y][x+2] != c && map[y+1][x+2] != c)
+        && (map[y-1][x-1] != c && map[y-1][x+2] != c)
+        && (map[y+2][x-1] != c && map[y+2][x+2] != c);
 }
 
 bool Continent::is_locked_square WITH_XY const {
