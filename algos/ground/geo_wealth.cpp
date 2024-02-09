@@ -54,7 +54,7 @@ void Continent::specials() {
 
     SweetP sign_spots = sweepSpots([&]WITH_XY {
         Point p{x, y};
-        if(at(map, p) == cPlain && !impasse(x, y)) {
+        if(at(map, p) == cPlain && (kMature == kGround || !trail.covers(p)) && !impasse(x, y)) {
             unsigned hard = 0;
             screen(p).visit([&]WITH_XY {
                 char c = map[y][x];
