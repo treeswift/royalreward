@@ -12,5 +12,6 @@
     },
     "[c]": {
         "editor.suggest.insertMode": "insert"
-    }
+    },
+    "C_Cpp.default.configurationProvider": "mesonbuild.mesonbuild"
 }
