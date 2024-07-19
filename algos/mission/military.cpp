@@ -48,8 +48,8 @@ std::vector<Tier> tiers = {
     {Housewives, Fairies, Scarecrows, Goblins}, // 0
     {Minesfolk, Woodsfolk, Canines,  Lunatics}, // 1
     {Cannibals, Firstborn, Bedouins, Specters}, // 2
-    {Titans, Batmen, Kobolds, Huns}, // 3
-    {Jinns, Wizards, Illuminati, Salamanders}, // 4
+    {Kobolds, Huns, Wizards, Batmen}, // 3
+    {Jinns, Titans, Illuminati, Salamanders}, // 4
 };
 
 // struct Census {
@@ -203,10 +203,18 @@ Army Wild::Fort_Garrison(int continent, char lord) {
 // Therefore, no surprises, period. Use no LUT (except for the
 // starting tribe population) and a trivial fixed ratio of 2:1.
 
+// In Polynesia, replace Batmen with Specters;
+// compensate by replacing Wizards with Batmen in Desertia.
+
 Regiment Wild::Recruiting(int continent) {
     unsigned bits = rnd.upto(12);
-    unsigned tier = continent + (bits >= 4); // 2/3 probability
+    unsigned promote = (bits >= 4); // 2/3 probability
     unsigned folk = bits & 0x3;
+    // TODO extract as a scenario-specific adjustment block:
+    if(folk == 3 && (1 <= continent && continent <= 2)) {
+        promote = 0; // Batmen in Polynesia, Specters in Redwoodia
+    }
+    unsigned tier = continent + promote;
     Unit unit = tiers.at(tier).at(folk);
     return {Stat(unit).tp, unit};
 }
