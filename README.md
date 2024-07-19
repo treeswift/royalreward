@@ -102,6 +102,14 @@ The following builds of the original title have been confirmed to work with _Mod
 
 Since the geography of the game is known to be pretty stable, this list is very unlikely to be exhaustive.
 
+### 2024-07-19 — update from @treeswift
+
+A minor yet necessary tweak: no flying-and-mountable units are now available from stationary tribes
+until Desertia, and no undead-and-self-populating units are available from such tribes until Polynesia.
+The tweak is coupled to the unit description matrix — in other words, it would still make sense in other
+scenarios, but only as long as the special capabilities of units stay the same (cosmetic changes aside).
+The gameplay on modified maps is now similar to the original experience to a very high degree.
+
 ### 2024-02-04 — update from @treeswift
 
 The third occurrence of the fortress-to-continent LUT (that our manual search had initially overlooked)
