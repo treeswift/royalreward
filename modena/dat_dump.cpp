@@ -171,6 +171,11 @@ void SaveFile::dump(IO& out, const Aspects& oo) const {
             }
         }
     }
+
+    if(oo.sections & Aspects::Find) {
+        HPRINTF("\n## GoldenKey");
+        TPRINTF("x=%d c=%d x,y=%d,%d", key_ciph, key_cont ^ key_ciph, keyl.x ^ key_ciph, keyl.y ^ key_ciph);
+    }
 }
 
 IO& operator<<(IO& out, const SaveFile& sf) {

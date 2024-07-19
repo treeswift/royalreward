@@ -53,6 +53,7 @@ struct Aspects {
         Gift = 1 << 5,
         Stat = 1 << 6,
         Cell = 1 << 7,
+        Find = 1 << 31,
         Everything = ~0
     };
     unsigned sections = Everything;
