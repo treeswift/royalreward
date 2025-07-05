@@ -3,4 +3,5 @@ algos/ground/gen
 *.txt
 .vscode/*
 *.bak
+build
 
